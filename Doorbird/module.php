@@ -252,8 +252,8 @@ class Doorbird extends IPSModule
 				{
 					SetValue(".$doorid.", date('d.m.y H:i:s'));
 				}
-	}	
-	
+			}	
+	}
 	
 	//Profile zuweisen und Geräte anlegen
 	public function SetupNotification()

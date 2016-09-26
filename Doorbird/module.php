@@ -14,7 +14,6 @@ class Doorbird extends IPSModule
 		
         $this->RegisterPropertyString("Host", "");
 		$this->RegisterPropertyString("IPSIP", "");
-		$this->RegisterPropertyBoolean("Open", false);
 		$this->RegisterPropertyString("User", "");
 		$this->RegisterPropertyString("Password", "");
 		$this->RegisterPropertyInteger("HistoryCategoryID", 0);

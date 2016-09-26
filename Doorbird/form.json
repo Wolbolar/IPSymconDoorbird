@@ -1,0 +1,82 @@
+{
+    "elements":
+            [
+                {
+                    "name": "Open",
+                    "type": "CheckBox",
+                    "caption": "Open"
+                },
+				{ "type": "Label", "label": "IP adress Doorbird" },
+                {
+                    "name": "Host",
+                    "type": "ValidationTextBox",
+                    "caption": "IP adress"
+                },
+				{ "type": "Label", "label": "Doorbird login credentials" },
+                {
+                    "name": "User",
+                    "type": "ValidationTextBox",
+                    "caption": "User"
+                },
+				{
+                    "name": "Password",
+                    "type": "ValidationTextBox",
+                    "caption": "Password"
+                },
+				{ "type": "Label", "label": "Category for doorbird history pictures" },
+				{ "type": "SelectCategory", "name": "HistoryCategoryID", "caption": "Doorbird history category" },
+				{ "type": "Label", "label": "Category for doorbird snapshot pictures" },
+				{ "type": "SelectCategory", "name": "SnapshotCategoryID", "caption": "Doorbird snapshot category" },
+				{ "type": "NumberSpinner", "name": "picturelimit", "caption": "picture limit for snapshots", "digits": 0},
+				{ "type": "Label", "label": "IP adress IP-Symcon Server" },
+                {
+                    "name": "IPSIP",
+                    "type": "ValidationTextBox",
+                    "caption": "IP adress IP-Symcon"
+                }
+            ],
+	"actions":
+			[
+				{ "type": "Button", "label": "Setup Notification", "onClick": "Doorbird_SetupNotification($id);" },
+				{ "type": "Button", "label": "open door", "onClick": "Doorbird_Open($id);" },
+				{ "type": "Button", "label": "toggle light", "onClick": "Doorbird_Light($id);" }
+			],		
+    "status":
+            [
+                {
+                    "code": 101,
+                    "icon": "inactive",
+                    "caption": "Creating instance."
+                },
+				{
+                    "code": 102,
+                    "icon": "active",
+                    "caption": "Doorbird accessible."
+                },
+                {
+                    "code": 104,
+                    "icon": "inactive",
+                    "caption": "interface closed."
+                },
+                {
+                    "code": 202,
+                    "icon": "error",
+                    "caption": "Doorbird IP adress must not empty."
+                },
+				{
+                    "code": 203,
+                    "icon": "error",
+                    "caption": "No valid IP adress."
+                },
+                {
+                    "code": 204,
+                    "icon": "error",
+                    "caption": "connection to Doorbird lost."
+                },
+				{
+                    "code": 205,
+                    "icon": "error",
+                    "caption": "field must not be empty."
+                }
+            ]
+}

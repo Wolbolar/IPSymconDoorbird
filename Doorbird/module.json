@@ -1,0 +1,11 @@
+{
+    "id": "{D489FA0B-765D-451E-8B21-C6B61ECAC00E}",
+    "name": "Doorbird",
+    "type": 3,
+    "vendor": "Doorbird",
+    "aliases": ["Doorbird"],
+    "parentRequirements": ["{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"],
+    "childRequirements": ["{D6B6701F-34D0-4E8A-8689-EB07EC38B487}"],
+    "implemented": ["{018EF6B5-AB94-40C6-AA53-46943E824ACF}"],
+    "prefix": "Doorbird"
+}

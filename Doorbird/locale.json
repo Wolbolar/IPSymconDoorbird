@@ -1,0 +1,30 @@
+{
+	"translations": {
+		"de": { 
+			"Open": "Aktiv",
+			"IP adress": "IP Adresse",
+			"User": "Benutzername",
+			"Password": "Passwort",
+			"Category for doorbird history pictures": "Kategorie für Doorbird Historie Bilder",
+			"Doorbird history category": "Doorbird Kategorie Historie",
+			"Category for doorbird snapshot pictures": "Kategorie für Doorbird Snapshot Bilder bei Bewegungsauslösung",
+			"Doorbird snapshot category": "Doorbird Snapshot Kategorie",
+			"picture limit for snapshots": "Anzahl der zu speichernden Bilder",
+			"IP adress IP-Symcon Server": "IP Adresse des IP-Symcon Servers",
+			"IP adress IP-Symcon": "IP Adresse IP-Symcon",
+			"open door": "Tür öffnen",
+			"toggle light": "Licht schalten",
+			"Setup Notification": "Benachrichtung einrichten",
+			"Creating instance.": "Die Instanz wird erstellt.",
+			"Doorbird accessible.": "Doorbird ereichbar.",
+			"interface closed.": "Interface geschlossen.",
+			"Doorbird IP adress must not empty.": "Doorbird IP Adresse darf nicht leer sein.",
+			"No valid IP adress.": "Keine gültige IP Adresse.",
+			"connection to Doorbird lost.": "Verbindung zur Doorbird verloren.",
+			"field must not be empty.": "Felder dürfen nicht leer sein.",
+			"select category for import.": "Kategorie zum Import auswählen."
+			
+			
+		}
+	}
+}

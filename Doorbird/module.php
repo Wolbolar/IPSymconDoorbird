@@ -80,6 +80,7 @@ class Doorbird extends IPSModule
 		elseif ($doorbirduser !== "" && $password !== "" && (!filter_var($ip, FILTER_VALIDATE_IP) === false) && (!filter_var($ipips, FILTER_VALIDATE_IP) === false))
 			{
 				$DoorbirdVideoHTML = '<iframe src="http://'.$ip.'/bha-api/video.cgi?http-user='.$doorbirduser.'&http-password='.$password.'" border="0" frameborder="0" style= "width: 100%; height: 500px;"/></iframe>';
+				$DoorbirdVideoHTML = strval($DoorbirdVideoHTML);
 				SetValueString($this->GetIDForIdent('DoorbirdSnapshotCounter'), $DoorbirdVideoHTML);	
 				
 				//prüfen ob Script existent

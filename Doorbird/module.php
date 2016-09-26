@@ -242,15 +242,15 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 			$data = $_GET["doorbirdevent"];
 			if ($data == "doorbell")
 				{
-					SetValue(".$ringid.", date('d.m.y H:i:s'));
+					SetValue($ringid, date('d.m.y H:i:s'));
 				}
 			elseif ($data == "motionsensor")
 				{
-					SetValue(".$movementid.", date('d.m.y H:i:s'));
+					SetValue($movementid, date('d.m.y H:i:s'));
 				}
 			elseif ($data == "dooropen")
 				{
-					SetValue(".$doorid.", date('d.m.y H:i:s'));
+					SetValue($doorid, date('d.m.y H:i:s'));
 				}
 			}	
 	}
@@ -318,7 +318,7 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 
 			//testen ob im Medienpool existent
 			$catid = $this->ReadPropertyInteger('HistoryCategoryID');
-			$MediaID = @IPS_GetMediaIDByName("Doorbird Historie $i", $catid);
+			$MediaID = @IPS_GetMediaIDByName("Doorbird Historie ".$i, $catid);
 			if ($MediaID === false)
 				{
 					$MediaID = IPS_CreateMedia(1);                  // Image im MedienPool anlegen
@@ -364,7 +364,7 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 		file_put_contents($doorbirdimage, $Content);
 
 		//testen ob im Medienpool existent
-		$MediaID = @IPS_GetMediaIDByName("Doorbird Snapshot $currentsnapshotid", $catid);
+		$MediaID = @IPS_GetMediaIDByName("Doorbird Snapshot ".$currentsnapshotid, $catid);
 		if ($MediaID === false)
 			{
 			   $MediaID = IPS_CreateMedia(1);                  // Image im MedienPool anlegen

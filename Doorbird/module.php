@@ -80,7 +80,7 @@ class Doorbird extends IPSModule
 		elseif ($doorbirduser !== "" && $password !== "" && (!filter_var($ip, FILTER_VALIDATE_IP) === false) && (!filter_var($ipips, FILTER_VALIDATE_IP) === false))
 			{
 				$DoorbirdVideoHTML = '<iframe src="http://'.$ip.'/bha-api/video.cgi?http-user='.$doorbirduser.'&http-password='.$password.'" border="0" frameborder="0" style= "width: 100%; height: 500px;"/></iframe>';
-				SetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'), $DoorbirdVideoHTML);	
+				SetValueString($this->GetIDForIdent('DoorbirdSnapshotCounter'), $DoorbirdVideoHTML);	
 				
 				//prüfen ob Script existent
 				$SkriptID = @IPS_GetScriptIDByName("Doorbird IPS Interface", $this->InstanceID);
@@ -130,7 +130,7 @@ class Doorbird extends IPSModule
 				// Status Error Kategorie zum Import auswählen
 				$this->SetStatus(206);
 			}
-		elseif (( $ImportCategoryID != 0) && ( $HistoryCategoryID != 0))	
+		elseif (( $HistoryCategoryID != 0) && ( $SnapshotCategoryID != 0))	
 			{
 				// Status Aktiv
 				$this->SetStatus(102);

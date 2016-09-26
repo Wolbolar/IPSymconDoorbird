@@ -63,7 +63,7 @@ class Doorbird extends IPSModule
 		$password = $this->ReadPropertyString('Password');
 		
 		//IP prüfen
-		if ((!filter_var($ip, FILTER_VALIDATE_IP) === false) && (!filter_var($ipips, FILTER_VALIDATE_IP))
+		if ((!filter_var($ip, FILTER_VALIDATE_IP) === false) && (!filter_var($ipips, FILTER_VALIDATE_IP) === false))
 			{
 				//IP ok
 			}
@@ -77,7 +77,7 @@ class Doorbird extends IPSModule
 			{
 				$this->SetStatus(205); //Felder dürfen nicht leer sein
 			}
-		elseif ($doorbirduser !== "" && $password !== "" && (!filter_var($ip, FILTER_VALIDATE_IP) === false) && (!filter_var($ipips, FILTER_VALIDATE_IP))
+		elseif ($doorbirduser !== "" && $password !== "" && (!filter_var($ip, FILTER_VALIDATE_IP) === false) && (!filter_var($ipips, FILTER_VALIDATE_IP) === false))
 			{
 				$DoorbirdVideoHTML = '<iframe src="http://'.$ip.'/bha-api/video.cgi?http-user='.$doorbirduser.'&http-password='.$password.'" border="0" frameborder="0" style= "width: 100%; height: 500px;"/></iframe>';
 				SetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'), $DoorbirdVideoHTML);	
@@ -97,13 +97,27 @@ class Doorbird extends IPSModule
 					
 				
 				$timerscript = "Doorbird_GetHistory($this->InstanceID)";
-				$timerid = $this->RegisterTimer('Get Doorbird History', 3600000, $timerscript);
-				
-				
-				$IDSnapshot = $this->RegisterScript("GetDoorbirdSnapshot", "Get Doorbird Snapshot", $this->CreateSnapshotScript(), 11);
-				IPS_SetHidden($IDSnapshot, true);
-				$this->SetSnapshotEvent($IDSnapshot);
-				
+				$timerid = @IPS_GetEventIDByName("Get Doorbird History", $this->InstanceID);
+				if ($timerid === false)
+				{
+					$timerid = $this->RegisterTimer('Get Doorbird History', 3600000, $timerscript);
+				}
+				else
+				{
+					//echo "Die Ereignis-ID lautet: ". $timerid;
+				}
+					
+				$IDSnapshot = @IPS_GetScriptIDByName("GetDoorbirdSnapshot", $this->InstanceID);
+				if ($IDSnapshot === false)
+					{
+						$IDSnapshot = $this->RegisterScript("GetDoorbirdSnapshot", "Get Doorbird Snapshot", $this->CreateSnapshotScript(), 11);
+						IPS_SetHidden($IDSnapshot, true);
+						$this->SetSnapshotEvent($IDSnapshot);
+					}
+				else
+					{
+						//echo "Die Skript-ID lautet: ". $SkriptID;
+					}
 				
 				$change = true;	
 			}

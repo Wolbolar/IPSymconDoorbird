@@ -270,6 +270,7 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 		IPS_Sleep(300);
 		//dooropen
 		$URL='http://'.$doorbirdip.'/bha-api/notification.cgi?event=dooropen&subscribe=1&url=http://'.$ipsip.':3777/hook/doorbird'.$this->InstanceID.'?doorbirdevent=dooropen';
+		$result = $this->SendDoorbird($URL);
 		SetValueString($this->GetIDForIdent('DoorbirdReturn'),$result);
 	}
 	

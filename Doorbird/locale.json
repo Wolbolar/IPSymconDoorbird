@@ -24,7 +24,7 @@
 			"No valid IP adress.": "Keine gültige IP Adresse.",
 			"connection to Doorbird lost.": "Verbindung zur Doorbird verloren.",
 			"field must not be empty.": "Felder dürfen nicht leer sein.",
-			"select category for import.": "Kategorie zum Import auswählen."
+			"select category for import.": "Kategorie zum Import auswählen.",
 			"category must not be empty.": "Es muss eine Kategorie ausgewählt werden."
 			
 			

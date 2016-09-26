@@ -34,7 +34,7 @@ class Doorbird extends IPSModule
 		$this->RegisterVariableString("FirmwareVersion", "Doorbird Firmware Version", "~String", 5);
 		$this->RegisterVariableString("Buildnumber", "Doorbird Build Number", "~String", 6);
 		$this->RegisterVariableString("MACAdress", "Doorbird WLAN MAC", "~String", 7);
-		$this->RegisterVariableString("DoorbirdReturn", "Doorbird WLAN MAC", "~String", 8);
+		$this->RegisterVariableString("DoorbirdReturn", "Doorbird Return", "~String", 8);
 		$this->RegisterVariableInteger("DoorbirdSnapshotCounter", "Doorbird Snapshot Counter", "", 9);
 		IPS_SetHidden($this->GetIDForIdent('DoorbirdReturn'), true);
 		IPS_SetHidden($this->GetIDForIdent('DoorbirdSnapshotCounter'), true);

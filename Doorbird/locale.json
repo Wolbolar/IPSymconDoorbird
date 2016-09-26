@@ -1,17 +1,19 @@
 {
 	"translations": {
 		"de": { 
-			"Open": "Aktiv",
-			"IP adress": "IP Adresse",
+			"IP adress Doorbird": "IP Adresse Doorbird",
+			"IP Doorbird": "IP Doorbird",
+			"Doorbird login credentials": "Doorbird Zugangsdaten:"
 			"User": "Benutzername",
 			"Password": "Passwort",
 			"Category for doorbird history pictures": "Kategorie für Doorbird Historie Bilder",
-			"Doorbird history category": "Doorbird Kategorie Historie",
+			"history category": "Kategorie Historie",
 			"Category for doorbird snapshot pictures": "Kategorie für Doorbird Snapshot Bilder bei Bewegungsauslösung",
-			"Doorbird snapshot category": "Doorbird Snapshot Kategorie",
+			"snapshot category": "Snapshot Kategorie",
 			"picture limit for snapshots": "Anzahl der zu speichernden Bilder",
+			"limit snapshots": "Limit Snapshots",
 			"IP adress IP-Symcon Server": "IP Adresse des IP-Symcon Servers",
-			"IP adress IP-Symcon": "IP Adresse IP-Symcon",
+			"IP adress": "IP Adresse",
 			"open door": "Tür öffnen",
 			"toggle light": "Licht schalten",
 			"Setup Notification": "Benachrichtung einrichten",

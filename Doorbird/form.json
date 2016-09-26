@@ -1,16 +1,11 @@
 {
     "elements":
             [
-                {
-                    "name": "Open",
-                    "type": "CheckBox",
-                    "caption": "Open"
-                },
 				{ "type": "Label", "label": "IP adress Doorbird" },
                 {
                     "name": "Host",
                     "type": "ValidationTextBox",
-                    "caption": "IP adress"
+                    "caption": "IP Doorbird"
                 },
 				{ "type": "Label", "label": "Doorbird login credentials" },
                 {
@@ -24,15 +19,16 @@
                     "caption": "Password"
                 },
 				{ "type": "Label", "label": "Category for doorbird history pictures" },
-				{ "type": "SelectCategory", "name": "HistoryCategoryID", "caption": "Doorbird history category" },
+				{ "type": "SelectCategory", "name": "HistoryCategoryID", "caption": "history category" },
 				{ "type": "Label", "label": "Category for doorbird snapshot pictures" },
-				{ "type": "SelectCategory", "name": "SnapshotCategoryID", "caption": "Doorbird snapshot category" },
-				{ "type": "NumberSpinner", "name": "picturelimit", "caption": "picture limit for snapshots", "digits": 0},
+				{ "type": "SelectCategory", "name": "SnapshotCategoryID", "caption": "snapshot category" },
+				{ "type": "Label", "label": "picture limit for doorbird snapshots pictures" },
+				{ "type": "NumberSpinner", "name": "picturelimit", "caption": "limit snapshots", "digits": 0},
 				{ "type": "Label", "label": "IP adress IP-Symcon Server" },
                 {
                     "name": "IPSIP",
                     "type": "ValidationTextBox",
-                    "caption": "IP adress IP-Symcon"
+                    "caption": "IP adress"
                 }
             ],
 	"actions":
@@ -77,6 +73,11 @@
                     "code": 205,
                     "icon": "error",
                     "caption": "field must not be empty."
+                },
+				{
+                    "code": 206,
+                    "icon": "error",
+                    "caption": "category must not be empty."
                 }
             ]
 }

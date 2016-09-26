@@ -338,15 +338,15 @@ class Doorbird extends IPSModule
 		$Content = $this->SendDoorbird($URL);
 		$lastsnapshot = GetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'));
 		if ($lastsnapshot == $picturelimit)
-		{
-		   $currentsnapshotid = 1;
-		   SetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'), 0);
-		}
+			{
+			   $currentsnapshotid = 1;
+			   SetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'), 0);
+			}
 		else
-		{
-		   $currentsnapshotid = $lastsnapshot + 1;
-		   SetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'), $currentsnapshotid);
-		}
+			{
+			   $currentsnapshotid = $lastsnapshot + 1;
+			   SetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'), $currentsnapshotid);
+			}
 		$doorbirdimage = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR."doorbirdsnapshot_".$currentsnapshotid.".png";  // Raspberry
 
 		// Bild in Datei speichern
@@ -370,7 +370,6 @@ class Doorbird extends IPSModule
 			  IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
 			}
 
-		}
 	}
 	
 	

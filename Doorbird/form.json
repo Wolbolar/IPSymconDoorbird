@@ -33,10 +33,17 @@
             ],
 	"actions":
 			[
+				{ "type": "Label", "label": "Setup notifications from doorbird to IP-Symcon" },
 				{ "type": "Button", "label": "Setup Notification", "onClick": "Doorbird_SetupNotification($id);" },
+				{ "type": "Label", "label": "Get buildnumber, WLAN MAC and firmwareversion of Doorbird" },
 				{ "type": "Button", "label": "get info", "onClick": "Doorbird_GetInfo($id);" },
+				{ "type": "Label", "label": "Get history from the doorbird camera" },
+				{ "type": "Button", "label": "get history", "onClick": "Doorbird_GetHistory($id);" },
+				{ "type": "Label", "label": "Get snapshot from the doorbird camera" },
+				{ "type": "Button", "label": "get snapshoot", "onClick": "Doorbird_GetSnapshot($id);" },
 				{ "type": "Button", "label": "open door", "onClick": "Doorbird_OpenDoor($id);" },
-				{ "type": "Button", "label": "toggle light", "onClick": "Doorbird_Light($id);" }
+				{ "type": "Label", "label": "turn on ir light of doorbird" },
+				{ "type": "Button", "label": "ir light", "onClick": "Doorbird_Light($id);" }
 			],		
     "status":
             [

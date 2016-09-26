@@ -34,6 +34,7 @@
 	"actions":
 			[
 				{ "type": "Button", "label": "Setup Notification", "onClick": "Doorbird_SetupNotification($id);" },
+				{ "type": "Button", "label": "get info", "onClick": "Doorbird_GetInfo($id);" },
 				{ "type": "Button", "label": "open door", "onClick": "Doorbird_Open($id);" },
 				{ "type": "Button", "label": "toggle light", "onClick": "Doorbird_Light($id);" }
 			],		

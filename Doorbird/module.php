@@ -259,8 +259,17 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 	public function SetupNotification()
 	{
 		$doorbirdip = $this->ReadPropertyString('Host');
-		$URL='http://'.$doorbirdip.'/bha-api/info.cgi';
+		//doorbell
+		$URL='http://'.$doorbirdip.'/bha-api/notification.cgi?event=doorbell&subscribe=1&url=http://192.168.55.71:3777/hook/doorbird'.$this->InstanceID.'?doorbirdevent=doorbell';
 		$result = $this->SendDoorbird($URL);
+		IPS_Sleep(300);
+		//motionsensor
+		$URL='http://'.$doorbirdip.'/bha-api/notification.cgi?event=motionsensor&subscribe=1&url=http://192.168.55.71:3777/hook/doorbird'.$this->InstanceID.'?doorbirdevent=motionsensor';
+		$result = $this->SendDoorbird($URL);
+		IPS_Sleep(300);
+		//dooropen
+		$URL='http://'.$doorbirdip.'/bha-api/notification.cgi?event=dooropen&subscribe=1&url=http://192.168.55.71:3777/hook/doorbird'.$this->InstanceID.'?doorbirdevent=dooropen';
+		SetValueString($this->GetIDForIdent('DoorbirdReturn'),$result);
 	}
 	
 	public function SendDoorbird(string $URL)

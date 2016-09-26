@@ -166,9 +166,9 @@ class Doorbird extends IPSModule
 	private function CreateWebHookScript()
     {
         $Script = '<?
-            //Do not delete or modify.
-			Doorbird_ProcessHookData('.$this->InstanceID.');		
-			?>';
+//Do not delete or modify.
+Doorbird_ProcessHookData('.$this->InstanceID.');		
+?>';
         /*
 		var_dump($_GET);
             $PlayerSelect = IPS_GetObjectIDByIdent("PlayerSelect",IPS_GetParent($_IPS["SELF"]));
@@ -194,9 +194,9 @@ class Doorbird extends IPSModule
 	private function CreateSnapshotScript()
 	{
 		$Script = '<?
-            //Do not delete or modify.
-			Doorbird_GetSnapshot('.$this->InstanceID.');		
-			?>';	
+//Do not delete or modify.
+Doorbird_GetSnapshot('.$this->InstanceID.');		
+?>';	
 		return $Script;	
 	}
 	

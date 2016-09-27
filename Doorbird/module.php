@@ -16,8 +16,6 @@ class Doorbird extends IPSModule
 		$this->RegisterPropertyString("IPSIP", "");
 		$this->RegisterPropertyString("User", "");
 		$this->RegisterPropertyString("Password", "");
-		$this->RegisterPropertyInteger("HistoryCategoryID", 0);
-		$this->RegisterPropertyInteger("SnapshotCategoryID", 0);
 		$this->RegisterPropertyInteger("picturelimit", 20);
     }
 
@@ -53,6 +51,10 @@ class Doorbird extends IPSModule
 		IPS_SetHidden($this->GetIDForIdent('DoorbirdReturn'), true);
 		IPS_SetHidden($this->GetIDForIdent('DoorbirdSnapshotCounter'), true);
 		SetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'), 0);
+		$this->RegisterVariableInteger("ObjIDHist", "ObjektId History", "", 13);
+		IPS_SetHidden($this->GetIDForIdent('ObjIDHist'), true);
+		$this->RegisterVariableInteger("ObjIDSnap", "ObjektId History", "", 14);
+		IPS_SetHidden($this->GetIDForIdent('ObjIDSnap'), true);
 		
 		
 		$this->ValidateConfiguration();	
@@ -135,6 +137,8 @@ class Doorbird extends IPSModule
 					
 				//Kategorie anlegen
 				$CatIDHistory = @($this->GetIDForIdent('DoorbirdHistory'));
+				$objidhis = $this->GetIDForIdent('ObjIDHist');
+				$objidsnap = $this->GetIDForIdent('ObjIDSnap');
 				if ($CatIDHistory === false)
 				{
 					$CatIDHistory = IPS_CreateCategory();       // Kategorie anlegen
@@ -142,8 +146,11 @@ class Doorbird extends IPSModule
 					IPS_SetName($CatIDHistory, "Doorbird Klingelhistorie"); // Kategorie benennen
 					IPS_SetParent($CatIDHistory, $ParentID); // Kategorie einsortieren
 					IPS_SetIdent ($CatIDHistory, "DoorbirdHistory");
-					IPS_SetProperty($this->InstanceID, "HistoryCategoryID", $CatIDHistory); //ObjektID ablegen
-					IPS_ApplyChanges($this->InstanceID); //Neue Konfiguration übernehmen
+					SetValue($objidhis, $CatIDHistory);
+				}
+				else
+				{
+					SetValue($objidhis, $CatIDHistory);
 				}
 				
 				
@@ -155,8 +162,11 @@ class Doorbird extends IPSModule
 					IPS_SetName($CatIDSnapshot, "Doorbird Besucherhistorie"); // Kategorie benennen
 					IPS_SetParent($CatIDSnapshot, $ParentID); // Kategorie einsortieren
 					IPS_SetIdent ($CatIDHistory, "DoorbirdSnapshots");
-					IPS_SetProperty($this->InstanceID, "SnapshotCategoryID", $CatIDSnapshot); //ObjektID ablegen
-					IPS_ApplyChanges($this->InstanceID); //Neue Konfiguration übernehmen					
+					SetValue($objidsnap, $CatIDSnapshot);	
+				}
+				else
+				{
+					SetValue($objidsnap, $CatIDSnapshot);
 				}
 				
 				
@@ -363,12 +373,9 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 			file_put_contents($doorbirdimage, $Content);
 
 			//testen ob im Medienpool existent
-			//$catid = $this->ReadPropertyInteger('HistoryCategoryID');
-			//$catid =  $this->GetIDForIdent('DoorbirdHistory');
-			$catid = $this->ReadPropertyInteger('HistoryCategoryID');
+			$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
 			
-			//$MediaID = @IPS_GetMediaIDByName("Doorbird Historie ".$i, $catid);
-			$MediaID = @($this->GetIDForIdent('DoorbirdHistoryPic'.$i));
+			$MediaID = @IPS_GetObjectIDByIdent("DoorbirdHistoryPic".$i, $catid);
 			if ($MediaID === false)
 				{
 					$MediaID = IPS_CreateMedia(1);                  // Image im MedienPool anlegen
@@ -396,9 +403,7 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 		$doorbirdip = $this->ReadPropertyString('Host');
 		$picturelimit = $this->ReadPropertyInteger('picturelimit');
 		$URL='http://'.$doorbirdip.'/bha-api/image.cgi';
-		//$catid = $this->ReadPropertyInteger('SnapshotCategoryID');
-		//$catid =  $this->GetIDForIdent('DoorbirdSnapshots');
-		$catid = $this->ReadPropertyInteger('SnapshotCategoryID');
+		$catid = GetValue($this->GetIDForIdent('ObjIDSnap'));
 		$Content = $this->SendDoorbird($URL);
 		$lastsnapshot = GetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'));
 		if ($lastsnapshot == $picturelimit)
@@ -417,12 +422,11 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 		file_put_contents($doorbirdimage, $Content);
 
 		//testen ob im Medienpool existent
-		//$MediaID = @IPS_GetMediaIDByName("Doorbird Snapshot ".$currentsnapshotid, $catid);
-		$MediaID = @($this->GetIDForIdent('DoorbirdSnapshootPic'.$currentsnapshotid));
+		$MediaID = @IPS_GetObjectIDByIdent('DoorbirdSnapshootPic'.$currentsnapshotid, $catid);
 		if ($MediaID === false)
 			{
-			   $MediaID = IPS_CreateMedia(1);                  // Image im MedienPool anlegen
-			  IPS_SetMediaCached($MediaID, true);
+				$MediaID = IPS_CreateMedia(1);                  // Image im MedienPool anlegen
+				IPS_SetMediaCached($MediaID, true);
 				// Das Cachen für das Mediaobjekt wird aktiviert.
 				// Beim ersten Zugriff wird dieses von der Festplatte ausgelesen
 				// und zukünftig nur noch im Arbeitsspeicher verarbeitet.

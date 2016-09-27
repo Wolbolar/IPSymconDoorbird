@@ -425,6 +425,7 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 				IPS_SetName($MediaID, "Doorbird Snapshoot ".$currentsnapshotid." ".date('d.m.Y H:i:s')); // Medienobjekt benennen
 				IPS_SetIdent ($MediaID, "DoorbirdSnapshootPic".$currentsnapshotid);
 				IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie Historie
+				IPS_SetPosition($MediaID, $currentsnapshotid);
 			}
 		else
 			{

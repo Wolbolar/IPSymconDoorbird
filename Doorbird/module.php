@@ -44,10 +44,10 @@ class Doorbird extends IPSModule
 				);				
 		$this->RegisterProfileIntegerDoorbirdAss("Doorbird.Light", "Light", "", "", 0, 0, 0, 0, $lightass);
 		$this->RegisterProfileIntegerDoorbirdAss("Doorbird.Door", "LockOpen", "", "", 0, 0, 0, 0, $doorass);
-		$this->RegisterProfileIntegerDoorbirdAss("Doorbird.Snapshoot", "Image", "", "", 0, 0, 0, 0, $snapass);
+		$this->RegisterProfileIntegerDoorbirdAss("Doorbird.Snapshot", "Image", "", "", 0, 0, 0, 0, $snapass);
 		$this->RegisterVariableInteger("DoorbirdButtonLight", "Doorbird IR Beleuchtung", "Doorbird.Light", 10);
 		$this->RegisterVariableInteger("DoorbirdButtonDoor", "Doorbird Türöffner", "Doorbird.Door", 11);
-		$this->RegisterVariableInteger("DoorbirdButtonSnapshoot", "Doorbird Bild abspeichern", "Doorbird.Snapshoot", 12);
+		$this->RegisterVariableInteger("DoorbirdButtonSnapshot", "Doorbird Bild abspeichern", "Doorbird.Snapshot", 12);
 		IPS_SetHidden($this->GetIDForIdent('DoorbirdReturn'), true);
 		IPS_SetHidden($this->GetIDForIdent('DoorbirdSnapshotCounter'), true);
 		SetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'), 0);
@@ -136,7 +136,7 @@ class Doorbird extends IPSModule
 					}
 					
 				//Kategorie anlegen
-				$CatIDHistory = @($this->GetIDForIdent('DoorbirdHistory'));
+				$CatIDHistory = @($this->GetIDForIdent('DoorbirdKatHistory'));
 				$objidhis = $this->GetIDForIdent('ObjIDHist');
 				$objidsnap = $this->GetIDForIdent('ObjIDSnap');
 				if ($CatIDHistory === false)
@@ -145,7 +145,7 @@ class Doorbird extends IPSModule
 					$ParentID = IPS_GetParent ($this->InstanceID);
 					IPS_SetName($CatIDHistory, "Doorbird Klingelhistorie"); // Kategorie benennen
 					IPS_SetParent($CatIDHistory, $ParentID); // Kategorie einsortieren
-					IPS_SetIdent ($CatIDHistory, "DoorbirdHistory");
+					IPS_SetIdent ($CatIDHistory, "DoorbirdKatHistory");
 					SetValue($objidhis, $CatIDHistory);
 				}
 				else
@@ -154,14 +154,14 @@ class Doorbird extends IPSModule
 				}
 				
 				
-				$CatIDSnapshot = @($this->GetIDForIdent('DoorbirdSnapshots'));
+				$CatIDSnapshot = @($this->GetIDForIdent('DoorbirdKatSnapshots'));
 				if ($CatIDSnapshot === false)
 				{
 					$CatIDSnapshot = IPS_CreateCategory();       // Kategorie anlegen
 					$ParentID = IPS_GetParent ($this->InstanceID);
 					IPS_SetName($CatIDSnapshot, "Doorbird Besucherhistorie"); // Kategorie benennen
 					IPS_SetParent($CatIDSnapshot, $ParentID); // Kategorie einsortieren
-					IPS_SetIdent ($CatIDHistory, "DoorbirdSnapshots");
+					IPS_SetIdent ($CatIDHistory, "DoorbirdKatSnapshots");
 					SetValue($objidsnap, $CatIDSnapshot);	
 				}
 				else
@@ -422,7 +422,7 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 		file_put_contents($doorbirdimage, $Content);
 
 		//testen ob im Medienpool existent
-		$MediaID = @IPS_GetObjectIDByIdent('DoorbirdSnapshootPic'.$currentsnapshotid, $catid);
+		$MediaID = @IPS_GetObjectIDByIdent('DoorbirdSnapshotPic'.$currentsnapshotid, $catid);
 		if ($MediaID === false)
 			{
 				$MediaID = IPS_CreateMedia(1);                  // Image im MedienPool anlegen
@@ -432,8 +432,8 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 				// und zukünftig nur noch im Arbeitsspeicher verarbeitet.
 				IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
 				IPS_SetName($MediaID, "Doorbird Snapshot $currentsnapshotid"); // Medienobjekt benennen
-				IPS_SetName($MediaID, "Doorbird Snapshoot ".$currentsnapshotid." ".date('d.m.Y H:i:s')); // Medienobjekt benennen
-				IPS_SetIdent ($MediaID, "DoorbirdSnapshootPic".$currentsnapshotid);
+				IPS_SetName($MediaID, "Doorbird Snapshot ".$currentsnapshotid." ".date('d.m.Y H:i:s')); // Medienobjekt benennen
+				IPS_SetIdent ($MediaID, "DoorbirdSnapshotPic".$currentsnapshotid);
 				IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie Historie
 				IPS_SetPosition($MediaID, $currentsnapshotid);
 			}
@@ -468,7 +468,7 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 			case "DoorbirdButtonDoor":
                 $this->OpenDoor();
                 break;
-			case "DoorbirdButtonSnapshoot":
+			case "DoorbirdButtonSnapshot":
                 $this->GetSnapshot();
                 break;			
             default:

@@ -16,8 +16,8 @@ class Doorbird extends IPSModule
 		$this->RegisterPropertyString("IPSIP", "");
 		$this->RegisterPropertyString("User", "");
 		$this->RegisterPropertyString("Password", "");
-		//$this->RegisterPropertyInteger("HistoryCategoryID", 0);
-		//$this->RegisterPropertyInteger("SnapshotCategoryID", 0);
+		$this->RegisterPropertyInteger("HistoryCategoryID", 0);
+		$this->RegisterPropertyInteger("SnapshotCategoryID", 0);
 		$this->RegisterPropertyInteger("picturelimit", 20);
     }
 
@@ -140,8 +140,10 @@ class Doorbird extends IPSModule
 					$CatIDHistory = IPS_CreateCategory();       // Kategorie anlegen
 					$ParentID = IPS_GetParent ($this->InstanceID);
 					IPS_SetName($CatIDHistory, "Doorbird Klingelhistorie"); // Kategorie benennen
-					IPS_SetIdent ($CatIDHistory, "DoorbirdHistory");
 					IPS_SetParent($CatIDHistory, $ParentID); // Kategorie einsortieren
+					IPS_SetIdent ($CatIDHistory, "DoorbirdHistory");
+					IPS_SetProperty($this->InstanceID, "HistoryCategoryID", $CatIDHistory); //ObjektID ablegen
+					IPS_ApplyChanges($this->InstanceID); //Neue Konfiguration übernehmen
 				}
 				
 				
@@ -151,8 +153,10 @@ class Doorbird extends IPSModule
 					$CatIDSnapshot = IPS_CreateCategory();       // Kategorie anlegen
 					$ParentID = IPS_GetParent ($this->InstanceID);
 					IPS_SetName($CatIDSnapshot, "Doorbird Besucherhistorie"); // Kategorie benennen
+					IPS_SetParent($CatIDSnapshot, $ParentID); // Kategorie einsortieren
 					IPS_SetIdent ($CatIDHistory, "DoorbirdSnapshots");
-					IPS_SetParent($CatIDSnapshot, $ParentID); // Kategorie einsortieren	
+					IPS_SetProperty($this->InstanceID, "SnapshotCategoryID", $CatIDSnapshot); //ObjektID ablegen
+					IPS_ApplyChanges($this->InstanceID); //Neue Konfiguration übernehmen					
 				}
 				
 				
@@ -360,7 +364,8 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 
 			//testen ob im Medienpool existent
 			//$catid = $this->ReadPropertyInteger('HistoryCategoryID');
-			$catid =  $this->GetIDForIdent('DoorbirdHistory');
+			//$catid =  $this->GetIDForIdent('DoorbirdHistory');
+			$catid = $this->ReadPropertyInteger('HistoryCategoryID');
 			
 			//$MediaID = @IPS_GetMediaIDByName("Doorbird Historie ".$i, $catid);
 			$MediaID = @($this->GetIDForIdent('DoorbirdHistoryPic'.$i));
@@ -385,14 +390,15 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 			IPS_Sleep(200);	
 		}
 	}
-	
+		
 	public function GetSnapshot()
 	{
 		$doorbirdip = $this->ReadPropertyString('Host');
 		$picturelimit = $this->ReadPropertyInteger('picturelimit');
 		$URL='http://'.$doorbirdip.'/bha-api/image.cgi';
 		//$catid = $this->ReadPropertyInteger('SnapshotCategoryID');
-		$catid =  $this->GetIDForIdent('DoorbirdSnapshots');
+		//$catid =  $this->GetIDForIdent('DoorbirdSnapshots');
+		$catid = $this->ReadPropertyInteger('SnapshotCategoryID');
 		$Content = $this->SendDoorbird($URL);
 		$lastsnapshot = GetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'));
 		if ($lastsnapshot == $picturelimit)
@@ -433,8 +439,7 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 			}
 
 	}
-	
-	
+		
 	public function Light()
 	{
 		$doorbirdip = $this->ReadPropertyString('Host');

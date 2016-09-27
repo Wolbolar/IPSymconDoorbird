@@ -60,7 +60,7 @@ class Doorbird extends IPSModule
 		SetValue($this->GetIDForIdent('DoorbirdRingCounter'), 0);
 		$this->RegisterVariableInteger("ObjIDHist", "ObjektId History", "", 13);
 		IPS_SetHidden($this->GetIDForIdent('ObjIDHist'), true);
-		$this->RegisterVariableInteger("ObjIDSnap", "ObjektId History", "", 14);
+		$this->RegisterVariableInteger("ObjIDSnap", "ObjektId Snapshot", "", 14);
 		IPS_SetHidden($this->GetIDForIdent('ObjIDSnap'), true);
 		
 		

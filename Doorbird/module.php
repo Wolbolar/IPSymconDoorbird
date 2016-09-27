@@ -26,12 +26,18 @@ class Doorbird extends IPSModule
         parent::ApplyChanges();
 		
 		$this->RegisterVariableString("DoorbirdVideo", "Doorbird Video", "~HTMLBox", 1);
-		$this->RegisterVariableString("LastRingtone", "Zeitpunkt letztes Klingelsignal", "~String", 2);
-		$this->RegisterVariableString("LastMovement", "Zeitpunkt letzte Bewegung", "~String", 3);
-		$this->RegisterVariableString("LastDoorOpen", "Zeitpunkt letzte Türöffnung", "~String", 4);		
-		$this->RegisterVariableString("FirmwareVersion", "Doorbird Firmware Version", "~String", 5);
-		$this->RegisterVariableString("Buildnumber", "Doorbird Build Number", "~String", 6);
-		$this->RegisterVariableString("MACAdress", "Doorbird WLAN MAC", "~String", 7);
+		$this->RegisterProfileStringDoorbird("Doorbird.Ring", "Alert");
+		$this->RegisterVariableString("LastRingtone", "Zeitpunkt letztes Klingelsignal", "Doorbird.Ring", 2);
+		$this->RegisterProfileStringDoorbird("Doorbird.Movement", "Motion");
+		$this->RegisterVariableString("LastMovement", "Zeitpunkt letzte Bewegung", "Doorbird.Movement", 3);
+		$this->RegisterProfileStringDoorbird("Doorbird.LastDoor", "LockOpen");
+		$this->RegisterVariableString("LastDoorOpen", "Zeitpunkt letzte Türöffnung", "Doorbird.LastDoor", 4);
+		$this->RegisterProfileStringDoorbird("Doorbird.Firmware", "Robot");	
+		$this->RegisterVariableString("FirmwareVersion", "Doorbird Firmware Version", "Doorbird.Firmware", 5);
+		$this->RegisterProfileStringDoorbird("Doorbird.Buildnumber", "Gear");	
+		$this->RegisterVariableString("Buildnumber", "Doorbird Build Number", "Doorbird.Buildnumber", 6);
+		$this->RegisterProfileStringDoorbird("Doorbird.MAC", "Notebook");
+		$this->RegisterVariableString("MACAdress", "Doorbird WLAN MAC", "Doorbird.MAC", 7);
 		$this->RegisterVariableString("DoorbirdReturn", "Doorbird Return", "~String", 25);
 		$this->RegisterVariableInteger("DoorbirdSnapshotCounter", "Doorbird Snapshot Counter", "", 26);
 		$this->RegisterVariableInteger("DoorbirdRingCounter", "Doorbird Ring Counter", "", 26);
@@ -587,6 +593,22 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
         
     }
 	
+	protected function RegisterProfileStringDoorbird($Name, $Icon)
+	{
+        
+        if(!IPS_VariableProfileExists($Name)) {
+            IPS_CreateVariableProfile($Name, 3);
+        } else {
+            $profile = IPS_GetVariableProfile($Name);
+            if($profile['ProfileType'] != 3)
+            throw new Exception("Variable profile type does not match for profile ".$Name);
+        }
+        
+        IPS_SetVariableProfileIcon($Name, $Icon);
+        //IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
+        //IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize);
+        
+    }
 }
 
 ?>

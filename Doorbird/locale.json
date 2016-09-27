@@ -18,8 +18,6 @@
 			"Setup Notification": "Benachrichtung einrichten",
 			"Get buildnumber, WLAN MAC and firmwareversion of Doorbird": "Buildnumber, WLAN MAC und Firmware Version der Doorbird auslesen",
 			"get info": "Infos auslesen",
-			"Get history from the doorbird camera": "Historie der Doorbird Kamera auslesen",
-			"get history": "Historie auslesen",
 			"Get snapshot from the doorbird camera": "Snapshot der Doorbird anfordern",
 			"get snapshoot": "Snapshoot aufnehmen",
 			"turn on ir light of doorbird": "IR Kamera Beleuchtung der Doorbird einschalten",

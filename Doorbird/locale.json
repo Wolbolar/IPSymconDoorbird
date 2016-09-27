@@ -6,6 +6,8 @@
 			"Doorbird login credentials": "Doorbird Zugangsdaten:",
 			"User": "Benutzername",
 			"Password": "Passwort",
+			"picture limit for doorbird ring pictures": "Anzahl der zu speichernden Bilder beim Klingeln",
+			"limit ring pictures": "Limit Kingelbilder",
 			"picture limit for doorbird snapshots pictures": "Anzahl der zu speichernden Bilder bei Bewegung",
 			"limit snapshots": "Limit Snapshots",
 			"IP adress IP-Symcon Server": "IP Adresse des IP-Symcon Servers",

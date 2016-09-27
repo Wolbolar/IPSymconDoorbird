@@ -515,6 +515,7 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 		else
 			{
 			  IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
+			  IPS_SetName($MediaID, $name." ".$currentsnapshotid." ".date('d.m.Y H:i:s')); // Medienobjekt benennen
 			}
 	}
 	

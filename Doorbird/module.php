@@ -16,9 +16,8 @@ class Doorbird extends IPSModule
 		$this->RegisterPropertyString("IPSIP", "");
 		$this->RegisterPropertyString("User", "");
 		$this->RegisterPropertyString("Password", "");
-		$this->RegisterPropertyInteger("HistoryCategoryID", 0);
-		$this->RegisterPropertyInteger("SnapshotCategoryID", 0);
-		$this->RegisterPropertyInteger("picturelimit", 20);
+		$this->RegisterPropertyInteger("picturelimitring", 20);
+		$this->RegisterPropertyInteger("picturelimitsnapshot", 20);
     }
 
     public function ApplyChanges()
@@ -33,11 +32,36 @@ class Doorbird extends IPSModule
 		$this->RegisterVariableString("FirmwareVersion", "Doorbird Firmware Version", "~String", 5);
 		$this->RegisterVariableString("Buildnumber", "Doorbird Build Number", "~String", 6);
 		$this->RegisterVariableString("MACAdress", "Doorbird WLAN MAC", "~String", 7);
-		$this->RegisterVariableString("DoorbirdReturn", "Doorbird Return", "~String", 8);
-		$this->RegisterVariableInteger("DoorbirdSnapshotCounter", "Doorbird Snapshot Counter", "", 9);
+		$this->RegisterVariableString("DoorbirdReturn", "Doorbird Return", "~String", 25);
+		$this->RegisterVariableInteger("DoorbirdSnapshotCounter", "Doorbird Snapshot Counter", "", 26);
+		$this->RegisterVariableInteger("DoorbirdRingCounter", "Doorbird Ring Counter", "", 26);
+		$lightass =  Array(
+				Array(0, "Licht einschalten",  "Light", -1)
+				);
+		$doorass =  Array(
+				Array(0, "Tür öffnen",  "LockOpen", -1)
+				);
+		$snapass =  Array(
+				Array(0, "Bild speichern",  "Image", -1)
+				);				
+		$this->RegisterProfileIntegerDoorbirdAss("Doorbird.Light", "Light", "", "", 0, 0, 0, 0, $lightass);
+		$this->RegisterProfileIntegerDoorbirdAss("Doorbird.Door", "LockOpen", "", "", 0, 0, 0, 0, $doorass);
+		$this->RegisterProfileIntegerDoorbirdAss("Doorbird.Snapshot", "Image", "", "", 0, 0, 0, 0, $snapass);
+		$this->RegisterVariableInteger("DoorbirdButtonLight", "Doorbird IR Beleuchtung", "Doorbird.Light", 10);
+		$this->EnableAction("DoorbirdButtonLight");
+		$this->RegisterVariableInteger("DoorbirdButtonDoor", "Doorbird Türöffner", "Doorbird.Door", 11);
+		$this->EnableAction("DoorbirdButtonDoor");
+		$this->RegisterVariableInteger("DoorbirdButtonSnapshot", "Doorbird Bild abspeichern", "Doorbird.Snapshot", 12);
+		$this->EnableAction("DoorbirdButtonSnapshot");
 		IPS_SetHidden($this->GetIDForIdent('DoorbirdReturn'), true);
 		IPS_SetHidden($this->GetIDForIdent('DoorbirdSnapshotCounter'), true);
+		IPS_SetHidden($this->GetIDForIdent('DoorbirdRingCounter'), true);
 		SetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'), 0);
+		SetValue($this->GetIDForIdent('DoorbirdRingCounter'), 0);
+		$this->RegisterVariableInteger("ObjIDHist", "ObjektId History", "", 13);
+		IPS_SetHidden($this->GetIDForIdent('ObjIDHist'), true);
+		$this->RegisterVariableInteger("ObjIDSnap", "ObjektId Snapshot", "", 14);
+		IPS_SetHidden($this->GetIDForIdent('ObjIDSnap'), true);
 		
 		
 		$this->ValidateConfiguration();	
@@ -85,7 +109,7 @@ class Doorbird extends IPSModule
 				$SkriptID = @IPS_GetScriptIDByName("Doorbird IPS Interface", $this->InstanceID);
 				if ($SkriptID === false)
 					{
-						$ID = $this->RegisterScript("DoorbirdIPSInterface", "Doorbird IPS Interface", $this->CreateWebHookScript(), 10);
+						$ID = $this->RegisterScript("DoorbirdIPSInterface", "Doorbird IPS Interface", $this->CreateWebHookScript(), 19);
 						IPS_SetHidden($ID, true);
 						$this->RegisterHook('/hook/doorbird' . $this->InstanceID, $ID);
 					}
@@ -94,7 +118,9 @@ class Doorbird extends IPSModule
 						//echo "Die Skript-ID lautet: ". $SkriptID;
 					}
 					
-				
+				//Timer für Historie
+				// Ersetzt durch Event das Bilder bei Klingeln abholt
+				/*
 				$timerscript = "Doorbird_GetHistory($this->InstanceID)";
 				$timerid = @IPS_GetEventIDByName("Get Doorbird History", $this->InstanceID);
 				if ($timerid === false)
@@ -105,11 +131,13 @@ class Doorbird extends IPSModule
 				{
 					//echo "Die Ereignis-ID lautet: ". $timerid;
 				}
-					
-				$IDSnapshot = @IPS_GetScriptIDByName("GetDoorbirdSnapshot", $this->InstanceID);
+				*/
+				
+				//Skript bei Bewegung				
+				$IDSnapshot = @($this->GetIDForIdent('GetDoorbirdSnapshot'));
 				if ($IDSnapshot === false)
 					{
-						$IDSnapshot = $this->RegisterScript("GetDoorbirdSnapshot", "Get Doorbird Snapshot", $this->CreateSnapshotScript(), 11);
+						$IDSnapshot = $this->RegisterScript("GetDoorbirdSnapshot", "Get Doorbird Snapshot", $this->CreateSnapshotScript(), 17);
 						IPS_SetHidden($IDSnapshot, true);
 						$this->SetSnapshotEvent($IDSnapshot);
 					}
@@ -118,10 +146,61 @@ class Doorbird extends IPSModule
 						//echo "Die Skript-ID lautet: ". $SkriptID;
 					}
 				
-				$change = true;	
+				//Skript beim Klingeln	
+				$IDRing = @($this->GetIDForIdent('GetDoorbirdRingPic'));
+				if ($IDRing === false)
+					{
+						$IDRing = $this->RegisterScript("GetDoorbirdRingPic", "Get Doorbird Ring Picture", $this->CreateRingPictureScript(), 18);
+						IPS_SetHidden($IDRing, true);
+						$this->SetRingEvent($IDRing);
+					}
+				else
+					{
+						//echo "Die Skript-ID lautet: ". $SkriptID;
+					}	
+					
+				//Kategorie anlegen
+				$CatIDHistory = @($this->GetIDForIdent('DoorbirdKatHistory'));
+				$objidhis = $this->GetIDForIdent('ObjIDHist');
+				$objidsnap = $this->GetIDForIdent('ObjIDSnap');
+				if ($CatIDHistory === false)
+				{
+					$CatIDHistory = IPS_CreateCategory();       // Kategorie anlegen
+					$ParentID = IPS_GetParent ($this->InstanceID);
+					IPS_SetName($CatIDHistory, "Doorbird Klingelhistorie"); // Kategorie benennen
+					IPS_SetParent($CatIDHistory, $ParentID); // Kategorie einsortieren
+					IPS_SetIdent ($CatIDHistory, "DoorbirdKatHistory");
+					SetValue($objidhis, $CatIDHistory);
+				}
+				else
+				{
+					SetValue($objidhis, $CatIDHistory);
+				}
+				
+				
+				$CatIDSnapshot = @($this->GetIDForIdent('DoorbirdKatSnapshots'));
+				if ($CatIDSnapshot === false)
+				{
+					$CatIDSnapshot = IPS_CreateCategory();       // Kategorie anlegen
+					$ParentID = IPS_GetParent ($this->InstanceID);
+					IPS_SetName($CatIDSnapshot, "Doorbird Besucherhistorie"); // Kategorie benennen
+					IPS_SetParent($CatIDSnapshot, $ParentID); // Kategorie einsortieren
+					IPS_SetIdent ($CatIDHistory, "DoorbirdKatSnapshots");
+					SetValue($objidsnap, $CatIDSnapshot);	
+				}
+				else
+				{
+					SetValue($objidsnap, $CatIDSnapshot);
+				}
+				
+				
+				$change = true;
+				// Status Aktiv
+				$this->SetStatus(102);	
 			}
 		
 		//Import Kategorie für History und Snapshot
+		/*
 		$HistoryCategoryID = $this->ReadPropertyInteger('HistoryCategoryID');
 		$SnapshotCategoryID = $this->ReadPropertyInteger('SnapshotCategoryID');
 		if (( $HistoryCategoryID === 0) ||( $SnapshotCategoryID === 0))
@@ -134,6 +213,7 @@ class Doorbird extends IPSModule
 				// Status Aktiv
 				$this->SetStatus(102);
 			}
+		*/	
 	}
 			
 	private function RegisterHook($WebHook, $TargetID)
@@ -199,17 +279,49 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 		return $Script;	
 	}
 	
+	private function CreateRingPictureScript()
+	{
+		$Script = '<?
+//Do not delete or modify.
+Doorbird_GetRingPicture('.$this->InstanceID.');		
+?>';	
+		return $Script;	
+	}
+	
 	private function SetSnapshotEvent(integer $IDSnapshot)
 	{
 		//prüfen ob Event existent
 		$ParentID = $IDSnapshot;
 
-		$EreignisID = @IPS_GetEventIDByName("GetDoorbirdSnapshot", $ParentID);
+		$EreignisID = @($this->GetIDForIdent('EventGetDoorbirdSnapshot'));
 		if ($EreignisID === false)
 			{
 				$EreignisID = IPS_CreateEvent (0);
 				IPS_SetName($EreignisID, "GetDoorbirdSnapshot");
+				IPS_SetIdent ($EreignisID, "EventGetDoorbirdSnapshot");
 				IPS_SetEventTrigger($EreignisID, 0,  $this->GetIDForIdent('LastMovement'));   //bei Variablenaktualisierung
+				IPS_SetParent($EreignisID, $ParentID);
+				IPS_SetEventActive($EreignisID, true);             //Ereignis aktivieren	
+			}
+			
+		else
+			{
+			//echo "Die Ereignis-ID lautet: ". $EreignisID;	
+			}
+	}
+	
+	private function SetRingEvent(integer $IDRing)
+	{
+		//prüfen ob Event existent
+		$ParentID = $IDRing;
+
+		$EreignisID = @($this->GetIDForIdent('EventGetDoorbirdRingPic'));
+		if ($EreignisID === false)
+			{
+				$EreignisID = IPS_CreateEvent (0);
+				IPS_SetName($EreignisID, "GetDoorbirdRingPic");
+				IPS_SetIdent ($EreignisID, "EventGetDoorbirdRingPic");
+				IPS_SetEventTrigger($EreignisID, 0,  $this->GetIDForIdent('LastRingtone'));   //bei Variablenaktualisierung
 				IPS_SetParent($EreignisID, $ParentID);
 				IPS_SetEventActive($EreignisID, true);             //Ereignis aktivieren	
 			}
@@ -316,8 +428,9 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 			file_put_contents($doorbirdimage, $Content);
 
 			//testen ob im Medienpool existent
-			$catid = $this->ReadPropertyInteger('HistoryCategoryID');
-			$MediaID = @IPS_GetMediaIDByName("Doorbird Historie ".$i, $catid);
+			$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
+			
+			$MediaID = @IPS_GetObjectIDByIdent("DoorbirdHistoryPic".$i, $catid);
 			if ($MediaID === false)
 				{
 					$MediaID = IPS_CreateMedia(1);                  // Image im MedienPool anlegen
@@ -326,7 +439,8 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 					// Beim ersten Zugriff wird dieses von der Festplatte ausgelesen
 					// und zukünftig nur noch im Arbeitsspeicher verarbeitet.
 					IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
-					IPS_SetName($MediaID, "Doorbird Historie $i"); // Medienobjekt benennen
+					IPS_SetName($MediaID, "Doorbird Historie ".$i." ".date('d.m.Y H:i:s')); // Medienobjekt benennen
+					IPS_SetIdent ($MediaID, "DoorbirdHistoryPic".$i);
 					IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie Historie
 					IPS_SetPosition($MediaID, $i);
 				}
@@ -338,50 +452,71 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 			IPS_Sleep(200);	
 		}
 	}
-	
+		
 	public function GetSnapshot()
 	{
+		$name = "Doorbird Snapshot";
+		$ident = "DoorbirdSnapshotPic";
+		$picturename = "doorbirdsnapshot_";
+		$picturelimit = $this->ReadPropertyInteger('picturelimitsnapshot');
+		$counterid = $this->GetIDForIdent('DoorbirdSnapshotCounter');
+		$catid = GetValue($this->GetIDForIdent('ObjIDSnap'));
+		$this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $counterid, $catid);
+	}
+	
+	public function GetRingPicture()
+	{
+		$name = "Doorbird Klingel";
+		$ident = "DoorbirdRingPic";
+		$picturename = "doorbirdringpic_";
+		$picturelimit = $this->ReadPropertyInteger('picturelimitring');
+		$counterid = $this->GetIDForIdent('DoorbirdRingCounter');
+		$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
+		$this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $counterid, $catid);
+	}
+	
+	private function GetImageDoorbell($name, $ident, $picturename, $picturelimit, $counterid, $catid)
+	{
 		$doorbirdip = $this->ReadPropertyString('Host');
-		$picturelimit = $this->ReadPropertyInteger('picturelimit');
 		$URL='http://'.$doorbirdip.'/bha-api/image.cgi';
-		$catid = $this->ReadPropertyInteger('SnapshotCategoryID');
 		$Content = $this->SendDoorbird($URL);
-		$lastsnapshot = GetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'));
+		$lastsnapshot = GetValue($counterid);
 		if ($lastsnapshot == $picturelimit)
 			{
 			   $currentsnapshotid = 1;
-			   SetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'), 0);
+			   SetValue($counterid, 0);
 			}
 		else
 			{
 			   $currentsnapshotid = $lastsnapshot + 1;
-			   SetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'), $currentsnapshotid);
+			   SetValue($counterid, $currentsnapshotid);
 			}
-		$doorbirdimage = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR."doorbirdsnapshot_".$currentsnapshotid.".png";  // Raspberry
+		$doorbirdimage = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR.$picturename.$currentsnapshotid.".png";  // Raspberry
 
 		// Bild in Datei speichern
 		file_put_contents($doorbirdimage, $Content);
 
 		//testen ob im Medienpool existent
-		$MediaID = @IPS_GetMediaIDByName("Doorbird Snapshot ".$currentsnapshotid, $catid);
+		$MediaID = @IPS_GetObjectIDByIdent($ident.$currentsnapshotid, $catid);
 		if ($MediaID === false)
 			{
-			   $MediaID = IPS_CreateMedia(1);                  // Image im MedienPool anlegen
-			  IPS_SetMediaCached($MediaID, true);
+				$MediaID = IPS_CreateMedia(1);                  // Image im MedienPool anlegen
+				IPS_SetMediaCached($MediaID, true);
 				// Das Cachen für das Mediaobjekt wird aktiviert.
 				// Beim ersten Zugriff wird dieses von der Festplatte ausgelesen
 				// und zukünftig nur noch im Arbeitsspeicher verarbeitet.
 				IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
-				IPS_SetName($MediaID, "Doorbird Snapshot $currentsnapshotid"); // Medienobjekt benennen
+				//IPS_SetName($MediaID, $name." ".$currentsnapshotid); // Medienobjekt benennen
+				IPS_SetName($MediaID, $name." ".$currentsnapshotid." ".date('d.m.Y H:i:s')); // Medienobjekt benennen
+				IPS_SetIdent ($MediaID, $ident.$currentsnapshotid);
 				IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie Historie
+				IPS_SetPosition($MediaID, $currentsnapshotid);
 			}
 		else
 			{
 			  IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
 			}
-
 	}
-	
 	
 	public function Light()
 	{
@@ -400,6 +535,59 @@ Doorbird_GetSnapshot('.$this->InstanceID.');
 	
 	public function RequestAction($Ident, $Value)
     {
+        switch($Ident) {
+            case "DoorbirdButtonLight":
+                $this->Light();
+				break;
+			case "DoorbirdButtonDoor":
+                $this->OpenDoor();
+                break;
+			case "DoorbirdButtonSnapshot":
+                $this->GetSnapshot();
+                break;			
+            default:
+                throw new Exception("Invalid ident");
+        }
+    }
+	
+	//Profile
+	protected function RegisterProfileIntegerDoorbird($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize, $Digits)
+	{
+        
+        if(!IPS_VariableProfileExists($Name)) {
+            IPS_CreateVariableProfile($Name, 1);
+        } else {
+            $profile = IPS_GetVariableProfile($Name);
+            if($profile['ProfileType'] != 1)
+            throw new Exception("Variable profile type does not match for profile ".$Name);
+        }
+        
+        IPS_SetVariableProfileIcon($Name, $Icon);
+        IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
+		IPS_SetVariableProfileDigits($Name, $Digits); //  Nachkommastellen
+        IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize); // string $ProfilName, float $Minimalwert, float $Maximalwert, float $Schrittweite
+        
+    }
+	
+	protected function RegisterProfileIntegerDoorbirdAss($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $Stepsize, $Digits, $Associations)
+	{
+        if ( sizeof($Associations) === 0 ){
+            $MinValue = 0;
+            $MaxValue = 0;
+        } 
+		/*
+		else {
+            //undefiened offset
+			$MinValue = $Associations[0][0];
+            $MaxValue = $Associations[sizeof($Associations)-1][0];
+        }
+        */
+        $this->RegisterProfileIntegerDoorbird($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $Stepsize, $Digits);
+        
+		//boolean IPS_SetVariableProfileAssociation ( string $ProfilName, float $Wert, string $Name, string $Icon, integer $Farbe )
+        foreach($Associations as $Association) {
+            IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
+        }
         
     }
 	

@@ -160,10 +160,13 @@ class Doorbird extends IPSModule
 					}	
 					
 				//Kategorie anlegen
-				$CatIDHistory = @($this->GetIDForIdent('DoorbirdKatHistory'));
 				$objidhis = $this->GetIDForIdent('ObjIDHist');
 				$objidsnap = $this->GetIDForIdent('ObjIDSnap');
-				if ($CatIDHistory === false)
+				//$CatIDHistory = @($this->GetIDForIdent('DoorbirdKatHistory'));
+				$CatIDHistory = GetValue($objidhis);
+				
+				//if ($CatIDHistory === false)
+				if ($CatIDHistory === 0)	
 				{
 					$CatIDHistory = IPS_CreateCategory();       // Kategorie anlegen
 					$ParentID = IPS_GetParent ($this->InstanceID);
@@ -172,14 +175,11 @@ class Doorbird extends IPSModule
 					IPS_SetIdent ($CatIDHistory, "DoorbirdKatHistory");
 					SetValue($objidhis, $CatIDHistory);
 				}
-				else
-				{
-					SetValue($objidhis, $CatIDHistory);
-				}
-				
-				
-				$CatIDSnapshot = @($this->GetIDForIdent('DoorbirdKatSnapshots'));
-				if ($CatIDSnapshot === false)
+						
+				//$CatIDSnapshot = @($this->GetIDForIdent('DoorbirdKatSnapshots'));
+				$CatIDSnapshot = GetValue($objidsnap);
+				//if ($CatIDSnapshot === false)
+				if ($CatIDSnapshot === 0)
 				{
 					$CatIDSnapshot = IPS_CreateCategory();       // Kategorie anlegen
 					$ParentID = IPS_GetParent ($this->InstanceID);
@@ -187,12 +187,7 @@ class Doorbird extends IPSModule
 					IPS_SetParent($CatIDSnapshot, $ParentID); // Kategorie einsortieren
 					IPS_SetIdent ($CatIDHistory, "DoorbirdKatSnapshots");
 					SetValue($objidsnap, $CatIDSnapshot);	
-				}
-				else
-				{
-					SetValue($objidsnap, $CatIDSnapshot);
-				}
-				
+				}			
 				
 				$change = true;
 				// Status Aktiv

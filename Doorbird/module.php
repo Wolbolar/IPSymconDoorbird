@@ -493,9 +493,8 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 		$ident = "DoorbirdSnapshotPic";
 		$picturename = "doorbirdsnapshot_";
 		$picturelimit = $this->ReadPropertyInteger('picturelimitsnapshot');
-		$counterid = $this->GetIDForIdent('DoorbirdSnapshotCounter');
 		$catid = GetValue($this->GetIDForIdent('ObjIDSnap'));
-		$this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $counterid, $catid);
+		$this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid);
 	}
 	
 	public function GetRingPicture()
@@ -504,12 +503,11 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 		$ident = "DoorbirdRingPic";
 		$picturename = "doorbirdringpic_";
 		$picturelimit = $this->ReadPropertyInteger('picturelimitring');
-		$counterid = $this->GetIDForIdent('DoorbirdRingCounter');
 		$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
-		$this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $counterid, $catid);
+		$this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid);
 	}
 	
-	private function GetImageDoorbell($name, $ident, $picturename, $picturelimit, $counterid, $catid)
+	private function GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid)
 	{
 		$doorbirdip = $this->ReadPropertyString('Host');
 		$URL='http://'.$doorbirdip.'/bha-api/image.cgi';

@@ -48,7 +48,7 @@
 				{
                     "name": "dooropen",
                     "type": "CheckBox",
-                    "caption": "dooropen"
+                    "caption": "door open"
                 },
 				{ "type": "Label", "label": "Relaxation time for dooropen (seconds)" },
 				{ "type": "NumberSpinner", "name": "relaxationdooropen", "caption": "relaxation dooropen", "digits": 0}

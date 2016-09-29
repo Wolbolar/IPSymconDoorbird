@@ -526,7 +526,7 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 				//Neues Bild zu allmedia hinzufügen
 				$allmedia = $this->AddCurrentPic($allmedia, $mediaids, $Content);
 				//allmedia schreiben
-				SaveImagestoPicSlot($allmedia, $ident, $name, $catid);
+				$this->SaveImagestoPicSlot($allmedia, $ident, $name, $catid);
 			}
 		else
 			{
@@ -558,14 +558,14 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 					{
 						//Array auslesen und Bilder +1 neu zuordnen
 						//Images base 64 codiert in allmedia einlesen
-						$allmedia = GetallImages($mediaids);
+						$allmedia = $this->GetallImages($mediaids);
 						IPS_SetIdent ($MediaID, $ident.$currentsnapshotid);
 						IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie
 						IPS_SetPosition($MediaID, $currentsnapshotid);
 						//Neues Bild zu allmedia hinzufügen
-						$allmedia = AddCurrentPic($allmedia, $mediaids, $Content);
+						$allmedia = $this->AddCurrentPic($allmedia, $mediaids, $Content);
 						//allmedia schreiben
-						SaveImagestoPicSlot($allmedia, $ident, $name, $catid);
+						$this->SaveImagestoPicSlot($allmedia, $ident, $name, $catid);
 					}
 				
 				}

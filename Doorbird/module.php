@@ -531,10 +531,10 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 			   $currentsnapshotid = $lastsnapshot + 1;
 			   SetValue($counterid, $currentsnapshotid);
 			}
-		$doorbirdimage = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR.$picturename.$currentsnapshotid.".png";  // Raspberry
+		//$doorbirdimage = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR.$picturename.$currentsnapshotid.".png";  // Raspberry
 
 		// Bild in Datei speichern
-		file_put_contents($doorbirdimage, $Content);
+		//file_put_contents($doorbirdimage, $Content);
 
 		//testen ob im Medienpool existent
 		$MediaID = @IPS_GetObjectIDByIdent($ident.$currentsnapshotid, $catid);
@@ -545,8 +545,10 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 				// Das Cachen für das Mediaobjekt wird aktiviert.
 				// Beim ersten Zugriff wird dieses von der Festplatte ausgelesen
 				// und zukünftig nur noch im Arbeitsspeicher verarbeitet.
-				IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
+				//IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
 				//IPS_SetName($MediaID, $name." ".$currentsnapshotid); // Medienobjekt benennen
+				IPS_SetMediaContent($MediaID, base64_encode($Content));  //Bild Base64 codieren und ablegen
+				IPS_SendMediaEvent($MediaID); //aktualisieren
 				IPS_SetName($MediaID, $name." ".$currentsnapshotid." ".date('d.m.Y H:i:s')); // Medienobjekt benennen
 				IPS_SetIdent ($MediaID, $ident.$currentsnapshotid);
 				IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie Historie
@@ -554,7 +556,9 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 			}
 		else
 			{
-			  IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
+			  //IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
+			  IPS_SetMediaContent($MediaID, base64_encode($Content));  //Bild Base64 codieren und ablegen
+			  IPS_SendMediaEvent($MediaID); //aktualisieren
 			  IPS_SetName($MediaID, $name." ".$currentsnapshotid." ".date('d.m.Y H:i:s')); // Medienobjekt benennen
 			}
 	}

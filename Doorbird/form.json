@@ -27,7 +27,31 @@
                     "name": "IPSIP",
                     "type": "ValidationTextBox",
                     "caption": "IP adress"
-                }
+                },
+				{ "type": "Label", "label": "notification preferences" },
+				{ "type": "Label", "label": "parameter relaxation:  min 10s max 10000s" },
+				{ "type": "Label", "label": "notification activ for:" },
+				{
+                    "name": "doorbell",
+                    "type": "CheckBox",
+                    "caption": "doorbell"
+                },
+				{ "type": "Label", "label": "Relaxation time for doorbell (seconds)" },
+				{ "type": "NumberSpinner", "name": "relaxationdoorbell", "caption": "relaxation doorbell", "digits": 0},
+				{
+                    "name": "motionsensor",
+                    "type": "CheckBox",
+                    "caption": "motionsensor"
+                },
+				{ "type": "Label", "label": "Relaxation time for motionsensor (seconds)" },
+				{ "type": "NumberSpinner", "name": "relaxationmotionsensor", "caption": "relaxation motionsensor", "digits": 0},
+				{
+                    "name": "dooropen",
+                    "type": "CheckBox",
+                    "caption": "dooropen"
+                },
+				{ "type": "Label", "label": "Relaxation time for dooropen (seconds)" },
+				{ "type": "NumberSpinner", "name": "relaxationdooropen", "caption": "relaxation dooropen", "digits": 0}
             ],
 	"actions":
 			[

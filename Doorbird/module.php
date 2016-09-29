@@ -18,6 +18,12 @@ class Doorbird extends IPSModule
 		$this->RegisterPropertyString("Password", "");
 		$this->RegisterPropertyInteger("picturelimitring", 20);
 		$this->RegisterPropertyInteger("picturelimitsnapshot", 20);
+		$this->RegisterPropertyBoolean("doorbell", true);
+		$this->RegisterPropertyInteger("relaxationdoorbell", 10);
+		$this->RegisterPropertyBoolean("motionsensor", true);
+		$this->RegisterPropertyInteger("relaxationmotionsensor", 10);
+		$this->RegisterPropertyBoolean("dooropen", true);
+		$this->RegisterPropertyInteger("relaxationdooropen", 10);
     }
 
     public function ApplyChanges()
@@ -196,6 +202,9 @@ class Doorbird extends IPSModule
 				}			
 				
 				$change = true;
+				$this->SetupNotification();
+				$this->GetInfo();
+				
 				// Status Aktiv
 				$this->SetStatus(102);	
 			}
@@ -372,16 +381,46 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 	{
 		$doorbirdip = $this->ReadPropertyString('Host');
 		$ipsip = $this->ReadPropertyString('IPSIP');
+		$selectiondoorbell = $this->ReadPropertyBoolean('doorbell');
+		if ($selectiondoorbell == true)
+			{
+			$selectiondoorbell = 1;
+			}
+		else
+			{
+			$selectiondoorbell = 0;
+			}
+		$relaxationdoorbell = $this->ReadPropertyInteger('relaxationdoorbell');
+		$selectionmotionsensor = $this->ReadPropertyBoolean('motionsensor');
+		if ($selectionmotionsensor == true)
+			{
+			$selectionmotionsensor = 1;
+			}
+		else
+			{
+			$selectionmotionsensor = 0;
+			}
+		$relaxationmotionsensor = $this->ReadPropertyInteger('relaxationmotionsensor');
+		$selectiondooropen = $this->ReadPropertyBoolean('dooropen');
+		if ($selectiondooropen == true)
+			{
+			$selectiondooropen = 1;
+			}
+		else
+			{
+			$selectiondooropen = 0;
+			}
+		$relaxationdooropen = $this->ReadPropertyInteger('relaxationdooropen');
 		//doorbell
-		$URL='http://'.$doorbirdip.'/bha-api/notification.cgi?event=doorbell&subscribe=1&url=http://'.$ipsip.':3777/hook/doorbird'.$this->InstanceID.'?doorbirdevent=doorbell';
+		$URL='http://'.$doorbirdip.'/bha-api/notification.cgi?event=doorbell&subscribe='.$selectiondoorbell.'&relaxation='.$relaxationdoorbell.'&url=http://'.$ipsip.':3777/hook/doorbird'.$this->InstanceID.'?doorbirdevent=doorbell';
 		$result = $this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//motionsensor
-		$URL='http://'.$doorbirdip.'/bha-api/notification.cgi?event=motionsensor&subscribe=1&url=http://'.$ipsip.':3777/hook/doorbird'.$this->InstanceID.'?doorbirdevent=motionsensor';
+		$URL='http://'.$doorbirdip.'/bha-api/notification.cgi?event=motionsensor&subscribe='.$selectionmotionsensor.'&relaxation='.$relaxationmotionsensor.'&url=http://'.$ipsip.':3777/hook/doorbird'.$this->InstanceID.'?doorbirdevent=motionsensor';
 		$result = $this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//dooropen
-		$URL='http://'.$doorbirdip.'/bha-api/notification.cgi?event=dooropen&subscribe=1&url=http://'.$ipsip.':3777/hook/doorbird'.$this->InstanceID.'?doorbirdevent=dooropen';
+		$URL='http://'.$doorbirdip.'/bha-api/notification.cgi?event=dooropen&subscribe='.$selectiondooropen.'&relaxation='.$relaxationdooropen.'&url=http://'.$ipsip.':3777/hook/doorbird'.$this->InstanceID.'?doorbirdevent=dooropen';
 		$result = $this->SendDoorbird($URL);
 		SetValueString($this->GetIDForIdent('DoorbirdReturn'),$result);
 	}

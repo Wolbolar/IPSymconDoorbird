@@ -45,8 +45,6 @@ class Doorbird extends IPSModule
 		$this->RegisterProfileStringDoorbird("Doorbird.MAC", "Notebook");
 		$this->RegisterVariableString("MACAdress", "Doorbird WLAN MAC", "Doorbird.MAC", 7);
 		$this->RegisterVariableString("DoorbirdReturn", "Doorbird Return", "~String", 25);
-		$this->RegisterVariableInteger("DoorbirdSnapshotCounter", "Doorbird Snapshot Counter", "", 26);
-		$this->RegisterVariableInteger("DoorbirdRingCounter", "Doorbird Ring Counter", "", 26);
 		$lightass =  Array(
 				Array(0, "Licht einschalten",  "Light", -1)
 				);
@@ -66,10 +64,6 @@ class Doorbird extends IPSModule
 		$this->RegisterVariableInteger("DoorbirdButtonSnapshot", "Doorbird Bild abspeichern", "Doorbird.Snapshot", 12);
 		$this->EnableAction("DoorbirdButtonSnapshot");
 		IPS_SetHidden($this->GetIDForIdent('DoorbirdReturn'), true);
-		IPS_SetHidden($this->GetIDForIdent('DoorbirdSnapshotCounter'), true);
-		IPS_SetHidden($this->GetIDForIdent('DoorbirdRingCounter'), true);
-		SetValue($this->GetIDForIdent('DoorbirdSnapshotCounter'), 0);
-		SetValue($this->GetIDForIdent('DoorbirdRingCounter'), 0);
 		$this->RegisterVariableInteger("ObjIDHist", "ObjektId History", "", 13);
 		IPS_SetHidden($this->GetIDForIdent('ObjIDHist'), true);
 		$this->RegisterVariableInteger("ObjIDSnap", "ObjektId Snapshot", "", 14);
@@ -499,9 +493,8 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 		$ident = "DoorbirdSnapshotPic";
 		$picturename = "doorbirdsnapshot_";
 		$picturelimit = $this->ReadPropertyInteger('picturelimitsnapshot');
-		$counterid = $this->GetIDForIdent('DoorbirdSnapshotCounter');
 		$catid = GetValue($this->GetIDForIdent('ObjIDSnap'));
-		$this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $counterid, $catid);
+		$this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid);
 	}
 	
 	public function GetRingPicture()
@@ -510,57 +503,132 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 		$ident = "DoorbirdRingPic";
 		$picturename = "doorbirdringpic_";
 		$picturelimit = $this->ReadPropertyInteger('picturelimitring');
-		$counterid = $this->GetIDForIdent('DoorbirdRingCounter');
 		$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
-		$this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $counterid, $catid);
+		$this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid);
 	}
 	
-	private function GetImageDoorbell($name, $ident, $picturename, $picturelimit, $counterid, $catid)
+	private function GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid)
 	{
 		$doorbirdip = $this->ReadPropertyString('Host');
 		$URL='http://'.$doorbirdip.'/bha-api/image.cgi';
 		$Content = $this->SendDoorbird($URL);
-		$lastsnapshot = GetValue($counterid);
+		//lastsnapshot bestimmen
+		$mediaids = IPS_GetChildrenIDs($catid);
+	 	$countmedia = count($mediaids);
+		$lastsnapshot = $countmedia;
 		if ($lastsnapshot == $picturelimit)
 			{
-			   $currentsnapshotid = 1;
-			   SetValue($counterid, 0);
+				//neu beschreiben und Bilder um +1 neu zuordnen
+				//Images base 64 codiert in allmedia einlesen
+						
+				$allmedia = $this->GetallImages($mediaids);
+				unset ($allmedia[($countmedia-1)]);
+				//Neues Bild zu allmedia hinzufügen
+				$allmedia = $this->AddCurrentPic($allmedia, $mediaids, $Content);
+				//allmedia schreiben
+				$this->SaveImagestoPicSlot($allmedia, $ident, $name, $catid);
 			}
 		else
 			{
-			   $currentsnapshotid = $lastsnapshot + 1;
-			   SetValue($counterid, $currentsnapshotid);
+				// neues Mediaobjekt anlegen
+				//testen ob im Medienpool existent
+				$currentsnapshotid = $lastsnapshot + 1;
+				$MediaID = @IPS_GetObjectIDByIdent($ident.$currentsnapshotid, $catid);
+				if ($MediaID === false)
+				{
+					$MediaID = IPS_CreateMedia(1);                  // Image im MedienPool anlegen
+					IPS_SetMediaCached($MediaID, true);
+					// Das Cachen für das Mediaobjekt wird aktiviert.
+					// Beim ersten Zugriff wird dieses von der Festplatte ausgelesen
+					// und zukünftig nur noch im Arbeitsspeicher verarbeitet.
+					
+					if ($currentsnapshotid == 1)
+					{
+						//Auf Position 1 anlegen und beschreiben
+						$savetime = date('d.m.Y H:i:s');
+						IPS_SetMediaContent($MediaID, base64_encode($Content));  //Bild Base64 codieren und ablegen
+						IPS_SetName($MediaID, $name." ".$currentsnapshotid." ".$savetime); // Medienobjekt benennen
+						IPS_SetIdent ($MediaID, $ident.$currentsnapshotid);
+						IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie
+						IPS_SetPosition($MediaID, $currentsnapshotid);
+						IPS_SetInfo ($MediaID, $savetime);
+						IPS_SendMediaEvent($MediaID); //aktualisieren
+					}
+					else
+					{
+						//Array auslesen und Bilder +1 neu zuordnen
+						//Images base 64 codiert in allmedia einlesen
+						$allmedia = $this->GetallImages($mediaids);
+						IPS_SetIdent ($MediaID, $ident.$currentsnapshotid);
+						IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie
+						IPS_SetPosition($MediaID, $currentsnapshotid);
+						//Neues Bild zu allmedia hinzufügen
+						$allmedia = $this->AddCurrentPic($allmedia, $mediaids, $Content);
+						//allmedia schreiben
+						$this->SaveImagestoPicSlot($allmedia, $ident, $name, $catid);
+					}
+				
+				}
 			}
+		//Nur noch Cache
 		//$doorbirdimage = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR.$picturename.$currentsnapshotid.".png";  // Raspberry
-
 		// Bild in Datei speichern
 		//file_put_contents($doorbirdimage, $Content);
-
-		//testen ob im Medienpool existent
-		$MediaID = @IPS_GetObjectIDByIdent($ident.$currentsnapshotid, $catid);
-		if ($MediaID === false)
+	}
+	
+	private function GetallImages($mediaids)
+	{
+		$countmedia = count($mediaids);
+		$allmedia = array();
+		for ($i = 0; $i <= ($countmedia-1); $i++)
 			{
-				$MediaID = IPS_CreateMedia(1);                  // Image im MedienPool anlegen
-				IPS_SetMediaCached($MediaID, true);
-				// Das Cachen für das Mediaobjekt wird aktiviert.
-				// Beim ersten Zugriff wird dieses von der Festplatte ausgelesen
-				// und zukünftig nur noch im Arbeitsspeicher verarbeitet.
-				//IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
-				//IPS_SetName($MediaID, $name." ".$currentsnapshotid); // Medienobjekt benennen
-				IPS_SetMediaContent($MediaID, base64_encode($Content));  //Bild Base64 codieren und ablegen
-				IPS_SendMediaEvent($MediaID); //aktualisieren
-				IPS_SetName($MediaID, $name." ".$currentsnapshotid." ".date('d.m.Y H:i:s')); // Medienobjekt benennen
-				IPS_SetIdent ($MediaID, $ident.$currentsnapshotid);
-				IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie Historie
-				IPS_SetPosition($MediaID, $currentsnapshotid);
+			$mediakey = IPS_GetObject($mediaids[$i])['ObjectIdent'];
+			$mediakey = explode("Pic", $mediakey);
+			$mediakey = intval($mediakey[1]);
+			$name = IPS_GetName($mediaids[$i]);
+			//$name = explode(" ", $name);
+			//$savedate = $name[3];
+			//$savetime = $name[4];
+			//$saveinfo =  $savedate." ".$savetime;
+			$saveinfo = IPS_GetObject($mediaids[$i])['ObjectInfo'];
+			$allmedia[$i]['objid'] = $mediaids[$i];
+			$allmedia[$i]['picid'] = $mediakey;
+			$allmedia[$i]['saveinfo'] = $saveinfo;
+			$allmedia[$i]['imagebase64'] = IPS_GetMediaContent($mediaids[$i]); //base64 codiert
+								 
 			}
-		else
+		return $allmedia;
+		
+	}
+	
+	private function SaveImagestoPicSlot($allmedia, $ident, $name, $catid)
+	{
+		
+		foreach ($allmedia as $media)
 			{
-			  //IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
-			  IPS_SetMediaContent($MediaID, base64_encode($Content));  //Bild Base64 codieren und ablegen
-			  IPS_SendMediaEvent($MediaID); //aktualisieren
-			  IPS_SetName($MediaID, $name." ".$currentsnapshotid." ".date('d.m.Y H:i:s')); // Medienobjekt benennen
+			 	$picid = $media['picid'];
+ 				$newpicid = $picid+1;
+				$mediaid = IPS_GetObjectIDByIdent($ident.$newpicid, $catid);
+				$saveinfo = $media['saveinfo'];
+				$imagebase64 = $media['imagebase64']; 
+				IPS_SetMediaContent($mediaid, $imagebase64);  //Bild Base64 codiert ablegen
+				IPS_SetName($mediaid, $name." ".$newpicid." ".$saveinfo); // Medienobjekt benennen					
+				IPS_SetInfo ($mediaid, $saveinfo);
+				IPS_SendMediaEvent($mediaid); //aktualisieren
 			}
+	}
+	
+	private function AddCurrentPic($allmedia, $mediaids, $Content)
+	{
+		$lastid = count($allmedia);
+		
+		// Neues Bild ergänzen
+ 		$allmedia[$lastid]['objid'] = $mediaids[0];
+		$allmedia[$lastid]['picid'] = 0;
+		$saveinfo =  date('d.m.Y H:i:s');
+		$allmedia[$lastid]['saveinfo'] = $saveinfo;
+		$allmedia[$lastid]['imagebase64'] = base64_encode($Content);  //Bild Base64 codieren und ablegen;
+		return $allmedia; 
 	}
 	
 	public function Light()

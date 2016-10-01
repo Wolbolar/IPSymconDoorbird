@@ -342,7 +342,7 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 	{
 		$Script = '<?
 //Do not delete or modify.
-Doorbird_EmailAlert('.$this->InstanceID.', '.$email.');		
+Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");		
 ?>';	
 		return $Script;	
 	}
@@ -396,7 +396,8 @@ Doorbird_EmailAlert('.$this->InstanceID.', '.$email.');
 		//prüfen ob Event existent
 		$ParentID = $IDEmail;
 
-		$EreignisID = @($this->GetIDForIdent('EventDoorbirdEmail'));
+		//$EreignisID = @($this->GetIDForIdent('EventDoorbirdEmail'));
+		$EreignisID = @IPS_GetObjectIDByIdent("EventDoorbirdEmail", $ParentID);
 		if ($EreignisID === false)
 			{
 				$EreignisID = IPS_CreateEvent (0);

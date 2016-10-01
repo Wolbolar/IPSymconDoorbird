@@ -215,8 +215,8 @@ class Doorbird extends IPSModule
 					{
 						//email valid
 						//Skript beim EmailAlert	
-						$IDRing = @($this->GetIDForIdent('SendEmailAlert'));
-						if ($IDRing === false)
+						$IDEmail = @($this->GetIDForIdent('SendEmailAlert'));
+						if ($IDEmail === false)
 							{
 								$IDEmail = $this->RegisterScript("SendEmailAlert", "Email Alert", $this->CreateEmailAlertScript($email), 19);
 								IPS_SetHidden($IDEmail, true);
@@ -229,13 +229,19 @@ class Doorbird extends IPSModule
 					}
 					else
 					{
+						
 						$this->SetStatus(207); //email not vaild
 					}	
 					
 				}
 				else
 				{
-					$this->SetEmailEvent($IDEmail, false);
+					$IDEmail = @($this->GetIDForIdent('SendEmailAlert'));
+					if ($IDEmail > 0)
+					{
+						$this->SetEmailEvent($IDEmail, false);
+					}
+					
 				}
 				
 				

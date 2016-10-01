@@ -544,7 +544,7 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 					// Das Cachen für das Mediaobjekt wird aktiviert.
 					// Beim ersten Zugriff wird dieses von der Festplatte ausgelesen
 					// und zukünftig nur noch im Arbeitsspeicher verarbeitet.
-					$ImageFile = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR.$picturename.$currentsnapshotid".jpg";  // Image-Datei
+					$ImageFile = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR.$picturename.$currentsnapshotid.".jpg";  // Image-Datei
 					IPS_SetMediaFile($MediaID, $ImageFile, False);    // Image im MedienPool mit Image-Datei verbinden
 					
 					if ($currentsnapshotid == 1)

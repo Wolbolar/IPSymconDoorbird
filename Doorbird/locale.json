@@ -25,6 +25,12 @@
 			"relaxation doorbell": "Zeit Klingel (s)",
 			"relaxation motionsensor": "Zeit Bewegungsmelder (s)",
 			"relaxation dooropen": "Zeit Türöffner (s)",
+			"optionally notification via email when ring (configurated SMTP module required)": "Optionale Benachrichtigung per Email beim Klingeln",
+			"active email notification": "Email Benachrichtigung aktiv",
+			"active email": "Email aktiv",
+			"SMTP module": "SMTP Modul",
+			"notification email adress": "Email Adresse für Benachrichtigung",
+			"email": "Email"
 			"ir light": "IR Licht schalten",
 			"Setup notifications from doorbird to IP-Symcon": "Benachrichtigung von Doorbird an IP-Symcon einrichten",
 			"Setup Notification": "Benachrichtung einrichten",
@@ -41,7 +47,8 @@
 			"connection to Doorbird lost.": "Verbindung zur Doorbird verloren.",
 			"field must not be empty.": "Felder dürfen nicht leer sein.",
 			"select category for import.": "Kategorie zum Import auswählen.",
-			"category must not be empty.": "Es muss eine Kategorie ausgewählt werden."
+			"category must not be empty.": "Es muss eine Kategorie ausgewählt werden.",
+			"email not vaild": "Email Adresse nicht gültig"
 			
 			
 		}

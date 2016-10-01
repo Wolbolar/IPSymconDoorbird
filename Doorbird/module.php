@@ -24,6 +24,9 @@ class Doorbird extends IPSModule
 		$this->RegisterPropertyInteger("relaxationmotionsensor", 10);
 		$this->RegisterPropertyBoolean("dooropen", true);
 		$this->RegisterPropertyInteger("relaxationdooropen", 10);
+		$this->RegisterPropertyBoolean("activeemail", false);
+		$this->RegisterPropertyString("email", "");
+		$this->RegisterPropertyInteger("smtpmodule", 0);
     }
 
     public function ApplyChanges()
@@ -199,6 +202,43 @@ class Doorbird extends IPSModule
 				$this->SetupNotification();
 				$this->GetInfo();
 				
+				//Email
+				$emailalert = $this->ReadPropertyBoolean('activeemail');
+				if ($emailalert)
+				{
+					$email = $this->ReadPropertyString('email');
+					if ($email == "")
+					{
+						$this->SetStatus(205); //Felder dürfen nicht leer sein
+					}
+					if (filter_var($email, FILTER_VALIDATE_EMAIL))
+					{
+						//email valid
+						//Skript beim EmailAlert	
+						$IDRing = @($this->GetIDForIdent('SendEmailAlert'));
+						if ($IDRing === false)
+							{
+								$IDEmail = $this->RegisterScript("SendEmailAlert", "Email Alert", $this->CreateEmailAlertScript($email), 19);
+								IPS_SetHidden($IDEmail, true);
+								$this->SetEmailEvent($IDEmail, true);
+							}
+						else
+							{
+								//echo "Die Skript-ID lautet: ". $SkriptID;
+							}
+					}
+					else
+					{
+						$this->SetStatus(207); //email not vaild
+					}	
+					
+				}
+				else
+				{
+					$this->SetEmailEvent($IDEmail, false);
+				}
+				
+				
 				// Status Aktiv
 				$this->SetStatus(102);	
 			}
@@ -292,6 +332,15 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 		return $Script;	
 	}
 	
+	private function CreateEmailAlertScript($email)
+	{
+		$Script = '<?
+//Do not delete or modify.
+Doorbird_EmailAlert('.$this->InstanceID.', '.$email.');		
+?>';	
+		return $Script;	
+	}
+	
 	private function SetSnapshotEvent(integer $IDSnapshot)
 	{
 		//prüfen ob Event existent
@@ -334,6 +383,44 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 			{
 			//echo "Die Ereignis-ID lautet: ". $EreignisID;	
 			}
+	}
+	
+	private function SetEmailEvent(integer $IDEmail, boolean $state)
+	{
+		//prüfen ob Event existent
+		$ParentID = $IDEmail;
+
+		$EreignisID = @($this->GetIDForIdent('DoorbirdEventSendEmail'));
+		if ($EreignisID === false)
+			{
+				$EreignisID = IPS_CreateEvent (0);
+				IPS_SetName($EreignisID, "Send Email Alert");
+				IPS_SetIdent ($EreignisID, "DoorbirdEventSendEmail");
+				IPS_SetEventTrigger($EreignisID, 0,  $this->GetIDForIdent('LastRingtone'));   //bei Variablenaktualisierung
+				IPS_SetParent($EreignisID, $ParentID);
+				IPS_SetEventActive($EreignisID, $state);             //Ereignis aktivieren	/ deaktivieren
+			}
+			
+		else
+			{
+			//echo "Die Ereignis-ID lautet: ". $EreignisID;
+			IPS_SetEventActive($EreignisID, $state);             //Ereignis aktivieren	/ deaktivieren
+			}
+			
+	}
+	
+	protected function EmailAlert(string $email)
+	{
+		$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
+		$countmedia = count($mediaids);
+	 
+		if ($countmedia > 0)
+		{
+			$firstpicid = $mediaids[0];
+			$mailer = $this->ReadPropertyInteger('smtpmodule');
+			SMTP_SendMailMediaEx($mailer, $email, "Doorbell Klingel!", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!", $firstpicid);
+		}
+		
 	}
 	
 	public function ProcessHookData()

@@ -537,21 +537,23 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 				if ($MediaID === false)
 				{
 					$MediaID = IPS_CreateMedia(1);                  // Image im MedienPool anlegen
+					IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie
+					IPS_SetIdent ($MediaID, $ident.$currentsnapshotid);
+					IPS_SetPosition($MediaID, $currentsnapshotid);
 					IPS_SetMediaCached($MediaID, true);
 					// Das Cachen für das Mediaobjekt wird aktiviert.
 					// Beim ersten Zugriff wird dieses von der Festplatte ausgelesen
 					// und zukünftig nur noch im Arbeitsspeicher verarbeitet.
+					$ImageFile = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR.$picturename.$currentsnapshotid".jpg";  // Image-Datei
+					IPS_SetMediaFile($MediaID, $ImageFile, False);    // Image im MedienPool mit Image-Datei verbinden
 					
 					if ($currentsnapshotid == 1)
 					{
 						//Auf Position 1 anlegen und beschreiben
 						$savetime = date('d.m.Y H:i:s');
-						IPS_SetMediaContent($MediaID, base64_encode($Content));  //Bild Base64 codieren und ablegen
 						IPS_SetName($MediaID, $name." ".$currentsnapshotid." ".$savetime); // Medienobjekt benennen
-						IPS_SetIdent ($MediaID, $ident.$currentsnapshotid);
-						IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie
-						IPS_SetPosition($MediaID, $currentsnapshotid);
 						IPS_SetInfo ($MediaID, $savetime);
+						IPS_SetMediaContent($MediaID, base64_encode($Content));  //Bild Base64 codieren und ablegen
 						IPS_SendMediaEvent($MediaID); //aktualisieren
 					}
 					else
@@ -559,9 +561,6 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 						//Array auslesen und Bilder +1 neu zuordnen
 						//Images base 64 codiert in allmedia einlesen
 						$allmedia = $this->GetallImages($mediaids);
-						IPS_SetIdent ($MediaID, $ident.$currentsnapshotid);
-						IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie
-						IPS_SetPosition($MediaID, $currentsnapshotid);
 						//Neues Bild zu allmedia hinzufügen
 						$allmedia = $this->AddCurrentPic($allmedia, $mediaids, $Content);
 						//allmedia schreiben
@@ -570,10 +569,6 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 				
 				}
 			}
-		//Nur noch Cache
-		//$doorbirdimage = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR.$picturename.$currentsnapshotid.".png";  // Raspberry
-		// Bild in Datei speichern
-		//file_put_contents($doorbirdimage, $Content);
 	}
 	
 	private function GetallImages($mediaids)
@@ -621,7 +616,7 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 	private function AddCurrentPic($allmedia, $mediaids, $Content)
 	{
 		$lastid = count($allmedia);
-		
+				
 		// Neues Bild ergänzen
  		$allmedia[$lastid]['objid'] = $mediaids[0];
 		$allmedia[$lastid]['picid'] = 0;
@@ -720,6 +715,7 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
         //IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize);
         
     }
+	
 }
 
 ?>

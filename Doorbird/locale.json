@@ -25,7 +25,7 @@
 			"relaxation doorbell": "Zeit Klingel (s)",
 			"relaxation motionsensor": "Zeit Bewegungsmelder (s)",
 			"relaxation dooropen": "Zeit Türöffner (s)",
-			"optionally notification via email when ring (configurated SMTP module required)": "Optionale Benachrichtigung per Email beim Klingeln",
+			"optionally notification via email (configurated SMTP module required)": "Optionale Benachrichtigung per Email beim Klingeln",
 			"active email notification": "Email Benachrichtigung aktiv",
 			"active email": "Email aktiv",
 			"SMTP module": "SMTP Modul",

@@ -51,7 +51,22 @@
                     "caption": "door open"
                 },
 				{ "type": "Label", "label": "Relaxation time for dooropen (seconds)" },
-				{ "type": "NumberSpinner", "name": "relaxationdooropen", "caption": "relaxation dooropen", "digits": 0}
+				{ "type": "NumberSpinner", "name": "relaxationdooropen", "caption": "relaxation dooropen", "digits": 0},
+				{ "type": "Label", "label": "optionally notification via email (configurated SMTP module required)" },
+				{ "type": "Label", "label": "active email notification" },
+				{
+                    "name": "activeemail",
+                    "type": "CheckBox",
+                    "caption": "active email"
+                },
+				{ "type": "SelectInstance", "name": "smtpmodule", "caption": "SMTP module" },
+				
+				{ "type": "Label", "label": "notification email adress" },
+                {
+                    "name": "email",
+                    "type": "ValidationTextBox",
+                    "caption": "email"
+                }	 
             ],
 	"actions":
 			[
@@ -106,6 +121,11 @@
                     "code": 206,
                     "icon": "error",
                     "caption": "category must not be empty."
+                },
+				{
+                    "code": 207,
+                    "icon": "error",
+                    "caption": "email not valid."
                 }
             ]
 }

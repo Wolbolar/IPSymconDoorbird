@@ -24,6 +24,9 @@ class Doorbird extends IPSModule
 		$this->RegisterPropertyInteger("relaxationmotionsensor", 10);
 		$this->RegisterPropertyBoolean("dooropen", true);
 		$this->RegisterPropertyInteger("relaxationdooropen", 10);
+		$this->RegisterPropertyBoolean("activeemail", false);
+		$this->RegisterPropertyString("email", "");
+		$this->RegisterPropertyInteger("smtpmodule", 0);
     }
 
     public function ApplyChanges()
@@ -199,6 +202,45 @@ class Doorbird extends IPSModule
 				$this->SetupNotification();
 				$this->GetInfo();
 				
+				//Email
+				$emailalert = $this->ReadPropertyBoolean('activeemail');
+				if ($emailalert)
+				{
+					$email = $this->ReadPropertyString('email');
+					if ($email == "")
+					{
+						$this->SetStatus(205); //Felder dürfen nicht leer sein
+					}
+					if (filter_var($email, FILTER_VALIDATE_EMAIL))
+					{
+						//email valid
+						//Skript beim EmailAlert	
+						$IDEmail = @($this->GetIDForIdent('SendEmailAlert'));
+						if ($IDEmail === false)
+							{
+								$IDEmail = $this->RegisterScript("SendEmailAlert", "Email Alert", $this->CreateEmailAlertScript($email), 19);
+								IPS_SetHidden($IDEmail, true);
+							}
+						$this->SetEmailEvent($IDEmail, true);	
+					}
+					else
+					{
+						
+						$this->SetStatus(207); //email not vaild
+					}	
+					
+				}
+				else
+				{
+					$IDEmail = @($this->GetIDForIdent('SendEmailAlert'));
+					if ($IDEmail > 0)
+					{
+						$this->SetEmailEvent($IDEmail, false);
+					}
+					
+				}
+				
+				
 				// Status Aktiv
 				$this->SetStatus(102);	
 			}
@@ -292,6 +334,15 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 		return $Script;	
 	}
 	
+	private function CreateEmailAlertScript($email)
+	{
+		$Script = '<?
+//Do not delete or modify.
+Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");		
+?>';	
+		return $Script;	
+	}
+	
 	private function SetSnapshotEvent(integer $IDSnapshot)
 	{
 		//prüfen ob Event existent
@@ -334,6 +385,46 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 			{
 			//echo "Die Ereignis-ID lautet: ". $EreignisID;	
 			}
+	}
+	
+	private function SetEmailEvent(integer $IDEmail, boolean $state)
+	{
+		//prüfen ob Event existent
+		$ParentID = $IDEmail;
+
+		//$EreignisID = @($this->GetIDForIdent('EventDoorbirdEmail'));
+		$EreignisID = @IPS_GetObjectIDByIdent("EventDoorbirdEmail", $ParentID);
+		if ($EreignisID === false)
+			{
+				$EreignisID = IPS_CreateEvent (0);
+				IPS_SetName($EreignisID, "Doorbird Email Alert");
+				IPS_SetIdent ($EreignisID, "EventDoorbirdEmail");
+				IPS_SetEventTrigger($EreignisID, 0,  $this->GetIDForIdent('LastRingtone'));   //bei Variablenaktualisierung
+				IPS_SetParent($EreignisID, $ParentID);
+				IPS_SetEventActive($EreignisID, $state);             //Ereignis aktivieren	/ deaktivieren
+			}
+			
+		else
+			{
+			//echo "Die Ereignis-ID lautet: ". $EreignisID;
+			IPS_SetEventActive($EreignisID, $state);             //Ereignis aktivieren	/ deaktivieren
+			}
+			
+	}
+	
+	public function EmailAlert(string $email)
+	{
+		$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
+		$mediaids = IPS_GetChildrenIDs($catid);
+		$countmedia = count($mediaids);
+	 
+		if ($countmedia > 0)
+		{
+			$firstpicid = $mediaids[0];
+			$mailer = $this->ReadPropertyInteger('smtpmodule');
+			SMTP_SendMailMediaEx($mailer, $email, "Doorbell Klingel!", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!", $firstpicid);
+		}
+		
 	}
 	
 	public function ProcessHookData()
@@ -453,35 +544,45 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 	public function GetHistory()
 	{
 		$doorbirdip = $this->ReadPropertyString('Host');
+		$name = "Doorbird Klingel";
+		$ident = "DoorbirdRingPic";
+		$picturename = "doorbirdringpic_";
 		for ($i = 1; $i <= 20; $i++)
 		{
 			$URL='http://'.$doorbirdip.'/bha-api/history.cgi?index='.$i;
 			$Content = $this->SendDoorbird($URL);
-			$doorbirdimage = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR."doorbirdhistory_".$i.".png";  // Raspberry
-			// Bild in Datei speichern
-			file_put_contents($doorbirdimage, $Content);
+			
 
 			//testen ob im Medienpool existent
 			$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
 			
-			$MediaID = @IPS_GetObjectIDByIdent("DoorbirdHistoryPic".$i, $catid);
+			$MediaID = @IPS_GetObjectIDByIdent($ident.$i, $catid);
 			if ($MediaID === false)
 				{
 					$MediaID = IPS_CreateMedia(1);                  // Image im MedienPool anlegen
+					IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie Historie
+					IPS_SetIdent ($MediaID, $ident.$i);
+					IPS_SetPosition($MediaID, $i);
 					IPS_SetMediaCached($MediaID, true);
 					// Das Cachen für das Mediaobjekt wird aktiviert.
 					// Beim ersten Zugriff wird dieses von der Festplatte ausgelesen
 					// und zukünftig nur noch im Arbeitsspeicher verarbeitet.
-					IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
-					IPS_SetName($MediaID, "Doorbird Historie ".$i." ".date('d.m.Y H:i:s')); // Medienobjekt benennen
-					IPS_SetIdent ($MediaID, "DoorbirdHistoryPic".$i);
-					IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie Historie
-					IPS_SetPosition($MediaID, $i);
+					$ImageFile = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR.$picturename.$i.".jpg";  // Image-Datei
+					IPS_SetMediaFile($MediaID, $ImageFile, False);    // Image im MedienPool mit Image-Datei verbinden
+					//$savetime = date('d.m.Y H:i:s');
+					//IPS_SetName($MediaID, $name." ".$i." ".$savetime); // Medienobjekt benennen
+					IPS_SetName($MediaID, $name." ".$i); // Medienobjekt benennen
+					//IPS_SetInfo ($MediaID, $savetime);
+					IPS_SetMediaContent($MediaID, base64_encode($Content));  //Bild Base64 codieren und ablegen
+					IPS_SendMediaEvent($MediaID); //aktualisieren	
 				}
 			else
 				{
-					IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
-					IPS_SetPosition($MediaID, $i);
+					//$savetime = date('d.m.Y H:i:s');
+					//IPS_SetName($MediaID, $name." ".$currentsnapshotid." ".$savetime); // Medienobjekt benennen
+					//IPS_SetInfo ($MediaID, $savetime);
+					IPS_SetMediaContent($MediaID, base64_encode($Content));  //Bild Base64 codieren und ablegen
+					IPS_SendMediaEvent($MediaID); //aktualisieren
 				}
 			IPS_Sleep(200);	
 		}
@@ -537,21 +638,23 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 				if ($MediaID === false)
 				{
 					$MediaID = IPS_CreateMedia(1);                  // Image im MedienPool anlegen
+					IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie
+					IPS_SetIdent ($MediaID, $ident.$currentsnapshotid);
+					IPS_SetPosition($MediaID, $currentsnapshotid);
 					IPS_SetMediaCached($MediaID, true);
 					// Das Cachen für das Mediaobjekt wird aktiviert.
 					// Beim ersten Zugriff wird dieses von der Festplatte ausgelesen
 					// und zukünftig nur noch im Arbeitsspeicher verarbeitet.
+					$ImageFile = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR.$picturename.$currentsnapshotid.".jpg";  // Image-Datei
+					IPS_SetMediaFile($MediaID, $ImageFile, False);    // Image im MedienPool mit Image-Datei verbinden
 					
 					if ($currentsnapshotid == 1)
 					{
 						//Auf Position 1 anlegen und beschreiben
 						$savetime = date('d.m.Y H:i:s');
-						IPS_SetMediaContent($MediaID, base64_encode($Content));  //Bild Base64 codieren und ablegen
 						IPS_SetName($MediaID, $name." ".$currentsnapshotid." ".$savetime); // Medienobjekt benennen
-						IPS_SetIdent ($MediaID, $ident.$currentsnapshotid);
-						IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie
-						IPS_SetPosition($MediaID, $currentsnapshotid);
 						IPS_SetInfo ($MediaID, $savetime);
+						IPS_SetMediaContent($MediaID, base64_encode($Content));  //Bild Base64 codieren und ablegen
 						IPS_SendMediaEvent($MediaID); //aktualisieren
 					}
 					else
@@ -559,9 +662,6 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 						//Array auslesen und Bilder +1 neu zuordnen
 						//Images base 64 codiert in allmedia einlesen
 						$allmedia = $this->GetallImages($mediaids);
-						IPS_SetIdent ($MediaID, $ident.$currentsnapshotid);
-						IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie
-						IPS_SetPosition($MediaID, $currentsnapshotid);
 						//Neues Bild zu allmedia hinzufügen
 						$allmedia = $this->AddCurrentPic($allmedia, $mediaids, $Content);
 						//allmedia schreiben
@@ -570,10 +670,6 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 				
 				}
 			}
-		//Nur noch Cache
-		//$doorbirdimage = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR.$picturename.$currentsnapshotid.".png";  // Raspberry
-		// Bild in Datei speichern
-		//file_put_contents($doorbirdimage, $Content);
 	}
 	
 	private function GetallImages($mediaids)
@@ -621,7 +717,7 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
 	private function AddCurrentPic($allmedia, $mediaids, $Content)
 	{
 		$lastid = count($allmedia);
-		
+				
 		// Neues Bild ergänzen
  		$allmedia[$lastid]['objid'] = $mediaids[0];
 		$allmedia[$lastid]['picid'] = 0;
@@ -720,6 +816,7 @@ Doorbird_GetRingPicture('.$this->InstanceID.');
         //IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize);
         
     }
+	
 }
 
 ?>

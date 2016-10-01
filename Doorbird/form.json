@@ -66,9 +66,7 @@
                     "name": "email",
                     "type": "ValidationTextBox",
                     "caption": "email"
-                },
-				
-					 
+                }	 
             ],
 	"actions":
 			[

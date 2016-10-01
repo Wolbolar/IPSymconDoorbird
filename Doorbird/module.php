@@ -220,12 +220,8 @@ class Doorbird extends IPSModule
 							{
 								$IDEmail = $this->RegisterScript("SendEmailAlert", "Email Alert", $this->CreateEmailAlertScript($email), 19);
 								IPS_SetHidden($IDEmail, true);
-								$this->SetEmailEvent($IDEmail, true);
 							}
-						else
-							{
-								//echo "Die Skript-ID lautet: ". $SkriptID;
-							}
+						$this->SetEmailEvent($IDEmail, true);	
 					}
 					else
 					{

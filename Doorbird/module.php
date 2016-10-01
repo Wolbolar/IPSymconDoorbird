@@ -396,12 +396,12 @@ Doorbird_EmailAlert('.$this->InstanceID.', '.$email.');
 		//prüfen ob Event existent
 		$ParentID = $IDEmail;
 
-		$EreignisID = @($this->GetIDForIdent('DoorbirdEventSendEmail'));
+		$EreignisID = @($this->GetIDForIdent('EventDoorbirdEmail'));
 		if ($EreignisID === false)
 			{
 				$EreignisID = IPS_CreateEvent (0);
-				IPS_SetName($EreignisID, "Send Email Alert");
-				IPS_SetIdent ($EreignisID, "DoorbirdEventSendEmail");
+				IPS_SetName($EreignisID, "Doorbird Email Alert");
+				IPS_SetIdent ($EreignisID, "EventDoorbirdEmail");
 				IPS_SetEventTrigger($EreignisID, 0,  $this->GetIDForIdent('LastRingtone'));   //bei Variablenaktualisierung
 				IPS_SetParent($EreignisID, $ParentID);
 				IPS_SetEventActive($EreignisID, $state);             //Ereignis aktivieren	/ deaktivieren

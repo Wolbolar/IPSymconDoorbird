@@ -548,35 +548,45 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	public function GetHistory()
 	{
 		$doorbirdip = $this->ReadPropertyString('Host');
+		$name = "Doorbird Klingel";
+		$ident = "DoorbirdRingPic";
+		$picturename = "doorbirdringpic_";
 		for ($i = 1; $i <= 20; $i++)
 		{
 			$URL='http://'.$doorbirdip.'/bha-api/history.cgi?index='.$i;
 			$Content = $this->SendDoorbird($URL);
-			$doorbirdimage = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR."doorbirdhistory_".$i.".png";  // Raspberry
-			// Bild in Datei speichern
-			file_put_contents($doorbirdimage, $Content);
+			
 
 			//testen ob im Medienpool existent
 			$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
 			
-			$MediaID = @IPS_GetObjectIDByIdent("DoorbirdHistoryPic".$i, $catid);
+			$MediaID = @IPS_GetObjectIDByIdent($ident.$i, $catid);
 			if ($MediaID === false)
 				{
 					$MediaID = IPS_CreateMedia(1);                  // Image im MedienPool anlegen
+					IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie Historie
+					IPS_SetIdent ($MediaID, $ident.$i);
+					IPS_SetPosition($MediaID, $i);
 					IPS_SetMediaCached($MediaID, true);
 					// Das Cachen für das Mediaobjekt wird aktiviert.
 					// Beim ersten Zugriff wird dieses von der Festplatte ausgelesen
 					// und zukünftig nur noch im Arbeitsspeicher verarbeitet.
-					IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
-					IPS_SetName($MediaID, "Doorbird Historie ".$i." ".date('d.m.Y H:i:s')); // Medienobjekt benennen
-					IPS_SetIdent ($MediaID, "DoorbirdHistoryPic".$i);
-					IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie Historie
-					IPS_SetPosition($MediaID, $i);
+					$ImageFile = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR.$picturename.$i.".jpg";  // Image-Datei
+					IPS_SetMediaFile($MediaID, $ImageFile, False);    // Image im MedienPool mit Image-Datei verbinden
+					//$savetime = date('d.m.Y H:i:s');
+					//IPS_SetName($MediaID, $name." ".$i." ".$savetime); // Medienobjekt benennen
+					IPS_SetName($MediaID, $name." ".$i); // Medienobjekt benennen
+					//IPS_SetInfo ($MediaID, $savetime);
+					IPS_SetMediaContent($MediaID, base64_encode($Content));  //Bild Base64 codieren und ablegen
+					IPS_SendMediaEvent($MediaID); //aktualisieren	
 				}
 			else
 				{
-					IPS_SetMediaFile($MediaID, $doorbirdimage, false);   // Image im MedienPool mit Image-Datei verbinden
-					IPS_SetPosition($MediaID, $i);
+					//$savetime = date('d.m.Y H:i:s');
+					//IPS_SetName($MediaID, $name." ".$currentsnapshotid." ".$savetime); // Medienobjekt benennen
+					//IPS_SetInfo ($MediaID, $savetime);
+					IPS_SetMediaContent($MediaID, base64_encode($Content));  //Bild Base64 codieren und ablegen
+					IPS_SendMediaEvent($MediaID); //aktualisieren
 				}
 			IPS_Sleep(200);	
 		}

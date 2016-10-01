@@ -419,6 +419,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	public function EmailAlert(string $email)
 	{
 		$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
+		$mediaids = IPS_GetChildrenIDs($catid);
 		$countmedia = count($mediaids);
 	 
 		if ($countmedia > 0)

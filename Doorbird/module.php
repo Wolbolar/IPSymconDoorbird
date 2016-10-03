@@ -623,7 +623,8 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 				//Images base 64 codiert in allmedia einlesen
 						
 				$allmedia = $this->GetallImages($mediaids);
-				unset ($allmedia[($countmedia-1)]);
+				$mediaid20 = array_search(20, array_column($allmedia, 'picid'));
+				unset ($allmedia[$mediaid20]);
 				//Neues Bild zu allmedia hinzufügen
 				$allmedia = $this->AddCurrentPic($allmedia, $mediaids, $Content);
 				//allmedia schreiben

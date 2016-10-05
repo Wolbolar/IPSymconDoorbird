@@ -13,7 +13,9 @@ class Doorbird extends IPSModule
         //You cannot use variables here. Just static values.
 		
         $this->RegisterPropertyString("Host", "");
+		$this->RegisterPropertyInteger("PortDoorbell", 80);
 		$this->RegisterPropertyString("IPSIP", "");
+		$this->RegisterPropertyInteger("PortIPS", 3777);
 		$this->RegisterPropertyString("User", "");
 		$this->RegisterPropertyString("Password", "");
 		$this->RegisterPropertyInteger("picturelimitring", 20);
@@ -28,6 +30,8 @@ class Doorbird extends IPSModule
 		$this->RegisterPropertyString("email", "");
 		$this->RegisterPropertyInteger("smtpmodule", 0);
 		$this->RegisterPropertyBoolean("altview", false);
+		$this->RegisterPropertyString("subject", "Doorbell Klingel!");
+		$this->RegisterPropertyString("emailtext", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
     }
 
     public function ApplyChanges()
@@ -90,36 +94,59 @@ class Doorbird extends IPSModule
 		$change = false;
 		
 		
-		$ip = $this->ReadPropertyString('Host');
-		$ipips = $this->ReadPropertyString('IPSIP');
+		$hostdoorbell = $this->ReadPropertyString('Host');
+		$hostips = $this->ReadPropertyString('IPSIP');
 		$doorbirduser = $this->ReadPropertyString('User');
 		$password = $this->ReadPropertyString('Password');
+		$portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
 		
 		//IP prüfen
-		if ((!filter_var($ip, FILTER_VALIDATE_IP) === false) && (!filter_var($ipips, FILTER_VALIDATE_IP) === false))
+		if ((!filter_var($hostdoorbell, FILTER_VALIDATE_IP) === false) && (!filter_var($hostips, FILTER_VALIDATE_IP) === false))
 			{
 				//IP ok
+				$ipcheck = true;
 			}
 		else
 			{
-			$this->SetStatus(203); //IP Adresse ist ungültig 
+				$ipcheck = false;
+			
+				 
 			}
+			
+		//Domain prüfen
+		if((!$this->is_valid_domain($hostdoorbell) === false) && (!$this->is_valid_domain($hostips) === false))
+		{
+			//Domain ok
+			$domaincheck = true;
+		}
+		else
+		{
+			$domaincheck = false;
+		}
+		if (($domaincheck === true) || ($ipcheck === true))
+		{
+			$hostcheck = true;
+		}
+		else
+		{
+			$this->SetStatus(203); //IP Adresse oder Host ist ungültig
+		}		
 		$change = false;	
 		//User und Passwort prüfen
 		if ($doorbirduser == "" || $password == "")
 			{
 				$this->SetStatus(205); //Felder dürfen nicht leer sein
 			}
-		elseif ($doorbirduser !== "" && $password !== "" && (!filter_var($ip, FILTER_VALIDATE_IP) === false) && (!filter_var($ipips, FILTER_VALIDATE_IP) === false))
+		elseif ($doorbirduser !== "" && $password !== "" && $hostcheck === true)
 			{
 				$selectionaltview = $this->ReadPropertyBoolean('altview');
 				if ($selectionaltview)
 				{
-					$DoorbirdVideoHTML = '<img src="http://'.$ip.'/bha-api/video.cgi?http-user='.$doorbirduser.'&http-password='.$password.'" style="width: 960px; height:540px;" >';
+					$DoorbirdVideoHTML = '<img src="http://'.$hostdoorbell.':'.$portdoorbell.'/bha-api/video.cgi?http-user='.$doorbirduser.'&http-password='.$password.'" style="width: 960px; height:540px;" >';
 				}
 				else
 				{
-					$DoorbirdVideoHTML = '<iframe src="http://'.$ip.'/bha-api/video.cgi?http-user='.$doorbirduser.'&http-password='.$password.'" border="0" frameborder="0" style= "width: 100%; height: 500px;"/></iframe>';
+					$DoorbirdVideoHTML = '<iframe src="http://'.$hostdoorbell.':'.$portdoorbell.'/bha-api/video.cgi?http-user='.$doorbirduser.'&http-password='.$password.'" border="0" frameborder="0" style= "width: 100%; height: 500px;"/></iframe>';
 				}
 				SetValueString($this->GetIDForIdent('DoorbirdVideo'), $DoorbirdVideoHTML);
 				
@@ -296,7 +323,64 @@ class Doorbird extends IPSModule
             IPS_ApplyChanges($ids[0]);
         }
     }
+	
+	protected function is_valid_domain($url)
+	{
 
+		$validation = FALSE;
+		/*Parse URL*/
+		$urlparts = parse_url(filter_var($url, FILTER_SANITIZE_URL));
+		/*Check host exist else path assign to host*/
+		if(!isset($urlparts['host'])){
+			$urlparts['host'] = $urlparts['path'];
+		}
+
+		if($urlparts['host']!=''){
+		   /*Add scheme if not found*/
+			if (!isset($urlparts['scheme'])){
+				$urlparts['scheme'] = 'http';
+			}
+			/*Validation*/
+			if(checkdnsrr($urlparts['host'], 'A') && in_array($urlparts['scheme'],array('http','https')) && ip2long($urlparts['host']) === FALSE){ 
+				$urlparts['host'] = preg_replace('/^www\./', '', $urlparts['host']);
+				$url = $urlparts['scheme'].'://'.$urlparts['host']. "/";            
+				
+				if (filter_var($url, FILTER_VALIDATE_URL) !== false && @get_headers($url)) {
+					$validation = TRUE;
+				}
+			}
+		}
+
+		if(!$validation)
+		{
+			//echo $url." Its Invalid Domain Name.";
+			$domaincheck = false;
+			return $domaincheck;
+		}
+		else
+		{
+			//echo $url." is a Valid Domain Name.";
+			$domaincheck = true;
+			return $domaincheck;
+		}
+
+	}
+	
+	protected function GetConnectURL()
+	{
+		$InstanzenListe = IPS_GetInstanceListByModuleID("{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}");
+		$InstanzCount = 0;
+
+		foreach ($InstanzenListe as $InstanzID) {
+			$ConnectControl = $InstanzID;
+			 $InstanzCount++;
+			$Childs[] = IPS_GetChildrenIDs($InstanzID);
+		}
+
+		$connectinfo = CC_GetUrl($ConnectControl); 
+		return $connectinfo;
+	}
+	
 	private function CreateWebHookScript()
     {
         $Script = '<?
@@ -424,6 +508,9 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	public function EmailAlert(string $email)
 	{
 		$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
+		
+		$subject = $this->ReadPropertyString('subject');
+		$emailtext = $this->ReadPropertyString('emailtext');
 		$mediaids = IPS_GetChildrenIDs($catid);
 		$countmedia = count($mediaids);
 	 
@@ -431,7 +518,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		{
 			$firstpicid = $mediaids[0];
 			$mailer = $this->ReadPropertyInteger('smtpmodule');
-			SMTP_SendMailMediaEx($mailer, $email, "Doorbell Klingel!", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!", $firstpicid);
+			SMTP_SendMailMediaEx($mailer, $email, $subject, $emailtext, $firstpicid);
 		}
 		
 	}
@@ -475,6 +562,8 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	{
 		$doorbirdip = $this->ReadPropertyString('Host');
 		$ipsip = $this->ReadPropertyString('IPSIP');
+		$portips = $this->ReadPropertyInteger('PortIPS');
+		$portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
 		$selectiondoorbell = $this->ReadPropertyBoolean('doorbell');
 		if ($selectiondoorbell == true)
 			{
@@ -506,15 +595,15 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 			}
 		$relaxationdooropen = $this->ReadPropertyInteger('relaxationdooropen');
 		//doorbell
-		$URL='http://'.$doorbirdip.'/bha-api/notification.cgi?event=doorbell&subscribe='.$selectiondoorbell.'&relaxation='.$relaxationdoorbell.'&url=http://'.$ipsip.':3777/hook/doorbird'.$this->InstanceID.'?doorbirdevent=doorbell';
+		$URL='http://'.$doorbirdip.':'.$portdoorbell.'/bha-api/notification.cgi?event=doorbell&subscribe='.$selectiondoorbell.'&relaxation='.$relaxationdoorbell.'&url=http://'.$ipsip.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=doorbell';
 		$result = $this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//motionsensor
-		$URL='http://'.$doorbirdip.'/bha-api/notification.cgi?event=motionsensor&subscribe='.$selectionmotionsensor.'&relaxation='.$relaxationmotionsensor.'&url=http://'.$ipsip.':3777/hook/doorbird'.$this->InstanceID.'?doorbirdevent=motionsensor';
+		$URL='http://'.$doorbirdip.':'.$portdoorbell.'/bha-api/notification.cgi?event=motionsensor&subscribe='.$selectionmotionsensor.'&relaxation='.$relaxationmotionsensor.'&url=http://'.$ipsip.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=motionsensor';
 		$result = $this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//dooropen
-		$URL='http://'.$doorbirdip.'/bha-api/notification.cgi?event=dooropen&subscribe='.$selectiondooropen.'&relaxation='.$relaxationdooropen.'&url=http://'.$ipsip.':3777/hook/doorbird'.$this->InstanceID.'?doorbirdevent=dooropen';
+		$URL='http://'.$doorbirdip.':'.$portdoorbell.'/bha-api/notification.cgi?event=dooropen&subscribe='.$selectiondooropen.'&relaxation='.$relaxationdooropen.'&url=http://'.$ipsip.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=dooropen';
 		$result = $this->SendDoorbird($URL);
 		SetValueString($this->GetIDForIdent('DoorbirdReturn'),$result);
 	}

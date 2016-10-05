@@ -109,8 +109,6 @@ class Doorbird extends IPSModule
 		else
 			{
 				$ipcheck = false;
-			
-				 
 			}
 			
 		//Domain prüfen
@@ -129,6 +127,7 @@ class Doorbird extends IPSModule
 		}
 		else
 		{
+			$hostcheck = false;
 			$this->SetStatus(203); //IP Adresse oder Host ist ungültig
 		}		
 		$change = false;	

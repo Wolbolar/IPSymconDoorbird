@@ -146,7 +146,7 @@ class Doorbird extends IPSModule
 				}
 				else
 				{
-					$DoorbirdVideoHTML = '<iframe src="http://'.$hostdoorbell.':'$portdoorbell'/bha-api/video.cgi?http-user='.$doorbirduser.'&http-password='.$password.'" border="0" frameborder="0" style= "width: 100%; height: 500px;"/></iframe>';
+					$DoorbirdVideoHTML = '<iframe src="http://'.$hostdoorbell.':'.$portdoorbell.'/bha-api/video.cgi?http-user='.$doorbirduser.'&http-password='.$password.'" border="0" frameborder="0" style= "width: 100%; height: 500px;"/></iframe>';
 				}
 				SetValueString($this->GetIDForIdent('DoorbirdVideo'), $DoorbirdVideoHTML);
 				

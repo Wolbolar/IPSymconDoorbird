@@ -599,11 +599,11 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$result = $this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//motionsensor
-		$URL='http://'.$doorbirdip.':'.$portdoorbell.'/bha-api/notification.cgi?event=motionsensor&subscribe='.$selectionmotionsensor.'&relaxation='.$relaxationmotionsensor.'&url=http://'.$ipsip.':'$portips'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=motionsensor';
+		$URL='http://'.$doorbirdip.':'.$portdoorbell.'/bha-api/notification.cgi?event=motionsensor&subscribe='.$selectionmotionsensor.'&relaxation='.$relaxationmotionsensor.'&url=http://'.$ipsip.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=motionsensor';
 		$result = $this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//dooropen
-		$URL='http://'.$doorbirdip.':'.$portdoorbell.'/bha-api/notification.cgi?event=dooropen&subscribe='.$selectiondooropen.'&relaxation='.$relaxationdooropen.'&url=http://'.$ipsip.':'$portips'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=dooropen';
+		$URL='http://'.$doorbirdip.':'.$portdoorbell.'/bha-api/notification.cgi?event=dooropen&subscribe='.$selectiondooropen.'&relaxation='.$relaxationdooropen.'&url=http://'.$ipsip.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=dooropen';
 		$result = $this->SendDoorbird($URL);
 		SetValueString($this->GetIDForIdent('DoorbirdReturn'),$result);
 	}

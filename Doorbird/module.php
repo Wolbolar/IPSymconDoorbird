@@ -100,28 +100,51 @@ class Doorbird extends IPSModule
 		$password = $this->ReadPropertyString('Password');
 		$portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
 		
-		//IP prüfen
-		if ((!filter_var($hostdoorbell, FILTER_VALIDATE_IP) === false) && (!filter_var($hostips, FILTER_VALIDATE_IP) === false))
+		//IP Doorbell prüfen
+		if (!filter_var($hostdoorbell, FILTER_VALIDATE_IP) === false)
 			{
 				//IP ok
-				$ipcheck = true;
+				$ipcheckdoorbird = true;
 			}
 		else
 			{
-				$ipcheck = false;
+				$ipcheckdoorbird = false;
 			}
 			
-		//Domain prüfen
-		if((!$this->is_valid_domain($hostdoorbell) === false) && (!$this->is_valid_domain($hostips) === false))
+		//IP IP-Symcon prüfen
+		if (!filter_var($hostips, FILTER_VALIDATE_IP) === false)
+			{
+				//IP ok
+				$ipcheckips = true;
+			}
+		else
+			{
+				$ipcheckips = false;
+			}	
+			
+		//Domain Doorbell prüfen
+		if(!$this->is_valid_domain($hostdoorbell) === false)
 		{
 			//Domain ok
-			$domaincheck = true;
+			$domaincheckdoorbell = true;
 		}
 		else
 		{
-			$domaincheck = false;
+			$domaincheckdoorbell = false;
 		}
-		if (($domaincheck === true) || ($ipcheck === true))
+		
+		//Domain IP-Symcon prüfen
+		if(!$this->is_valid_domain($hostips) === false)
+		{
+			//Domain ok
+			$domaincheckips = true;
+		}
+		else
+		{
+			$domaincheckips = false;
+		}
+		
+		if (($domaincheckdoorbell === true || $ipcheckdoorbird = true) && ($domaincheckips = true || $ipcheckips === true))
 		{
 			$hostcheck = true;
 		}

@@ -162,13 +162,14 @@ class Doorbird extends IPSModule
 		elseif ($doorbirduser !== "" && $password !== "" && $hostcheck === true)
 			{
 				$selectionaltview = $this->ReadPropertyBoolean('altview');
+				$prefix = $this->GetURLPrefix($hostdoorbell);
 				if ($selectionaltview)
 				{
-					$DoorbirdVideoHTML = '<img src="http://'.$hostdoorbell.':'.$portdoorbell.'/bha-api/video.cgi?http-user='.$doorbirduser.'&http-password='.$password.'" style="width: 960px; height:540px;" >';
+					$DoorbirdVideoHTML = '<img src="'.$prefix.$hostdoorbell.':'.$portdoorbell.'/bha-api/video.cgi?http-user='.$doorbirduser.'&http-password='.$password.'" style="width: 960px; height:540px;" >';
 				}
 				else
 				{
-					$DoorbirdVideoHTML = '<iframe src="http://'.$hostdoorbell.':'.$portdoorbell.'/bha-api/video.cgi?http-user='.$doorbirduser.'&http-password='.$password.'" border="0" frameborder="0" style= "width: 100%; height: 500px;"/></iframe>';
+					$DoorbirdVideoHTML = '<iframe src="'.$prefix.$hostdoorbell.':'.$portdoorbell.'/bha-api/video.cgi?http-user='.$doorbirduser.'&http-password='.$password.'" border="0" frameborder="0" style= "width: 100%; height: 500px;"/></iframe>';
 				}
 				SetValueString($this->GetIDForIdent('DoorbirdVideo'), $DoorbirdVideoHTML);
 				
@@ -388,6 +389,25 @@ class Doorbird extends IPSModule
 
 	}
 	
+	protected function GetURLPrefix($url)
+	{
+		$prehttp = strpos($url, "http://");
+		$prehttps = strpos($url, "https://");
+		if ($prehttp === 0)
+		{
+		    $prefix = "http://"; //Prefix ist http
+		}
+		elseif ($prehttps === 0)
+		{
+			$prefix = "https://"; //Prefix ist https
+		}
+		else
+		{
+			$prefix = "http://"; //Prefix ergänzen
+		}
+		return $prefix;
+	}
+	
 	protected function GetConnectURL()
 	{
 		$InstanzenListe = IPS_GetInstanceListByModuleID("{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}");
@@ -582,8 +602,8 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	//Profile zuweisen und Geräte anlegen
 	public function SetupNotification()
 	{
-		$doorbirdip = $this->ReadPropertyString('Host');
-		$ipsip = $this->ReadPropertyString('IPSIP');
+		$hostdoorbird = $this->ReadPropertyString('Host');
+		$hostips = $this->ReadPropertyString('IPSIP');
 		$portips = $this->ReadPropertyInteger('PortIPS');
 		$portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
 		$selectiondoorbell = $this->ReadPropertyBoolean('doorbell');
@@ -616,16 +636,18 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 			$selectiondooropen = 0;
 			}
 		$relaxationdooropen = $this->ReadPropertyInteger('relaxationdooropen');
+		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
+		$prefixips = $this->GetURLPrefix($hostips);
 		//doorbell
-		$URL='http://'.$doorbirdip.':'.$portdoorbell.'/bha-api/notification.cgi?event=doorbell&subscribe='.$selectiondoorbell.'&relaxation='.$relaxationdoorbell.'&url=http://'.$ipsip.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=doorbell';
+		$URL = $prefixdoorbird.$doorbirdip.':'.$portdoorbell.'/bha-api/notification.cgi?event=doorbell&subscribe='.$selectiondoorbell.'&relaxation='.$relaxationdoorbell.'&url='.$prefixips.$ipsip.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=doorbell';
 		$result = $this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//motionsensor
-		$URL='http://'.$doorbirdip.':'.$portdoorbell.'/bha-api/notification.cgi?event=motionsensor&subscribe='.$selectionmotionsensor.'&relaxation='.$relaxationmotionsensor.'&url=http://'.$ipsip.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=motionsensor';
+		$URL = $prefixdoorbird.$doorbirdip.':'.$portdoorbell.'/bha-api/notification.cgi?event=motionsensor&subscribe='.$selectionmotionsensor.'&relaxation='.$relaxationmotionsensor.'&url='.$prefixips.$ipsip.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=motionsensor';
 		$result = $this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//dooropen
-		$URL='http://'.$doorbirdip.':'.$portdoorbell.'/bha-api/notification.cgi?event=dooropen&subscribe='.$selectiondooropen.'&relaxation='.$relaxationdooropen.'&url=http://'.$ipsip.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=dooropen';
+		$URL = $prefixdoorbird.$doorbirdip.':'.$portdoorbell.'/bha-api/notification.cgi?event=dooropen&subscribe='.$selectiondooropen.'&relaxation='.$relaxationdooropen.'&url='.$prefixips.$ipsip.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=dooropen';
 		$result = $this->SendDoorbird($URL);
 		SetValueString($this->GetIDForIdent('DoorbirdReturn'),$result);
 	}
@@ -649,8 +671,9 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	
 	public function GetInfo()
 	{
-		$doorbirdip = $this->ReadPropertyString('Host');
-		$URL='http://'.$doorbirdip.'/bha-api/info.cgi';
+		$hostdoorbird = $this->ReadPropertyString('Host');
+		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
+		$URL = $prefixdoorbird.$hostdoorbird.'/bha-api/info.cgi';
 		$result = $this->SendDoorbird($URL);
 		$result = json_decode($result);
 		$firmware = $result->BHA->VERSION[0]->FIRMWARE;
@@ -663,13 +686,14 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	
 	public function GetHistory()
 	{
-		$doorbirdip = $this->ReadPropertyString('Host');
+		$hostdoorbird = $this->ReadPropertyString('Host');
+		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
 		$name = "Doorbird Klingel";
 		$ident = "DoorbirdRingPic";
 		$picturename = "doorbirdringpic_";
 		for ($i = 1; $i <= 20; $i++)
 		{
-			$URL='http://'.$doorbirdip.'/bha-api/history.cgi?index='.$i;
+			$URL = $prefixdoorbird.$hostdoorbird.'/bha-api/history.cgi?index='.$i;
 			$Content = $this->SendDoorbird($URL);
 			
 
@@ -730,8 +754,9 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	
 	private function GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid)
 	{
-		$doorbirdip = $this->ReadPropertyString('Host');
-		$URL='http://'.$doorbirdip.'/bha-api/image.cgi';
+		$hostdoorbird = $this->ReadPropertyString('Host');
+		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
+		$URL = $prefixdoorbird.$doorbirdip.'/bha-api/image.cgi';
 		$Content = $this->SendDoorbird($URL);
 		//lastsnapshot bestimmen
 		$mediaids = IPS_GetChildrenIDs($catid);
@@ -850,15 +875,17 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	
 	public function Light()
 	{
-		$doorbirdip = $this->ReadPropertyString('Host');
-		$URL='http://'.$doorbirdip.'/bha-api/light-on.cgi';
+		$hostdoorbird = $this->ReadPropertyString('Host');
+		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
+		$URL = $prefixdoorbird.$doorbirdip.'/bha-api/light-on.cgi';
 		$result = $this->SendDoorbird($URL);
 	}
 	
 	public function OpenDoor()
 	{
-		$doorbirdip = $this->ReadPropertyString('Host');
-		$URL='http://'.$doorbirdip.'/bha-api/open-door.cgi';
+		$hostdoorbird = $this->ReadPropertyString('Host');
+		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
+		$URL = $prefixdoorbird.$doorbirdip.'/bha-api/open-door.cgi';
 		$result = $this->SendDoorbird($URL);
 	}
 	

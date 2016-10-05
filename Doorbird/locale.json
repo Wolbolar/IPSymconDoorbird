@@ -31,6 +31,8 @@
 			"SMTP module": "SMTP Modul",
 			"notification email adress": "Email Adresse für Benachrichtigung",
 			"email": "Email",
+			"if there are problems with the live image in the webfront you can active alterative view": "Bei Problemen mit der Live Bild Anzeige im Webfront Alternative View aktivieren",
+			"alternative view": "Alternative View",
 			"ir light": "IR Licht schalten",
 			"Setup notifications from doorbird to IP-Symcon": "Benachrichtigung von Doorbird an IP-Symcon einrichten",
 			"Setup Notification": "Benachrichtung einrichten",

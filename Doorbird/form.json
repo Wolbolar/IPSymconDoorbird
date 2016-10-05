@@ -66,7 +66,13 @@
                     "name": "email",
                     "type": "ValidationTextBox",
                     "caption": "email"
-                }	 
+                },
+				{ "type": "Label", "label": "if there are problems with the live image in the webfront you can active alterative view" },
+				{
+                    "name": "altview",
+                    "type": "ValidationTextBox",
+                    "caption": "alternative view"
+                }	
             ],
 	"actions":
 			[

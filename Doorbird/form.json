@@ -70,7 +70,7 @@
 				{ "type": "Label", "label": "if there are problems with the live image in the webfront you can active alterative view" },
 				{
                     "name": "altview",
-                    "type": "ValidationTextBox",
+                    "type": "CheckBox",
                     "caption": "alternative view"
                 }	
             ],

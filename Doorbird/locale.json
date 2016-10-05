@@ -1,7 +1,11 @@
 {
 	"translations": {
 		"de": { 
-			"IP adress Doorbird": "IP Adresse Doorbird",
+			"IP adress or hostname Doorbird": "IP Adresse oder Hostname Doorbird",
+			"Port Doorbell": "Port Doorbell",
+			"port of Doorbell": "Port der Doorbell",
+			"port of IP-Symcon": "Port von IP-Symcon",
+			"Port IPS": "Port IPS",
 			"IP Doorbird": "IP Doorbird",
 			"Doorbird login credentials": "Doorbird Zugangsdaten:",
 			"User": "Benutzername",
@@ -31,6 +35,9 @@
 			"SMTP module": "SMTP Modul",
 			"notification email adress": "Email Adresse für Benachrichtigung",
 			"email": "Email",
+			"email subject": "Email Betreff",
+			"subject": "Betreff",
+			"email text". "Email Text",
 			"if there are problems with the live image in the webfront you can active alterative view": "Bei Problemen mit der Live Bild Anzeige im Webfront Alternative View aktivieren",
 			"alternative view": "Alternative View",
 			"ir light": "IR Licht schalten",
@@ -45,7 +52,7 @@
 			"Doorbird accessible.": "Doorbird ereichbar.",
 			"interface closed.": "Interface geschlossen.",
 			"Doorbird IP adress must not empty.": "Doorbird IP Adresse darf nicht leer sein.",
-			"No valid IP adress.": "Keine gültige IP Adresse.",
+			"No valid IP adress or host.": "Keine gültige IP Adresse oder Domainname.",
 			"connection to Doorbird lost.": "Verbindung zur Doorbird verloren.",
 			"field must not be empty.": "Felder dürfen nicht leer sein.",
 			"select category for import.": "Kategorie zum Import auswählen.",

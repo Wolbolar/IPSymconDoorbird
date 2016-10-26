@@ -101,6 +101,8 @@ class Doorbird extends IPSModule
 		$doorbirduser = $this->ReadPropertyString('User');
 		$password = $this->ReadPropertyString('Password');
 		$portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
+		$webhookusername = $this->ReadPropertyString('webhookusername');
+		$webhookpassword = $this->ReadPropertyString('webhookpassword');
 		
 		//IP Doorbell prüfen
 		if (!filter_var($hostdoorbell, FILTER_VALIDATE_IP) === false)
@@ -157,7 +159,7 @@ class Doorbird extends IPSModule
 		}		
 		$change = false;	
 		//User und Passwort prüfen
-		if ($doorbirduser == "" || $password == "")
+		if ($doorbirduser == "" || $password == "" || $webhookusername == "" || $webhookpassword == "")
 			{
 				$this->SetStatus(205); //Felder dürfen nicht leer sein
 			}
@@ -572,7 +574,21 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$ringid = $this->GetIDForIdent('LastRingtone');
 		$movementid = $this->GetIDForIdent('LastMovement');
 		$doorid = $this->GetIDForIdent('LastDoorOpen');
-			
+		$webhookusername = $this->ReadPropertyString('webhookusername');
+		$webhookpassword = $this->ReadPropertyString('webhookpassword');
+		if(!isset($_SERVER['PHP_AUTH_USER']))
+		$_SERVER['PHP_AUTH_USER'] = "";
+		if(!isset($_SERVER['PHP_AUTH_PW']))
+			$_SERVER['PHP_AUTH_PW'] = "";
+		 
+		if(($_SERVER['PHP_AUTH_USER'] != $webhookusername) || ($_SERVER['PHP_AUTH_PW'] != $webhookpassword)) {
+			header('WWW-Authenticate: Basic Realm="Doorbird WebHook"');
+			header('HTTP/1.0 401 Unauthorized');
+			echo "Authorization required";
+			return;
+		}
+		echo "Webhook Doorbird IP-Symcon 4";
+
 		//workaround for bug
 		if(!isset($_IPS))
 			global $_IPS;
@@ -609,6 +625,8 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$portips = $this->ReadPropertyInteger('PortIPS');
 		$portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
 		$selectiondoorbell = $this->ReadPropertyBoolean('doorbell');
+		$webhookusername = $this->ReadPropertyString('webhookusername');
+		$webhookpassword = $this->ReadPropertyString('webhookpassword');
 		if ($selectiondoorbell == true)
 			{
 			$selectiondoorbell = 1;
@@ -641,15 +659,15 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
 		$prefixips = $this->GetURLPrefix($hostips);
 		//doorbell
-		$URL = $prefixdoorbird.$hostdoorbird.':'.$portdoorbell.'/bha-api/notification.cgi?event=doorbell&subscribe='.$selectiondoorbell.'&relaxation='.$relaxationdoorbell.'&url='.$prefixips.$hostips.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=doorbell';
+		$URL = $prefixdoorbird.$hostdoorbird.':'.$portdoorbell.'/bha-api/notification.cgi?event=doorbell&subscribe='.$selectiondoorbell.'&relaxation='.$relaxationdoorbell.'&user='.$webhookusername.'&password='.$webhookpassword.'&url='.$prefixips.$hostips.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=doorbell';
 		$result = $this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//motionsensor
-		$URL = $prefixdoorbird.$hostdoorbird.':'.$portdoorbell.'/bha-api/notification.cgi?event=motionsensor&subscribe='.$selectionmotionsensor.'&relaxation='.$relaxationmotionsensor.'&url='.$prefixips.$hostips.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=motionsensor';
+		$URL = $prefixdoorbird.$hostdoorbird.':'.$portdoorbell.'/bha-api/notification.cgi?event=motionsensor&subscribe='.$selectionmotionsensor.'&relaxation='.$relaxationmotionsensor.'&user='.$webhookusername.'&password='.$webhookpassword.'&url='.$prefixips.$hostips.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=motionsensor';
 		$result = $this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//dooropen
-		$URL = $prefixdoorbird.$hostdoorbird.':'.$portdoorbell.'/bha-api/notification.cgi?event=dooropen&subscribe='.$selectiondooropen.'&relaxation='.$relaxationdooropen.'&url='.$prefixips.$hostips.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=dooropen';
+		$URL = $prefixdoorbird.$hostdoorbird.':'.$portdoorbell.'/bha-api/notification.cgi?event=dooropen&subscribe='.$selectiondooropen.'&relaxation='.$relaxationdooropen.'&user='.$webhookusername.'&password='.$webhookpassword.'&url='.$prefixips.$hostips.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=dooropen';
 		$result = $this->SendDoorbird($URL);
 		SetValueString($this->GetIDForIdent('DoorbirdReturn'),$result);
 	}

@@ -32,6 +32,8 @@ class Doorbird extends IPSModule
 		$this->RegisterPropertyBoolean("altview", false);
 		$this->RegisterPropertyString("subject", "Doorbell Klingel!");
 		$this->RegisterPropertyString("emailtext", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
+		$this->RegisterPropertyString("webhookusername", "ipsymcon");
+		$this->RegisterPropertyString("webhookpassword", "user@h0me");	
     }
 
     public function ApplyChanges()

@@ -41,6 +41,8 @@
 			"if there are problems with the live image in the webfront you can active alterative view": "Bei Problemen mit der Live Bild Anzeige im Webfront Alternative View aktivieren",
 			"alternative view": "Alternative View",
 			"ir light": "IR Licht schalten",
+			"webhook username":"Webhook Passwort",
+			"webhook password":"Webhook Passwort",
 			"Setup notifications from doorbird to IP-Symcon": "Benachrichtigung von Doorbird an IP-Symcon einrichten",
 			"Setup Notification": "Benachrichtung einrichten",
 			"Get buildnumber, WLAN MAC and firmwareversion of Doorbird": "Buildnumber, WLAN MAC und Firmware Version der Doorbird auslesen",

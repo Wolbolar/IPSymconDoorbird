@@ -1,7 +1,6 @@
 # IPSymconDoorbird
 
 Modul für IP-Symcon ab Version 4. Ermöglicht die Kommunikation mit einer Doorbird Türsprechanlage.
-Beta Test
 
 ## Dokumentation
 

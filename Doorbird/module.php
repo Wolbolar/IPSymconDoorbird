@@ -177,18 +177,34 @@ class Doorbird extends IPSModule
 				}
 				SetValueString($this->GetIDForIdent('DoorbirdVideo'), $DoorbirdVideoHTML);
 				
-				//prüfen ob Script existent
-				$SkriptID = @IPS_GetScriptIDByName("Doorbird IPS Interface", $this->InstanceID);
-				if ($SkriptID === false)
-					{
-						$ID = $this->RegisterScript("DoorbirdIPSInterface", "Doorbird IPS Interface", $this->CreateWebHookScript(), 19);
-						IPS_SetHidden($ID, true);
-						$this->RegisterHook('/hook/doorbird' . $this->InstanceID, $ID);
-					}
+				$ipsversion = $this->GetIPSVersion();
+				if($ipsversion == 0 || $ipsversion == 1)
+				{
+					//prüfen ob Script existent
+					$SkriptID = @IPS_GetObjectIDByIdent("DoorbirdIPSInterface", $this->InstanceID);
+					if ($SkriptID === false)
+						{
+							$ID = $this->RegisterScript("DoorbirdIPSInterface", "Doorbird IPS Interface", $this->CreateWebHookScript(), 19);
+							IPS_SetHidden($ID, true);
+							$this->RegisterHookOLD('/hook/doorbird' . $this->InstanceID, $ID);
+						}
+					else
+						{
+							//echo "Die Skript-ID lautet: ". $SkriptID;
+						}
+				}
 				else
+				{
+					$this->UnregisterHook("/hook/doorbird" . $this->InstanceID);
+					$SkriptID = @IPS_GetObjectIDByIdent("DoorbirdIPSInterface", $this->InstanceID);
+					if ($SkriptID > 0)
 					{
-						//echo "Die Skript-ID lautet: ". $SkriptID;
+						$this->UnregisterScript("DoorbirdIPSInterface");
 					}
+					$this->RegisterHook("/hook/doorbird" . $this->InstanceID);
+				}
+				
+				
 					
 				//Timer für Historie
 				// Ersetzt durch Event das Bilder bei Klingeln abholt
@@ -325,7 +341,7 @@ class Doorbird extends IPSModule
 		*/	
 	}
 			
-	private function RegisterHook($WebHook, $TargetID)
+	private function RegisterHookOLD($WebHook, $TargetID)
     {
         $ids = IPS_GetInstanceListByModuleID("{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}");
         if (sizeof($ids) > 0)
@@ -350,6 +366,78 @@ class Doorbird extends IPSModule
             IPS_ApplyChanges($ids[0]);
         }
     }
+	
+	private function RegisterHook($WebHook)
+		{
+  			$ids = IPS_GetInstanceListByModuleID("{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}");
+  			if(sizeof($ids) > 0)
+				{
+  				$hooks = json_decode(IPS_GetProperty($ids[0], "Hooks"), true);
+  				$found = false;
+  				foreach($hooks as $index => $hook)
+					{
+					if($hook['Hook'] == $WebHook)
+						{
+						if($hook['TargetID'] == $this->InstanceID)
+  							return;
+						$hooks[$index]['TargetID'] = $this->InstanceID;
+  						$found = true;
+						}
+					}
+  				if(!$found)
+					{
+ 					$hooks[] = Array("Hook" => $WebHook, "TargetID" => $this->InstanceID);
+					}
+  				IPS_SetProperty($ids[0], "Hooks", json_encode($hooks));
+  				IPS_ApplyChanges($ids[0]);
+				}
+  		}
+	
+	/**
+     * Löscht einen WebHook, wenn vorhanden.
+     *
+     * @access private
+     * @param string $WebHook URI des WebHook.
+     */
+    protected function UnregisterHook($WebHook)
+    {
+        $ids = IPS_GetInstanceListByModuleID("{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}");
+        if (sizeof($ids) > 0)
+        {
+            $hooks = json_decode(IPS_GetProperty($ids[0], "Hooks"), true);
+            $found = false;
+            foreach ($hooks as $index => $hook)
+            {
+                if ($hook['Hook'] == $WebHook)
+                {
+                    $found = $index;
+                    break;
+                }
+            }
+            if ($found !== false)
+            {
+                array_splice($hooks, $index, 1);
+                IPS_SetProperty($ids[0], "Hooks", json_encode($hooks));
+                IPS_ApplyChanges($ids[0]);
+            }
+        }
+    }  
+	
+	/**
+     * Löscht eine Script, sofern vorhanden.
+     *
+     * @access private
+     * @param int $Ident Ident der Variable.
+     */
+    protected function UnregisterScript($Ident)
+    {
+        $sid = @IPS_GetObjectIDByIdent($Ident, $this->InstanceID);
+        if ($sid === false)
+            return;
+        if (!IPS_ScriptExists($sid))
+            return; //bail out
+        IPS_DeleteScript($sid, true);
+    } 
 	
 	protected function is_valid_domain($url)
 	{
@@ -431,7 +519,7 @@ class Doorbird extends IPSModule
     {
         $Script = '<?
 //Do not delete or modify.
-Doorbird_ProcessHookData('.$this->InstanceID.');		
+Doorbird_ProcessHookDataOLD('.$this->InstanceID.');		
 ?>';
         /*
 		var_dump($_GET);
@@ -569,7 +657,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		
 	}
 	
-	public function ProcessHookData()
+	public function ProcessHookDataOLD()
 	{
 		$ringid = $this->GetIDForIdent('LastRingtone');
 		$movementid = $this->GetIDForIdent('LastMovement');
@@ -615,6 +703,58 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 					SetValue($doorid, date('d.m.y H:i:s'));
 				}
 			}	
+	}
+	
+	/**
+ 	* This function will be called by the hook control. Visibility should be protected!
+  	*/
+		
+	protected function ProcessHookData()
+	{
+		$ringid = $this->GetIDForIdent('LastRingtone');
+		$movementid = $this->GetIDForIdent('LastMovement');
+		$doorid = $this->GetIDForIdent('LastDoorOpen');
+		$webhookusername = $this->ReadPropertyString('webhookusername');
+		$webhookpassword = $this->ReadPropertyString('webhookpassword');
+		if(!isset($_SERVER['PHP_AUTH_USER']))
+		$_SERVER['PHP_AUTH_USER'] = "";
+		if(!isset($_SERVER['PHP_AUTH_PW']))
+			$_SERVER['PHP_AUTH_PW'] = "";
+		 
+		if(($_SERVER['PHP_AUTH_USER'] != $webhookusername) || ($_SERVER['PHP_AUTH_PW'] != $webhookpassword)) {
+			header('WWW-Authenticate: Basic Realm="Doorbird WebHook"');
+			header('HTTP/1.0 401 Unauthorized');
+			echo "Authorization required";
+			return;
+		}
+		echo "Webhook Doorbird IP-Symcon 4";
+
+		//workaround for bug
+		if(!isset($_IPS))
+			global $_IPS;
+		if($_IPS['SENDER'] == "Execute")
+			{
+			echo "This script cannot be used this way.";
+			return;
+			}
+		//Auswerten von Events von Doorbird
+		// Doorbird nutzt GET
+		if (isset($_GET["doorbirdevent"]))
+			{
+			$data = $_GET["doorbirdevent"];
+			if ($data == "doorbell")
+				{
+					SetValue($ringid, date('d.m.y H:i:s'));
+				}
+			elseif ($data == "motionsensor")
+				{
+					SetValue($movementid, date('d.m.y H:i:s'));
+				}
+			elseif ($data == "dooropen")
+				{
+					SetValue($doorid, date('d.m.y H:i:s'));
+				}
+			}
 	}
 	
 	//Profile zuweisen und Geräte anlegen
@@ -985,6 +1125,26 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
         
     }
 	
+	protected function GetIPSVersion ()
+		{
+			$ipsversion = IPS_GetKernelVersion ( );
+			$ipsversion = explode( ".", $ipsversion);
+			$ipsmajor = intval($ipsversion[0]);
+			$ipsminor = intval($ipsversion[1]);
+			if($ipsminor < 10) // 4.0
+			{
+				$ipsversion = 0;
+			}
+			elseif ($ipsminor >= 10 && $ipsminor < 20) // 4.1
+			{
+				$ipsversion = 1;
+			}
+			else   // 4.2
+			{
+				$ipsversion = 2;
+			}
+			return $ipsversion;
+		}
 }
 
 ?>

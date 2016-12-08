@@ -195,10 +195,10 @@ class Doorbird extends IPSModule
 				}
 				else
 				{
-					$this->UnregisterHook("/hook/doorbird" . $this->InstanceID);
 					$SkriptID = @IPS_GetObjectIDByIdent("DoorbirdIPSInterface", $this->InstanceID);
 					if ($SkriptID > 0)
 					{
+						$this->UnregisterHook("/hook/doorbird" . $this->InstanceID);
 						$this->UnregisterScript("DoorbirdIPSInterface");
 					}
 					$this->RegisterHook("/hook/doorbird" . $this->InstanceID);

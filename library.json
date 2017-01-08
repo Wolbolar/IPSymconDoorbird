@@ -1,5 +1,8 @@
 {
 	"id": "{7253478D-F917-4245-BD45-963390504774}",
+	"description": "Doorbird Türsprechanlage Modul",
+	"tags": "Türsprechanlage",
+	"req_ips_version": "4.0",
 	"author": "Fonzo",
 	"name": "Doorbird",
 	"url": "www.doorbird.com",

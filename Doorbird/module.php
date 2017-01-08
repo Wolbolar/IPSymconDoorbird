@@ -178,7 +178,7 @@ class Doorbird extends IPSModule
 				SetValueString($this->GetIDForIdent('DoorbirdVideo'), $DoorbirdVideoHTML);
 				
 				$ipsversion = $this->GetIPSVersion();
-				if($ipsversion == 0 || $ipsversion == 1)
+				if($ipsversion == 0)
 				{
 					//prüfen ob Script existent
 					$SkriptID = @IPS_GetObjectIDByIdent("DoorbirdIPSInterface", $this->InstanceID);
@@ -521,25 +521,6 @@ class Doorbird extends IPSModule
 //Do not delete or modify.
 Doorbird_ProcessHookDataOLD('.$this->InstanceID.');		
 ?>';
-        /*
-		var_dump($_GET);
-            $PlayerSelect = IPS_GetObjectIDByIdent("PlayerSelect",IPS_GetParent($_IPS["SELF"]));
-            $PlayerID = GetValueInteger($PlayerSelect);
-            if ($PlayerID == -1)
-            {
-            // Alle
-            }
-            elseif($PlayerID >= 0)
-            {
-                $Player = LMS_GetPlayerInfo(IPS_GetParent($_IPS["SELF"]),$PlayerID);
-                if ($Player["Instanceid"] > 0)
-                {
-                    LSQ_LoadPlaylistByPlaylistID($Player["Instanceid"],(integer)$_GET["Playlistid"]);
-                }
-            }
-            SetValueInteger($PlayerSelect,-2);
-		*/
-		
 		return $Script;
     }
 	

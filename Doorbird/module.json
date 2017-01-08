@@ -1,5 +1,7 @@
 {
     "id": "{D489FA0B-765D-451E-8B21-C6B61ECAC00E}",
+	"title": "Doorbird Türsprechanlage",
+	"description": "Instanz der Doorbird Türsprechanlage um Benachrichtigungen bei einem Klingeln, Bewegung und Bilder in IP-Symcon zu erhalten",
     "name": "Doorbird",
     "type": 3,
     "vendor": "Doorbird",

@@ -628,14 +628,16 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$emailtext = $this->ReadPropertyString('emailtext');
 		$mediaids = IPS_GetChildrenIDs($catid);
 		$countmedia = count($mediaids);
-	 
-		if ($countmedia > 0)
+		foreach ($mediaids as $key=>$mediaid)
 		{
-			$firstpicid = $mediaids[0];
-			$mailer = $this->ReadPropertyInteger('smtpmodule');
-			SMTP_SendMailMediaEx($mailer, $email, $subject, $emailtext, $firstpicid);
+			$mediainfo = IPS_GetMedia($mediaid);
+			if($mediainfo["MediaFile"] == "media/doorbirdringpic_1.jpg")
+			{
+				$mailer = $this->ReadPropertyInteger('smtpmodule');
+				SMTP_SendMailMediaEx($mailer, $email, $subject, $emailtext, $mediaid);
+			}
+			
 		}
-		
 	}
 	
 	public function ProcessHookDataOLD()

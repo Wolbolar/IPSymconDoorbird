@@ -1,5 +1,5 @@
 <?
-// Modul für Doorbird
+// Modul fÃ¼r Doorbird
 
 class Doorbird extends IPSModule
 {
@@ -31,7 +31,7 @@ class Doorbird extends IPSModule
 		$this->RegisterPropertyInteger("smtpmodule", 0);
 		$this->RegisterPropertyBoolean("altview", false);
 		$this->RegisterPropertyString("subject", "Doorbell Klingel!");
-		$this->RegisterPropertyString("emailtext", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
+		$this->RegisterPropertyString("emailtext", "Da hat jemand an der TÃ¼r geklingelt, aber du bist leider nicht da!");
 		$this->RegisterPropertyString("webhookusername", "ipsymcon");
 		$this->RegisterPropertyString("webhookpassword", "user@h0me");	
     }
@@ -47,7 +47,7 @@ class Doorbird extends IPSModule
 		$this->RegisterProfileStringDoorbird("Doorbird.Movement", "Motion");
 		$this->RegisterVariableString("LastMovement", "Zeitpunkt letzte Bewegung", "Doorbird.Movement", 3);
 		$this->RegisterProfileStringDoorbird("Doorbird.LastDoor", "LockOpen");
-		$this->RegisterVariableString("LastDoorOpen", "Zeitpunkt letzte Türöffnung", "Doorbird.LastDoor", 4);
+		$this->RegisterVariableString("LastDoorOpen", "Zeitpunkt letzte TÃ¼rÃ¶ffnung", "Doorbird.LastDoor", 4);
 		$this->RegisterProfileStringDoorbird("Doorbird.Firmware", "Robot");	
 		$this->RegisterVariableString("FirmwareVersion", "Doorbird Firmware Version", "Doorbird.Firmware", 5);
 		$this->RegisterProfileStringDoorbird("Doorbird.Buildnumber", "Gear");	
@@ -59,7 +59,7 @@ class Doorbird extends IPSModule
 				Array(0, "Licht einschalten",  "Light", -1)
 				);
 		$doorass =  Array(
-				Array(0, "Tür öffnen",  "LockOpen", -1)
+				Array(0, "TÃ¼r Ã¶ffnen",  "LockOpen", -1)
 				);
 		$snapass =  Array(
 				Array(0, "Bild speichern",  "Image", -1)
@@ -69,7 +69,7 @@ class Doorbird extends IPSModule
 		$this->RegisterProfileIntegerDoorbirdAss("Doorbird.Snapshot", "Image", "", "", 0, 0, 0, 0, $snapass);
 		$this->RegisterVariableInteger("DoorbirdButtonLight", "Doorbird IR Beleuchtung", "Doorbird.Light", 10);
 		$this->EnableAction("DoorbirdButtonLight");
-		$this->RegisterVariableInteger("DoorbirdButtonDoor", "Doorbird Türöffner", "Doorbird.Door", 11);
+		$this->RegisterVariableInteger("DoorbirdButtonDoor", "Doorbird TÃ¼rÃ¶ffner", "Doorbird.Door", 11);
 		$this->EnableAction("DoorbirdButtonDoor");
 		$this->RegisterVariableInteger("DoorbirdButtonSnapshot", "Doorbird Bild abspeichern", "Doorbird.Snapshot", 12);
 		$this->EnableAction("DoorbirdButtonSnapshot");
@@ -85,8 +85,8 @@ class Doorbird extends IPSModule
     }
 
 		/**
-        * Die folgenden Funktionen stehen automatisch zur Verfügung, wenn das Modul über die "Module Control" eingefügt wurden.
-        * Die Funktionen werden, mit dem selbst eingerichteten Prefix, in PHP und JSON-RPC wiefolgt zur Verfügung gestellt:
+        * Die folgenden Funktionen stehen automatisch zur VerfÃ¼gung, wenn das Modul Ã¼ber die "Module Control" eingefÃ¼gt wurden.
+        * Die Funktionen werden, mit dem selbst eingerichteten Prefix, in PHP und JSON-RPC wiefolgt zur VerfÃ¼gung gestellt:
         *
         *
         */
@@ -104,7 +104,7 @@ class Doorbird extends IPSModule
 		$webhookusername = $this->ReadPropertyString('webhookusername');
 		$webhookpassword = $this->ReadPropertyString('webhookpassword');
 		
-		//IP Doorbell prüfen
+		//IP Doorbell prÃ¼fen
 		if (!filter_var($hostdoorbell, FILTER_VALIDATE_IP) === false)
 			{
 				//IP ok
@@ -115,7 +115,7 @@ class Doorbird extends IPSModule
 				$ipcheckdoorbird = false;
 			}
 			
-		//IP IP-Symcon prüfen
+		//IP IP-Symcon prÃ¼fen
 		if (!filter_var($hostips, FILTER_VALIDATE_IP) === false)
 			{
 				//IP ok
@@ -126,7 +126,7 @@ class Doorbird extends IPSModule
 				$ipcheckips = false;
 			}	
 			
-		//Domain Doorbell prüfen
+		//Domain Doorbell prÃ¼fen
 		if(!$this->is_valid_domain($hostdoorbell) === false)
 		{
 			//Domain ok
@@ -137,7 +137,7 @@ class Doorbird extends IPSModule
 			$domaincheckdoorbell = false;
 		}
 		
-		//Domain IP-Symcon prüfen
+		//Domain IP-Symcon prÃ¼fen
 		if(!$this->is_valid_domain($hostips) === false)
 		{
 			//Domain ok
@@ -155,13 +155,13 @@ class Doorbird extends IPSModule
 		else
 		{
 			$hostcheck = false;
-			$this->SetStatus(203); //IP Adresse oder Host ist ungültig
+			$this->SetStatus(203); //IP Adresse oder Host ist ungÃ¼ltig
 		}		
 		$change = false;	
-		//User und Passwort prüfen
+		//User und Passwort prÃ¼fen
 		if ($doorbirduser == "" || $password == "" || $webhookusername == "" || $webhookpassword == "")
 			{
-				$this->SetStatus(205); //Felder dürfen nicht leer sein
+				$this->SetStatus(205); //Felder dÃ¼rfen nicht leer sein
 			}
 		elseif ($doorbirduser !== "" && $password !== "" && $hostcheck === true)
 			{
@@ -180,7 +180,7 @@ class Doorbird extends IPSModule
 				$ipsversion = $this->GetIPSVersion();
 				if($ipsversion == 0)
 				{
-					//prüfen ob Script existent
+					//prÃ¼fen ob Script existent
 					$SkriptID = @IPS_GetObjectIDByIdent("DoorbirdIPSInterface", $this->InstanceID);
 					if ($SkriptID === false)
 						{
@@ -206,7 +206,7 @@ class Doorbird extends IPSModule
 				
 				
 					
-				//Timer für Historie
+				//Timer fÃ¼r Historie
 				// Ersetzt durch Event das Bilder bei Klingeln abholt
 				/*
 				$timerscript = "Doorbird_GetHistory($this->InstanceID)";
@@ -288,7 +288,7 @@ class Doorbird extends IPSModule
 					$email = $this->ReadPropertyString('email');
 					if ($email == "")
 					{
-						$this->SetStatus(205); //Felder dürfen nicht leer sein
+						$this->SetStatus(205); //Felder dÃ¼rfen nicht leer sein
 					}
 					if (filter_var($email, FILTER_VALIDATE_EMAIL))
 					{
@@ -305,7 +305,7 @@ class Doorbird extends IPSModule
 					else
 					{
 						
-						$this->SetStatus(207); //email not vaild
+						$this->SetStatus(207); //email not valid
 					}	
 					
 				}
@@ -324,13 +324,13 @@ class Doorbird extends IPSModule
 				$this->SetStatus(102);	
 			}
 		
-		//Import Kategorie für History und Snapshot
+		//Import Kategorie fÃ¼r History und Snapshot
 		/*
 		$HistoryCategoryID = $this->ReadPropertyInteger('HistoryCategoryID');
 		$SnapshotCategoryID = $this->ReadPropertyInteger('SnapshotCategoryID');
 		if (( $HistoryCategoryID === 0) ||( $SnapshotCategoryID === 0))
 			{
-				// Status Error Kategorie zum Import auswählen
+				// Status Error Kategorie zum Import auswÃ¤hlen
 				$this->SetStatus(206);
 			}
 		elseif (( $HistoryCategoryID != 0) && ( $SnapshotCategoryID != 0))	
@@ -394,7 +394,7 @@ class Doorbird extends IPSModule
   		}
 	
 	/**
-     * Löscht einen WebHook, wenn vorhanden.
+     * LÃ¶scht einen WebHook, wenn vorhanden.
      *
      * @access private
      * @param string $WebHook URI des WebHook.
@@ -424,7 +424,7 @@ class Doorbird extends IPSModule
     }  
 	
 	/**
-     * Löscht eine Script, sofern vorhanden.
+     * LÃ¶scht eine Script, sofern vorhanden.
      *
      * @access private
      * @param int $Ident Ident der Variable.
@@ -495,7 +495,7 @@ class Doorbird extends IPSModule
 		}
 		else
 		{
-			$prefix = "http://"; //Prefix ergänzen
+			$prefix = "http://"; //Prefix ergÃ¤nzen
 		}
 		return $prefix;
 	}
@@ -504,15 +504,22 @@ class Doorbird extends IPSModule
 	{
 		$InstanzenListe = IPS_GetInstanceListByModuleID("{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}");
 		$InstanzCount = 0;
-
+        $ConnectControl = false;
 		foreach ($InstanzenListe as $InstanzID) {
 			$ConnectControl = $InstanzID;
 			 $InstanzCount++;
 			$Childs[] = IPS_GetChildrenIDs($InstanzID);
 		}
 
-		$connectinfo = CC_GetUrl($ConnectControl); 
-		return $connectinfo;
+		if($ConnectControl > 0)
+        {
+            $connectinfo = CC_GetUrl($ConnectControl);
+            return $connectinfo;
+        }
+		else
+        {
+            return false;
+        }
 	}
 	
 	private function CreateWebHookScript()
@@ -553,7 +560,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	
 	private function SetSnapshotEvent(integer $IDSnapshot)
 	{
-		//prüfen ob Event existent
+		//prÃ¼fen ob Event existent
 		$ParentID = $IDSnapshot;
 
 		$EreignisID = @($this->GetIDForIdent('EventGetDoorbirdSnapshot'));
@@ -575,7 +582,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	
 	private function SetRingEvent(integer $IDRing)
 	{
-		//prüfen ob Event existent
+		//prÃ¼fen ob Event existent
 		$ParentID = $IDRing;
 
 		$EreignisID = @($this->GetIDForIdent('EventGetDoorbirdRingPic'));
@@ -597,7 +604,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	
 	private function SetEmailEvent(integer $IDEmail, boolean $state)
 	{
-		//prüfen ob Event existent
+		//prÃ¼fen ob Event existent
 		$ParentID = $IDEmail;
 
 		//$EreignisID = @($this->GetIDForIdent('EventDoorbirdEmail'));
@@ -740,7 +747,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 			}
 	}
 	
-	//Profile zuweisen und Geräte anlegen
+	//Profile zuweisen und GerÃ¤te anlegen
 	public function SetupNotification()
 	{
 		$hostdoorbird = $this->ReadPropertyString('Host');
@@ -825,6 +832,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		SetValue($this->GetIDForIdent("Buildnumber"), $buildnumber);
 		$wifimacaddr = $result->BHA->VERSION[0]->WIFI_MAC_ADDR;
 		SetValue($this->GetIDForIdent("MACAdress"), $wifimacaddr);
+		return $result;
 	}
 	
 	public function GetHistory()
@@ -851,9 +859,9 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 					IPS_SetIdent ($MediaID, $ident.$i);
 					IPS_SetPosition($MediaID, $i);
 					IPS_SetMediaCached($MediaID, true);
-					// Das Cachen für das Mediaobjekt wird aktiviert.
+					// Das Cachen fÃ¼r das Mediaobjekt wird aktiviert.
 					// Beim ersten Zugriff wird dieses von der Festplatte ausgelesen
-					// und zukünftig nur noch im Arbeitsspeicher verarbeitet.
+					// und zukÃ¼nftig nur noch im Arbeitsspeicher verarbeitet.
 					$ImageFile = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR.$picturename.$i.".jpg";  // Image-Datei
 					IPS_SetMediaFile($MediaID, $ImageFile, False);    // Image im MedienPool mit Image-Datei verbinden
 					//$savetime = date('d.m.Y H:i:s');
@@ -913,7 +921,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 				$allmedia = $this->GetallImages($mediaids);
 				$mediaid20 = array_search(20, array_column($allmedia, 'picid'));
 				unset ($allmedia[$mediaid20]);
-				//Neues Bild zu allmedia hinzufügen
+				//Neues Bild zu allmedia hinzufÃ¼gen
 				$allmedia = $this->AddCurrentPic($allmedia, $mediaids, $Content);
 				//allmedia schreiben
 				$this->SaveImagestoPicSlot($allmedia, $ident, $name, $catid);
@@ -931,9 +939,9 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 					IPS_SetIdent ($MediaID, $ident.$currentsnapshotid);
 					IPS_SetPosition($MediaID, $currentsnapshotid);
 					IPS_SetMediaCached($MediaID, true);
-					// Das Cachen für das Mediaobjekt wird aktiviert.
+					// Das Cachen fÃ¼r das Mediaobjekt wird aktiviert.
 					// Beim ersten Zugriff wird dieses von der Festplatte ausgelesen
-					// und zukünftig nur noch im Arbeitsspeicher verarbeitet.
+					// und zukÃ¼nftig nur noch im Arbeitsspeicher verarbeitet.
 					$ImageFile = IPS_GetKernelDir()."media".DIRECTORY_SEPARATOR.$picturename.$currentsnapshotid.".jpg";  // Image-Datei
 					IPS_SetMediaFile($MediaID, $ImageFile, False);    // Image im MedienPool mit Image-Datei verbinden
 					
@@ -951,7 +959,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 						//Array auslesen und Bilder +1 neu zuordnen
 						//Images base 64 codiert in allmedia einlesen
 						$allmedia = $this->GetallImages($mediaids);
-						//Neues Bild zu allmedia hinzufügen
+						//Neues Bild zu allmedia hinzufÃ¼gen
 						$allmedia = $this->AddCurrentPic($allmedia, $mediaids, $Content);
 						//allmedia schreiben
 						$this->SaveImagestoPicSlot($allmedia, $ident, $name, $catid);
@@ -1007,7 +1015,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	{
 		$lastid = count($allmedia);
 				
-		// Neues Bild ergänzen
+		// Neues Bild ergï¿½nzen
  		$allmedia[$lastid]['objid'] = $mediaids[0];
 		$allmedia[$lastid]['picid'] = 0;
 		$saveinfo =  date('d.m.Y H:i:s');

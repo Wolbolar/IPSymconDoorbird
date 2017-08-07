@@ -52,9 +52,9 @@ class Doorbird extends IPSModule
 		$this->RegisterVariableString("LastMovement", "Zeitpunkt letzte Bewegung", "Doorbird.Movement", 3);
 		$this->RegisterProfileStringDoorbird("Doorbird.LastDoor", "LockOpen");
 		$this->RegisterVariableString("LastDoorOpen", "Zeitpunkt letzte Türöffnung", "Doorbird.LastDoor", 4);
-		$this->RegisterProfileStringDoorbird("Doorbird.Firmware", "Robot");	
+		$this->RegisterProfileStringDoorbird("Doorbird.Firmware", "Robot");
 		$this->RegisterVariableString("FirmwareVersion", "Doorbird Firmware Version", "Doorbird.Firmware", 5);
-		$this->RegisterProfileStringDoorbird("Doorbird.Buildnumber", "Gear");	
+		$this->RegisterProfileStringDoorbird("Doorbird.Buildnumber", "Gear");
 		$this->RegisterVariableString("Buildnumber", "Doorbird Build Number", "Doorbird.Buildnumber", 6);
 		$this->RegisterProfileStringDoorbird("Doorbird.MAC", "Notebook");
 		$this->RegisterVariableString("MACAdress", "Doorbird WLAN MAC", "Doorbird.MAC", 7);
@@ -232,7 +232,9 @@ class Doorbird extends IPSModule
                         $IDSnapshot = $this->RegisterScript("GetDoorbirdSnapshot", "Get Doorbird Snapshot", $this->CreateSnapshotScript(), 17);
                         IPS_SetHidden($IDSnapshot, true);
                         $this->SetSnapshotEvent($IDSnapshot);
-                    } else {
+                    }
+                    else
+                    {
                         //echo "Die Skript-ID lautet: ". $SkriptID;
                     }
                 }
@@ -252,7 +254,9 @@ class Doorbird extends IPSModule
                         $IDRing = $this->RegisterScript("GetDoorbirdRingPic", "Get Doorbird Ring Picture", $this->CreateRingPictureScript(), 18);
                         IPS_SetHidden($IDRing, true);
                         $this->SetRingEvent($IDRing);
-                    } else {
+                    }
+                    else
+                    {
                         //echo "Die Skript-ID lautet: ". $SkriptID;
                     }
                 }
@@ -271,7 +275,8 @@ class Doorbird extends IPSModule
                         $this->RegisterMessage($this->ReadPropertyInteger("LastDoorOpen"), IM_CHANGESTATUS);
                     }
                 }
-					
+
+
 				//Kategorie anlegen
 				$objidhis = $this->GetIDForIdent('ObjIDHist');
 				$objidsnap = $this->GetIDForIdent('ObjIDSnap');
@@ -329,12 +334,14 @@ class Doorbird extends IPSModule
                             }
                             $this->SetEmailEvent($IDEmail, true);
                         }
+
 					}
 					else
 					{
 						
 						$this->SetStatus(207); //email not valid
 					}
+
 				}
 				else
 				{
@@ -345,6 +352,7 @@ class Doorbird extends IPSModule
                             $this->SetEmailEvent($IDEmail, false);
                         }
                     }
+
 				}
 				
 				
@@ -550,7 +558,6 @@ class Doorbird extends IPSModule
         }
 	}
 
-
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
         if ($SenderID == "LastRingtone")
@@ -565,7 +572,6 @@ class Doorbird extends IPSModule
         }
 
     }
-
 
 	private function CreateWebHookScript()
     {
@@ -679,7 +685,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$subject = $this->ReadPropertyString('subject');
 		$emailtext = $this->ReadPropertyString('emailtext');
 		$mediaids = IPS_GetChildrenIDs($catid);
-		$countmedia = count($mediaids);
+		// $countmedia = count($mediaids);
 		foreach ($mediaids as $key=>$mediaid)
 		{
 			$mediainfo = IPS_GetMedia($mediaid);
@@ -835,11 +841,11 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$prefixips = $this->GetURLPrefix($hostips);
 		//doorbell
 		$URL = $prefixdoorbird.$hostdoorbird.':'.$portdoorbell.'/bha-api/notification.cgi?event=doorbell&subscribe='.$selectiondoorbell.'&relaxation='.$relaxationdoorbell.'&user='.$webhookusername.'&password='.$webhookpassword.'&url='.$prefixips.$hostips.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=doorbell';
-		$result = $this->SendDoorbird($URL);
+		$this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//motionsensor
 		$URL = $prefixdoorbird.$hostdoorbird.':'.$portdoorbell.'/bha-api/notification.cgi?event=motionsensor&subscribe='.$selectionmotionsensor.'&relaxation='.$relaxationmotionsensor.'&user='.$webhookusername.'&password='.$webhookpassword.'&url='.$prefixips.$hostips.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=motionsensor';
-		$result = $this->SendDoorbird($URL);
+		$this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//dooropen
 		$URL = $prefixdoorbird.$hostdoorbird.':'.$portdoorbell.'/bha-api/notification.cgi?event=dooropen&subscribe='.$selectiondooropen.'&relaxation='.$relaxationdooropen.'&user='.$webhookusername.'&password='.$webhookpassword.'&url='.$prefixips.$hostips.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=dooropen';
@@ -1023,7 +1029,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 			$mediakey = IPS_GetObject($mediaids[$i])['ObjectIdent'];
 			$mediakey = explode("Pic", $mediakey);
 			$mediakey = intval($mediakey[1]);
-			$name = IPS_GetName($mediaids[$i]);
+			//$name = IPS_GetName($mediaids[$i]);
 			//$name = explode(" ", $name);
 			//$savedate = $name[3];
 			//$savetime = $name[4];
@@ -1060,7 +1066,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	{
 		$lastid = count($allmedia);
 				
-		// Neues Bild erg�nzen
+		// Neues Bild ergänzen
  		$allmedia[$lastid]['objid'] = $mediaids[0];
 		$allmedia[$lastid]['picid'] = 0;
 		$saveinfo =  date('d.m.Y H:i:s');
@@ -1075,6 +1081,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
 		$URL = $prefixdoorbird.$hostdoorbird.'/bha-api/light-on.cgi';
 		$result = $this->SendDoorbird($URL);
+		return $result;
 	}
 	
 	public function OpenDoor()
@@ -1083,6 +1090,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
 		$URL = $prefixdoorbird.$hostdoorbird.'/bha-api/open-door.cgi';
 		$result = $this->SendDoorbird($URL);
+		return $result;
 	}
 	
 	
@@ -1165,7 +1173,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		{
 			$ipsversion = IPS_GetKernelVersion ( );
 			$ipsversion = explode( ".", $ipsversion);
-			$ipsmajor = intval($ipsversion[0]);
+			// $ipsmajor = intval($ipsversion[0]);
 			$ipsminor = intval($ipsversion[1]);
 			if($ipsminor < 10) // 4.0
 			{

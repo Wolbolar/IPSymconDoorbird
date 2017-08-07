@@ -43,11 +43,14 @@ Mit dem Modul lassen sich Befehle an eine Doorbird Türsprechanlage senden und d
 
 ### a. Laden des Moduls
 
+
 Über das 'Modul Control' in IP-Symcon (Ver. 4.x) folgende URL hinzufügen:
+
 	
     `https://github.com/Wolbolar/IPSymconDoorbird`  
 
 ### b. Einrichtung in IPS
+
 
 In IP-Symcon Instanz hinzufügen auswählen unter der Kategorie unter der man die Doorbird hinzufügen will und Doorbird auswählen.
 nach Abschluss der Instanzkonfiguartion werden zwei Kategorien angelegt. Eine für
@@ -63,9 +66,11 @@ der zu speichernden Bilder kann das maximale Limit der zu speichernden Bilder an
 Wird das Limit erreicht werden die Bilder von vorne überschrieben.
 
 
+
 ## 4. Funktionsreferenz
 
 ### Doorbird:
+
 Die IP Adresse des Doorbird sowie von IP-Symcon und der Username sowie Passwort von Doorbird sind anzugeben.
 Es wird bei jedem Event Klingeln, Bewegung, Tür öffnen von Doorbird eine Mitteilung an IP-Symcon gesendet.
 Mit Hilfe eines Ereignisses was bei Variablenaktualisierung greift können dann in IP-Symcon weitere Aktionen

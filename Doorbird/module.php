@@ -1,4 +1,8 @@
 <?
+define("IPS_BASE", 10000);
+define("IPS_INSTANCEMESSAGE", IPS_BASE + 500);
+define("IM_CHANGESTATUS", IPS_INSTANCEMESSAGE + 5);
+
 // Modul für Doorbird
 
 class Doorbird extends IPSModule
@@ -78,8 +82,7 @@ class Doorbird extends IPSModule
 		IPS_SetHidden($this->GetIDForIdent('ObjIDHist'), true);
 		$this->RegisterVariableInteger("ObjIDSnap", "ObjektId Snapshot", "", 14);
 		IPS_SetHidden($this->GetIDForIdent('ObjIDSnap'), true);
-		
-		
+
 		$this->ValidateConfiguration();	
 	
     }
@@ -220,32 +223,54 @@ class Doorbird extends IPSModule
 					//echo "Die Ereignis-ID lautet: ". $timerid;
 				}
 				*/
-				
-				//Skript bei Bewegung				
-				$IDSnapshot = @($this->GetIDForIdent('GetDoorbirdSnapshot'));
-				if ($IDSnapshot === false)
-					{
-						$IDSnapshot = $this->RegisterScript("GetDoorbirdSnapshot", "Get Doorbird Snapshot", $this->CreateSnapshotScript(), 17);
-						IPS_SetHidden($IDSnapshot, true);
-						$this->SetSnapshotEvent($IDSnapshot);
-					}
-				else
-					{
-						//echo "Die Skript-ID lautet: ". $SkriptID;
-					}
-				
-				//Skript beim Klingeln	
-				$IDRing = @($this->GetIDForIdent('GetDoorbirdRingPic'));
-				if ($IDRing === false)
-					{
-						$IDRing = $this->RegisterScript("GetDoorbirdRingPic", "Get Doorbird Ring Picture", $this->CreateRingPictureScript(), 18);
-						IPS_SetHidden($IDRing, true);
-						$this->SetRingEvent($IDRing);
-					}
-				else
-					{
-						//echo "Die Skript-ID lautet: ". $SkriptID;
-					}	
+
+                if($ipsversion == 0)
+                {
+                    //Skript bei Bewegung
+                    $IDSnapshot = @($this->GetIDForIdent('GetDoorbirdSnapshot'));
+                    if ($IDSnapshot === false) {
+                        $IDSnapshot = $this->RegisterScript("GetDoorbirdSnapshot", "Get Doorbird Snapshot", $this->CreateSnapshotScript(), 17);
+                        IPS_SetHidden($IDSnapshot, true);
+                        $this->SetSnapshotEvent($IDSnapshot);
+                    } else {
+                        //echo "Die Skript-ID lautet: ". $SkriptID;
+                    }
+                }
+                else
+                {
+                    if($this->ReadPropertyInteger("LastMovement") > 0)
+                    {
+                        $this->RegisterMessage($this->ReadPropertyInteger("LastMovement"), IM_CHANGESTATUS);
+                    }
+                }
+
+                if($ipsversion == 0)
+                {
+                    //Skript beim Klingeln
+                    $IDRing = @($this->GetIDForIdent('GetDoorbirdRingPic'));
+                    if ($IDRing === false) {
+                        $IDRing = $this->RegisterScript("GetDoorbirdRingPic", "Get Doorbird Ring Picture", $this->CreateRingPictureScript(), 18);
+                        IPS_SetHidden($IDRing, true);
+                        $this->SetRingEvent($IDRing);
+                    } else {
+                        //echo "Die Skript-ID lautet: ". $SkriptID;
+                    }
+                }
+                else
+                {
+                    if($this->ReadPropertyInteger("LastRingtone") > 0)
+                    {
+                        $this->RegisterMessage($this->ReadPropertyInteger("LastRingtone"), IM_CHANGESTATUS);
+                    }
+                }
+
+                if($ipsversion >= 1)
+                {
+                    if($this->ReadPropertyInteger("LastDoorOpen") > 0)
+                    {
+                        $this->RegisterMessage($this->ReadPropertyInteger("LastDoorOpen"), IM_CHANGESTATUS);
+                    }
+                }
 					
 				//Kategorie anlegen
 				$objidhis = $this->GetIDForIdent('ObjIDHist');
@@ -293,30 +318,33 @@ class Doorbird extends IPSModule
 					if (filter_var($email, FILTER_VALIDATE_EMAIL))
 					{
 						//email valid
-						//Skript beim EmailAlert	
-						$IDEmail = @($this->GetIDForIdent('SendEmailAlert'));
-						if ($IDEmail === false)
-							{
-								$IDEmail = $this->RegisterScript("SendEmailAlert", "Email Alert", $this->CreateEmailAlertScript($email), 19);
-								IPS_SetHidden($IDEmail, true);
-							}
-						$this->SetEmailEvent($IDEmail, true);	
+                        if($ipsversion == 0)
+                        {
+                            //Skript beim EmailAlert
+                            $IDEmail = @($this->GetIDForIdent('SendEmailAlert'));
+                            if ($IDEmail === false)
+                            {
+                                $IDEmail = $this->RegisterScript("SendEmailAlert", "Email Alert", $this->CreateEmailAlertScript($email), 19);
+                                IPS_SetHidden($IDEmail, true);
+                            }
+                            $this->SetEmailEvent($IDEmail, true);
+                        }
 					}
 					else
 					{
 						
 						$this->SetStatus(207); //email not valid
-					}	
-					
+					}
 				}
 				else
 				{
 					$IDEmail = @($this->GetIDForIdent('SendEmailAlert'));
-					if ($IDEmail > 0)
-					{
-						$this->SetEmailEvent($IDEmail, false);
-					}
-					
+                    if($ipsversion == 0)
+                    {
+                        if ($IDEmail > 0) {
+                            $this->SetEmailEvent($IDEmail, false);
+                        }
+                    }
 				}
 				
 				
@@ -521,7 +549,24 @@ class Doorbird extends IPSModule
             return false;
         }
 	}
-	
+
+
+    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    {
+        if ($SenderID == "LastRingtone")
+        {
+            $this->GetRingPicture();
+            $email = $this->ReadPropertyString("email");
+            $this->EmailAlert($email);
+        }
+        elseif($SenderID == "LastMovement")
+        {
+            $this->GetRingPicture();
+        }
+
+    }
+
+
 	private function CreateWebHookScript()
     {
         $Script = '<?
@@ -1130,7 +1175,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 			{
 				$ipsversion = 1;
 			}
-			else   // 4.2
+			else   // > 4.2
 			{
 				$ipsversion = 2;
 			}

@@ -43,34 +43,33 @@ Mit dem Modul lassen sich Befehle an eine Doorbird Türsprechanlage senden und d
 
 ### a. Laden des Moduls
 
-   Über das 'Modul Control' in IP-Symcon (Ver. 4.x) folgende URL hinzufügen:
+Über das 'Modul Control' in IP-Symcon (Ver. 4.x) folgende URL hinzufügen:
 	
     `https://github.com/Wolbolar/IPSymconDoorbird`  
 
 ### b. Einrichtung in IPS
 
-	In IP-Symcon Instanz hinzufügen auswählen unter der Kategorie
-	unter der man die Doorbird hinzufügen will und Doorbird auswählen.
-	nach Abschluss der Instanzkonfiguartion werden zwei Kategorien angelegt. Eine für
-	Doorbird Klingelhistorie, hier werden die Bilder der Doorbird bei einem Klingelsignal
-	abgelegt. Eine weitere Kategorie Doorbird Besucherhistorie, hier werden Bilder bei einer
-	Bewegungsauslösung oder maueller Anforderung abgelegt.	
-	Im Konfigurationsformular ist der Doorbird User und das Doorbird Passwort zu ergänzen.
-	Diese können in der Doorbird App nachgeschlagen werden. Die IP Adresse von Doorbird
-	und die IP Adresse von IP-Symcon ist zu ergänzen.
-	Bei jeder ausgelösten Bewegung wird von der Doorbird ein Snapshoot angefordert und in
-	IP-Symcon abgelegt. Ebenso wird bei jedem Klingeln ein Foto in Ip-Symcon abgelegt. Unter Anzahl
-	der zu speichernden Bilder kann das maximale Limit der zu speichernden Bilder angegeben werden.
-	Wird das Limit erreicht werden die Bilder von vorne überschrieben.
+In IP-Symcon Instanz hinzufügen auswählen unter der Kategorie unter der man die Doorbird hinzufügen will und Doorbird auswählen.
+nach Abschluss der Instanzkonfiguartion werden zwei Kategorien angelegt. Eine für
+Doorbird Klingelhistorie, hier werden die Bilder der Doorbird bei einem Klingelsignal
+abgelegt. Eine weitere Kategorie Doorbird Besucherhistorie, hier werden Bilder bei einer
+Bewegungsauslösung oder maueller Anforderung abgelegt.	
+Im Konfigurationsformular ist der Doorbird User und das Doorbird Passwort zu ergänzen.
+Diese können in der Doorbird App nachgeschlagen werden. Die IP Adresse von Doorbird
+und die IP Adresse von IP-Symcon ist zu ergänzen.
+Bei jeder ausgelösten Bewegung wird von der Doorbird ein Snapshoot angefordert und in
+IP-Symcon abgelegt. Ebenso wird bei jedem Klingeln ein Foto in IP-Symcon abgelegt. Unter Anzahl
+der zu speichernden Bilder kann das maximale Limit der zu speichernden Bilder angegeben werden.
+Wird das Limit erreicht werden die Bilder von vorne überschrieben.
 
 
 ## 4. Funktionsreferenz
 
 ### Doorbird:
-	Die IP Adresse des Doorbird sowie von IP-Symcon und der Username sowie Passwort von Doorbird sind anzugeben.
-	Es wird bei jedem Event Klingeln, Bewegung, Tür öffnen von Doorbird eine Mitteilung an IP-Symcon gesendet.
-	Mit Hilfe eines Ereignisses was bei Variablenaktualisierung greift können dann in IP-Symcon weitere Aktionen
-	ausgelöst werden. Das Livebild kann in IP-Symcon eingesehen werden sowie die Historie der letzten Klingelbesucher.
+Die IP Adresse des Doorbird sowie von IP-Symcon und der Username sowie Passwort von Doorbird sind anzugeben.
+Es wird bei jedem Event Klingeln, Bewegung, Tür öffnen von Doorbird eine Mitteilung an IP-Symcon gesendet.
+Mit Hilfe eines Ereignisses was bei Variablenaktualisierung greift können dann in IP-Symcon weitere Aktionen
+ausgelöst werden. Das Livebild kann in IP-Symcon eingesehen werden sowie die Historie der letzten Klingelbesucher.
 	
 
 

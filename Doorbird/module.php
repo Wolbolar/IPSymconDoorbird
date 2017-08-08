@@ -333,7 +333,7 @@ class Doorbird extends IPSModule
 						}
 					else
 						{
-							//echo "Die Skript-ID lautet: ". $SkriptID;
+                            $this->SendDebug("Doorbird", "Webhookscript mit ".$SkriptID." gefunden",0);
 						}
 				}
 				else
@@ -375,7 +375,7 @@ class Doorbird extends IPSModule
                     }
                     else
                     {
-                        //echo "Die Skript-ID lautet: ". $SkriptID;
+                        $this->SendDebug("Doorbird", "Doorbird Snapshot Script mit ".$IDSnapshot." gefunden",0);
                     }
                 }
                 else
@@ -383,6 +383,7 @@ class Doorbird extends IPSModule
                     if($this->ReadPropertyInteger("LastMovement") > 0)
                     {
                         $this->RegisterMessage($this->ReadPropertyInteger("LastMovement"), VM_UPDATE);
+                        $this->SendDebug("Doorbird", "Register Message LastMovement",0);
                     }
                 }
 
@@ -397,7 +398,7 @@ class Doorbird extends IPSModule
                     }
                     else
                     {
-                        //echo "Die Skript-ID lautet: ". $SkriptID;
+                        $this->SendDebug("Doorbird", "Doorbird Ring Picture Script mit ".$IDRing." gefunden",0);
                     }
                 }
                 else
@@ -405,6 +406,7 @@ class Doorbird extends IPSModule
                     if($this->ReadPropertyInteger("LastRingtone") > 0)
                     {
                         $this->RegisterMessage($this->ReadPropertyInteger("LastRingtone"), VM_UPDATE);
+                        $this->SendDebug("Doorbird", "Register Message LastRingtone",0);
                     }
                 }
 
@@ -413,6 +415,7 @@ class Doorbird extends IPSModule
                     if($this->ReadPropertyInteger("LastDoorOpen") > 0)
                     {
                         $this->RegisterMessage($this->ReadPropertyInteger("LastDoorOpen"), VM_UPDATE);
+                        $this->SendDebug("Doorbird", "Register Message LastDoorOpen",0);
                     }
                 }
 
@@ -700,6 +703,7 @@ class Doorbird extends IPSModule
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
+        IPS_LogMessage(get_class() . '::' . __FUNCTION__,'SenderID: ' . $SenderID . ', Message: ' . $Message . ', Data:'. json_encode($Data));
         if ($SenderID == $this->ReadPropertyInteger("LastRingtone"))
         {
             $this->GetRingPicture();
@@ -773,7 +777,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 			
 		else
 			{
-			//echo "Die Ereignis-ID lautet: ". $EreignisID;	
+                $this->SendDebug("Doorbird", "Event für Snapshot mit ObjektID".$EreignisID." gefunden",0);
 			}
 	}
 	
@@ -795,7 +799,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 			
 		else
 			{
-			//echo "Die Ereignis-ID lautet: ". $EreignisID;	
+                $this->SendDebug("Doorbird", "Event für Doorbird Ringpicture mit ObjektID".$EreignisID." gefunden",0);
 			}
 	}
 	

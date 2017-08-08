@@ -700,7 +700,7 @@ class Doorbird extends IPSModule
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
-        if ($SenderID == "LastRingtone")
+        if ($SenderID == $this->ReadPropertyInteger("LastRingtone"))
         {
             $this->GetRingPicture();
             $email = $this->ReadPropertyString("email");
@@ -709,7 +709,7 @@ class Doorbird extends IPSModule
             //IPS_LogMessage("Doorbird", "Message from SenderID ".$SenderID." with Message ".$Message."\r\n Data: ".print_r($Data, true));
             IPS_LogMessage("Doorbird", "Message from SenderID ".$SenderID." with Message ".$Message."\r\n Data: ".print_r($Data, true));
         }
-        elseif($SenderID == "LastMovement")
+        elseif($SenderID == $this->ReadPropertyInteger("LastMovement"))
         {
             $this->GetSnapshot();
             $this->SendDebug("Doorbird recieved LastMovement at",date("H:i", $TimeStamp),0);

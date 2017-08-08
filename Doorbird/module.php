@@ -380,9 +380,9 @@ class Doorbird extends IPSModule
                 }
                 else
                 {
-                    if($this->ReadPropertyInteger("LastMovement") > 0)
+                    if($this->GetIDForIdent('LastMovement') > 0)
                     {
-                        $this->RegisterMessage($this->ReadPropertyInteger("LastMovement"), VM_UPDATE);
+                        $this->RegisterMessage($this->GetIDForIdent('LastMovement'), VM_UPDATE);
                         $this->SendDebug("Doorbird", "Register Message LastMovement",0);
                     }
                 }
@@ -403,18 +403,18 @@ class Doorbird extends IPSModule
                 }
                 else
                 {
-                    if($this->ReadPropertyInteger("LastRingtone") > 0)
+                    if($this->GetIDForIdent('LastRingtone') > 0)
                     {
-                        $this->RegisterMessage($this->ReadPropertyInteger("LastRingtone"), VM_UPDATE);
+                        $this->RegisterMessage($this->GetIDForIdent('LastRingtone'), VM_UPDATE);
                         $this->SendDebug("Doorbird", "Register Message LastRingtone",0);
                     }
                 }
 
                 if($ipsversion >= 1)
                 {
-                    if($this->ReadPropertyInteger("LastDoorOpen") > 0)
+                    if($this->GetIDForIdent('LastDoorOpen') > 0)
                     {
-                        $this->RegisterMessage($this->ReadPropertyInteger("LastDoorOpen"), VM_UPDATE);
+                        $this->RegisterMessage($this->GetIDForIdent('LastDoorOpen'), VM_UPDATE);
                         $this->SendDebug("Doorbird", "Register Message LastDoorOpen",0);
                     }
                 }
@@ -704,7 +704,7 @@ class Doorbird extends IPSModule
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
         IPS_LogMessage(get_class() . '::' . __FUNCTION__,'SenderID: ' . $SenderID . ', Message: ' . $Message . ', Data:'. json_encode($Data));
-        if ($SenderID == $this->ReadPropertyInteger("LastRingtone"))
+        if ($SenderID == $this->GetIDForIdent('LastRingtone'))
         {
             $this->GetRingPicture();
             $email = $this->ReadPropertyString("email");
@@ -713,7 +713,7 @@ class Doorbird extends IPSModule
             //IPS_LogMessage("Doorbird", "Message from SenderID ".$SenderID." with Message ".$Message."\r\n Data: ".print_r($Data, true));
             IPS_LogMessage("Doorbird", "Message from SenderID ".$SenderID." with Message ".$Message."\r\n Data: ".print_r($Data, true));
         }
-        elseif($SenderID == $this->ReadPropertyInteger("LastMovement"))
+        elseif($SenderID == $this->GetIDForIdent('LastMovement'))
         {
             $this->GetSnapshot();
             $this->SendDebug("Doorbird recieved LastMovement at",date("H:i", $TimeStamp),0);

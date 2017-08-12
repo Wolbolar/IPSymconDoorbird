@@ -83,13 +83,17 @@ Wir legen also eine Kategorie an der gewünschten Position im Objektbaum an (_CT
 	
 In IP-Symcon nun _Instanz hinzufügen_ (_CTRL+1_) auswählen unter der Kategorie, unter der man die Doorbird hinzufügen will, und _Doorbird_ auswählen.
 Im Konfigurationsformular ist der Doorbird User und das Doorbird Passwort zu ergänzen. Hierbei ist darauf zu achten, dass in der Doorbird App unter _Einstellungen_ (Zahnrad) unter _Weitere Funktionen_ ->
-_Administration_ ein neuer Nutzer angelegt worden ist. Es muss ein Nutzer mit User und Passwort im Modul eingtragen werden und nicht der Administartor Account benutzt werden.
+_Administration_ ein neuer Nutzer angelegt worden ist. Es muss ein Nutzer mit User und Passwort im Modul eingetragen werden und nicht der Administrator Account benutzt werden.
 Wenn bereits ein Nutzer angelegt worden ist, können Username und Passwort in der Doorbird App nachgeschlagen werden. Die IP Adresse von Doorbird
 und die IP Adresse von IP-Symcon ist zu ergänzen.
+
+![Modules](docs/doorbirdform-1.png?raw=true "Doorbird Form 1")
+![Modules](docs/doorbirdform-2.png?raw=true "Doorbird Form 2")
 Bei jeder ausgelösten Bewegung wird von der Doorbird ein Snapshoot angefordert und in
 IP-Symcon abgelegt. Ebenso wird bei jedem Klingeln ein Foto in IP-Symcon abgelegt. Unter Anzahl
 der zu speichernden Bilder kann das maximale Limit der zu speichernden Bilder angegeben werden.
-Wird das Limit erreicht werden die Bilder von vorne überschrieben.
+Wird das Limit erreicht werden die Bilder von vorne überschrieben. Insofern eine Email Instanz in IP-Symcon eingerichtet worden ist
+kann diese im Formular angegeben werden. Wenn die Email Benachrichtigung optional aktiv gesetzt wird wird bei jedem Klingeln eine Email mit Text und dem Foto verschickt.
 
 
 

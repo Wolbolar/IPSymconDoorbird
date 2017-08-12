@@ -1385,21 +1385,21 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
                     "caption": "doorbell"
                 },
 				{ "type": "Label", "label": "Relaxation time for doorbell (seconds)" },
-				{ "type": "NumberSpinner", "name": "relaxationdoorbell", "caption": "relaxation doorbell", "digits": 0},
+				{ "type": "NumberSpinner", "name": "relaxationdoorbell", "caption": "relaxation (s)", "digits": 0},
 				{
                     "name": "motionsensor",
                     "type": "CheckBox",
                     "caption": "motionsensor"
                 },
 				{ "type": "Label", "label": "Relaxation time for motionsensor (seconds)" },
-				{ "type": "NumberSpinner", "name": "relaxationmotionsensor", "caption": "relaxation motionsensor", "digits": 0},
+				{ "type": "NumberSpinner", "name": "relaxationmotionsensor", "caption": "relaxation (s)", "digits": 0},
 				{
                     "name": "dooropen",
                     "type": "CheckBox",
                     "caption": "door open"
                 },
 				{ "type": "Label", "label": "Relaxation time for dooropen (seconds)" },
-				{ "type": "NumberSpinner", "name": "relaxationdooropen", "caption": "relaxation dooropen", "digits": 0},
+				{ "type": "NumberSpinner", "name": "relaxationdooropen", "caption": "relaxation (s)", "digits": 0},
 				{ "type": "Label", "label": "optionally notification via email (configurated SMTP module required)" },
 				{ "type": "Label", "label": "active email notification" },
 				{

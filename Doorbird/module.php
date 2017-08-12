@@ -1434,7 +1434,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 				{ "type": "Label", "label": "Connection from Doorbird to IP-Symcon" },
 				{ "type": "Label", "label": "authentication for Doorbird webhook" },
 				{ "name": "webhookusername", "type": "ValidationTextBox", "caption": "webhook username" },
-				{ "type": "PasswordTextBox", "name": "webhookpassword", "caption": "webhook password" }';
+				{ "type": "PasswordTextBox", "name": "webhookpassword", "caption": "webhook password" },';
 
         return $form;
     }

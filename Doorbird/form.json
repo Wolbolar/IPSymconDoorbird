@@ -152,6 +152,16 @@
                     "code": 207,
                     "icon": "error",
                     "caption": "email not valid."
+                },
+                {
+                    "code": 208,
+                    "icon": "error",
+                    "caption": "category doorbird snapshot not set."
+                },
+                {
+                    "code": 209,
+                    "icon": "error",
+                    "caption": "category doorbird history not set."
                 }
             ]
 }

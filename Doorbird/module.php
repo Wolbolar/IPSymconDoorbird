@@ -177,7 +177,9 @@ class Doorbird extends IPSModule
 		$this->RegisterPropertyString("subject", "Doorbell Klingel!");
 		$this->RegisterPropertyString("emailtext", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
 		$this->RegisterPropertyString("webhookusername", "ipsymcon");
-		$this->RegisterPropertyString("webhookpassword", "user@h0me");	
+		$this->RegisterPropertyString("webhookpassword", "user@h0me");
+        $this->RegisterPropertyInteger("categoryhistory", 0);
+        $this->RegisterPropertyInteger("categorysnapshot", 0);
     }
 
     public function ApplyChanges()
@@ -218,10 +220,6 @@ class Doorbird extends IPSModule
 		$this->RegisterVariableInteger("DoorbirdButtonSnapshot", "Doorbird Bild abspeichern", "Doorbird.Snapshot", 12);
 		$this->EnableAction("DoorbirdButtonSnapshot");
 		IPS_SetHidden($this->GetIDForIdent('DoorbirdReturn'), true);
-		$this->RegisterVariableInteger("ObjIDHist", "ObjektId History", "", 13);
-		IPS_SetHidden($this->GetIDForIdent('ObjIDHist'), true);
-		$this->RegisterVariableInteger("ObjIDSnap", "ObjektId Snapshot", "", 14);
-		IPS_SetHidden($this->GetIDForIdent('ObjIDSnap'), true);
 
 		$this->ValidateConfiguration();	
 	
@@ -236,9 +234,6 @@ class Doorbird extends IPSModule
 		
 	private function ValidateConfiguration()
 	{
-		$change = false;
-		
-		
 		$hostdoorbell = $this->ReadPropertyString('Host');
 		$hostips = $this->ReadPropertyString('IPSIP');
 		$doorbirduser = $this->ReadPropertyString('User');
@@ -246,7 +241,7 @@ class Doorbird extends IPSModule
 		$portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
 		$webhookusername = $this->ReadPropertyString('webhookusername');
 		$webhookpassword = $this->ReadPropertyString('webhookpassword');
-		
+
 		//IP Doorbell prüfen
 		if (!filter_var($hostdoorbell, FILTER_VALIDATE_IP) === false)
 			{
@@ -291,7 +286,7 @@ class Doorbird extends IPSModule
 			$domaincheckips = false;
 		}
 		
-		if (($domaincheckdoorbell === true || $ipcheckdoorbird = true) && ($domaincheckips = true || $ipcheckips === true))
+		if (($domaincheckdoorbell === true || $ipcheckdoorbird === true) && ($domaincheckips === true || $ipcheckips === true))
 		{
 			$hostcheck = true;
 		}
@@ -348,7 +343,25 @@ class Doorbird extends IPSModule
 				}
 				
 				
-					
+		// Kategorie prüfen
+                $category_snapshot = $this->ReadPropertyInteger('categorysnapshot');
+                $category_history = $this->ReadPropertyInteger('categoryhistory');
+                if ($category_snapshot > 0)
+                {
+                    $this->SendDebug("Doorbird", "Kategorie mit ObjektID ".$category_snapshot." gefunden",0);
+                }
+                else
+                {
+                    $this->SetStatus(208); //category doorbird snapshot not set
+                }
+                if ($category_history > 0)
+                {
+                    $this->SendDebug("Doorbird", "Kategorie mit ObjektID ".$category_history." gefunden",0);
+                }
+                else
+                {
+                    $this->SetStatus(209); //category doorbird history not set
+                }
 				//Timer für Historie
 				// Ersetzt durch Event das Bilder bei Klingeln abholt
 				/*
@@ -419,38 +432,6 @@ class Doorbird extends IPSModule
                     }
                 }
 
-
-				//Kategorie anlegen
-				$objidhis = $this->GetIDForIdent('ObjIDHist');
-				$objidsnap = $this->GetIDForIdent('ObjIDSnap');
-				//$CatIDHistory = @($this->GetIDForIdent('DoorbirdKatHistory'));
-				$CatIDHistory = GetValue($objidhis);
-				
-				//if ($CatIDHistory === false)
-				if ($CatIDHistory === 0)	
-				{
-					$CatIDHistory = IPS_CreateCategory();       // Kategorie anlegen
-					$ParentID = IPS_GetParent ($this->InstanceID);
-					IPS_SetName($CatIDHistory, "Doorbird Klingelhistorie"); // Kategorie benennen
-					IPS_SetParent($CatIDHistory, $ParentID); // Kategorie einsortieren
-					IPS_SetIdent ($CatIDHistory, "DoorbirdKatHistory");
-					SetValue($objidhis, $CatIDHistory);
-				}
-						
-				//$CatIDSnapshot = @($this->GetIDForIdent('DoorbirdKatSnapshots'));
-				$CatIDSnapshot = GetValue($objidsnap);
-				//if ($CatIDSnapshot === false)
-				if ($CatIDSnapshot === 0)
-				{
-					$CatIDSnapshot = IPS_CreateCategory();       // Kategorie anlegen
-					$ParentID = IPS_GetParent ($this->InstanceID);
-					IPS_SetName($CatIDSnapshot, "Doorbird Besucherhistorie"); // Kategorie benennen
-					IPS_SetParent($CatIDSnapshot, $ParentID); // Kategorie einsortieren
-					IPS_SetIdent ($CatIDHistory, "DoorbirdKatSnapshots");
-					SetValue($objidsnap, $CatIDSnapshot);	
-				}			
-				
-				$change = true;
 				$this->SetupNotification();
 				$this->GetInfo();
 				
@@ -502,22 +483,6 @@ class Doorbird extends IPSModule
 				// Status Aktiv
 				$this->SetStatus(102);	
 			}
-		
-		//Import Kategorie für History und Snapshot
-		/*
-		$HistoryCategoryID = $this->ReadPropertyInteger('HistoryCategoryID');
-		$SnapshotCategoryID = $this->ReadPropertyInteger('SnapshotCategoryID');
-		if (( $HistoryCategoryID === 0) ||( $SnapshotCategoryID === 0))
-			{
-				// Status Error Kategorie zum Import auswählen
-				$this->SetStatus(206);
-			}
-		elseif (( $HistoryCategoryID != 0) && ( $SnapshotCategoryID != 0))	
-			{
-				// Status Aktiv
-				$this->SetStatus(102);
-			}
-		*/	
 	}
 			
 	private function RegisterHookOLD($WebHook, $TargetID)
@@ -1014,6 +979,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
 		curl_setopt($ch, CURLOPT_USERPWD, "$doorbirduser:$doorbirdpassword");
 		$status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);   //get status code
+        $this->SendDebug("Doorbird", "Status Code ".$status_code,0);
 		$result=curl_exec ($ch);
 		curl_close ($ch);
 		return $result;
@@ -1339,6 +1305,220 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 			}
 			return $ipsversion;
 		}
+
+    //Configuration Form
+    public function GetConfigurationForm()
+    {
+        $formhead = $this->FormHead();
+        $formactions = $this->FormActions();
+        $formelementsend = '{ "type": "Label", "label": "__________________________________________________________________________________________________" }';
+        $formstatus = $this->FormStatus();
+        return	'{ '.$formhead.$formelementsend.'],'.$formactions.$formstatus.' }';
+    }
+
+    //Check if notification setup is already done. Otherwise show a button to create it
+    private function isNotificationInstanceValid()
+    {
+        $doorbirdreturn = GetValue($this->GetIDForIdent('DoorbirdReturn'));
+        if($doorbirdreturn == "")
+        {
+            $form = '';
+        }
+        else
+        {
+            $form = '{ "type": "Label", "label": "Please fill in all fields in this form and then press the button below for the notification setup of the Doorbird for IP-Symcon"},
+				{ "type": "Label", "label": "Setup notifications from doorbird to IP-Symcon" },
+				{ "type": "Button", "label": "Setup Notification", "onClick": "Doorbird_SetupNotification($id);" },';
+        }
+        return $form;
+    }
+
+
+    protected function FormHead()
+    {
+        $form = '"elements":
+            [
+               '.$this->isNotificationInstanceValid().'
+                { "type": "Label", "label": "IP adress or hostname Doorbird" },
+                {
+                    "name": "Host",
+                    "type": "ValidationTextBox",
+                    "caption": "IP Doorbird"
+                },
+				{ "type": "Label", "label": "port of Doorbell" },
+				{ "type": "NumberSpinner", "name": "PortDoorbell", "caption": "Port Doorbell" },
+				{ "type": "Label", "label": "Doorbird login credentials" },
+                {
+                    "name": "User",
+                    "type": "ValidationTextBox",
+                    "caption": "User"
+                },
+				{
+                    "name": "Password",
+                    "type": "ValidationTextBox",
+                    "caption": "Password"
+                },
+				{ "type": "Label", "label": "category for doorbird ring pictures, please create first a category in the objekt tree of IP-Symcon and then select it in the field below" },
+				{ "type": "SelectCategory", "name": "categoryhistory", "caption": "doorbird ring pictures category" },
+				{ "type": "Label", "label": "picture limit for doorbird ring pictures" },
+				{ "type": "NumberSpinner", "name": "picturelimitring", "caption": "limit ring pictures", "digits": 0},
+				{ "type": "Label", "label": "category for doorbird snapshots pictures, please create first a category in the objekt tree of IP-Symcon and then select it in the field below" },
+				{ "type": "SelectCategory", "name": "categorysnapshot", "caption": "doorbird snapshot pictures category" },
+				{ "type": "Label", "label": "picture limit for doorbird snapshots pictures" },
+				{ "type": "NumberSpinner", "name": "picturelimitsnapshot", "caption": "limit snapshots", "digits": 0},
+				{ "type": "Label", "label": "IP adress IP-Symcon Server" },
+                {
+                    "name": "IPSIP",
+                    "type": "ValidationTextBox",
+                    "caption": "IP adress"
+                },
+				{ "type": "Label", "label": "port of IP-Symcon" },
+				{ "type": "NumberSpinner", "name": "PortIPS", "caption": "Port IPS" },
+				{ "type": "Label", "label": "notification preferences" },
+				{ "type": "Label", "label": "parameter relaxation:  min 10s max 10000s" },
+				{ "type": "Label", "label": "notification activ for:" },
+				{
+                    "name": "doorbell",
+                    "type": "CheckBox",
+                    "caption": "doorbell"
+                },
+				{ "type": "Label", "label": "Relaxation time for doorbell (seconds)" },
+				{ "type": "NumberSpinner", "name": "relaxationdoorbell", "caption": "relaxation doorbell", "digits": 0},
+				{
+                    "name": "motionsensor",
+                    "type": "CheckBox",
+                    "caption": "motionsensor"
+                },
+				{ "type": "Label", "label": "Relaxation time for motionsensor (seconds)" },
+				{ "type": "NumberSpinner", "name": "relaxationmotionsensor", "caption": "relaxation motionsensor", "digits": 0},
+				{
+                    "name": "dooropen",
+                    "type": "CheckBox",
+                    "caption": "door open"
+                },
+				{ "type": "Label", "label": "Relaxation time for dooropen (seconds)" },
+				{ "type": "NumberSpinner", "name": "relaxationdooropen", "caption": "relaxation dooropen", "digits": 0},
+				{ "type": "Label", "label": "optionally notification via email (configurated SMTP module required)" },
+				{ "type": "Label", "label": "active email notification" },
+				{
+                    "name": "activeemail",
+                    "type": "CheckBox",
+                    "caption": "active email"
+                },
+				{ "type": "SelectInstance", "name": "smtpmodule", "caption": "SMTP module" },
+				
+				{ "type": "Label", "label": "notification email adress" },
+                {
+                    "name": "email",
+                    "type": "ValidationTextBox",
+                    "caption": "email"
+                },
+				{ "type": "Label", "label": "email subject" },
+                {
+                    "name": "subject",
+                    "type": "ValidationTextBox",
+                    "caption": "subject"
+                },
+				{ "type": "Label", "label": "email text" },
+                {
+                    "name": "emailtext",
+                    "type": "ValidationTextBox",
+                    "caption": "email text"
+                },
+				{ "type": "Label", "label": "if there are problems with the live image in the webfront you can active alterative view" },
+				{
+                    "name": "altview",
+                    "type": "CheckBox",
+                    "caption": "alternative view"
+                },
+				{ "type": "Label", "label": "Connection from Doorbird to IP-Symcon" },
+				{ "type": "Label", "label": "authentication for Doorbird webhook" },
+				{ "name": "webhookusername", "type": "ValidationTextBox", "caption": "webhook username" },
+				{ "type": "PasswordTextBox", "name": "webhookpassword", "caption": "webhook password" }';
+
+        return $form;
+    }
+
+    protected function FormActions()
+    {
+        $form = '"actions":
+			[
+				{ "type": "Label", "label": "Setup notifications from doorbird to IP-Symcon" },
+				{ "type": "Button", "label": "Setup Notification", "onClick": "Doorbird_SetupNotification($id);" },
+				{ "type": "Label", "label": "Get buildnumber, WLAN MAC and firmwareversion of Doorbird" },
+				{ "type": "Button", "label": "get info", "onClick": "Doorbird_GetInfo($id);" },
+				{ "type": "Label", "label": "Get snapshot from the doorbird camera" },
+				{ "type": "Button", "label": "get snapshoot", "onClick": "Doorbird_GetSnapshot($id);" },
+				{ "type": "Button", "label": "open door", "onClick": "Doorbird_OpenDoor($id);" },
+				{ "type": "Label", "label": "turn on ir light of doorbird" },
+				{ "type": "Button", "label": "ir light", "onClick": "Doorbird_Light($id);" }
+			],';
+        return  $form;
+    }
+
+    protected function FormStatus()
+    {
+        $form = '"status":
+            [
+                {
+                    "code": 101,
+                    "icon": "inactive",
+                    "caption": "Creating instance."
+                },
+				{
+                    "code": 102,
+                    "icon": "active",
+                    "caption": "Doorbird accessible."
+                },
+                {
+                    "code": 104,
+                    "icon": "inactive",
+                    "caption": "interface closed."
+                },
+                {
+                    "code": 202,
+                    "icon": "error",
+                    "caption": "Doorbird IP adress must not empty."
+                },
+				{
+                    "code": 203,
+                    "icon": "error",
+                    "caption": "No valid IP adress or host."
+                },
+                {
+                    "code": 204,
+                    "icon": "error",
+                    "caption": "connection to Doorbird lost."
+                },
+				{
+                    "code": 205,
+                    "icon": "error",
+                    "caption": "field must not be empty."
+                },
+				{
+                    "code": 206,
+                    "icon": "error",
+                    "caption": "category must not be empty."
+                },
+				{
+                    "code": 207,
+                    "icon": "error",
+                    "caption": "email not valid."
+                },
+                {
+                    "code": 208,
+                    "icon": "error",
+                    "caption": "category doorbird snapshot not set."
+                },
+                {
+                    "code": 209,
+                    "icon": "error",
+                    "caption": "category doorbird history not set."
+                }
+            ]';
+        return $form;
+    }
+
 }
 
 ?>

@@ -1322,13 +1322,13 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
         $doorbirdreturn = GetValue($this->GetIDForIdent('DoorbirdReturn'));
         if($doorbirdreturn == "")
         {
-            $form = '';
-        }
-        else
-        {
             $form = '{ "type": "Label", "label": "Please fill in all fields in this form and then press the button below for the notification setup of the Doorbird for IP-Symcon"},
 				{ "type": "Label", "label": "Setup notifications from doorbird to IP-Symcon" },
 				{ "type": "Button", "label": "Setup Notification", "onClick": "Doorbird_SetupNotification($id);" },';
+        }
+        else
+        {
+            $form = '';
         }
         return $form;
     }

@@ -1056,7 +1056,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$ident = "DoorbirdSnapshotPic";
 		$picturename = "doorbirdsnapshot_";
 		$picturelimit = $this->ReadPropertyInteger('picturelimitsnapshot');
-		$catid = GetValue($this->GetIDForIdent('ObjIDSnap'));
+		$catid = $this->ReadPropertyInteger('categorysnapshot');;
 		$this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid);
 	}
 	
@@ -1066,7 +1066,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$ident = "DoorbirdRingPic";
 		$picturename = "doorbirdringpic_";
 		$picturelimit = $this->ReadPropertyInteger('picturelimitring');
-		$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
+		$catid = $this->ReadPropertyInteger('categoryhistory');
 		$this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid);
 	}
 	

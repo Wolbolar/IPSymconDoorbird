@@ -1056,8 +1056,17 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$ident = "DoorbirdSnapshotPic";
 		$picturename = "doorbirdsnapshot_";
 		$picturelimit = $this->ReadPropertyInteger('picturelimitsnapshot');
-		$catid = $this->ReadPropertyInteger('categorysnapshot');;
-		$this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid);
+		$catid = $this->ReadPropertyInteger('categorysnapshot');
+		if ($catid >0)
+        {
+            $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid);
+        }
+        else
+        {
+            $this->SendDebug("Doorbird","No category is set, please set category.",0);
+            IPS_LogMessage("Doorbird", "Es wurde keine Kategorie gesetzt. Die Funktion wurde nicht ausgeführt.");
+            echo "Es wurde keine Kategorie gesetzt. Die Funktion wurde nicht ausgeführt.";
+        }
 	}
 	
 	public function GetRingPicture()
@@ -1067,7 +1076,16 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$picturename = "doorbirdringpic_";
 		$picturelimit = $this->ReadPropertyInteger('picturelimitring');
 		$catid = $this->ReadPropertyInteger('categoryhistory');
-		$this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid);
+        if ($catid >0)
+        {
+            $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid);
+        }
+        else
+        {
+            $this->SendDebug("Doorbird","No category is set, please set category.",0);
+            IPS_LogMessage("Doorbird", "Es wurde keine Kategorie gesetzt. Die Funktion wurde nicht ausgeführt.");
+            echo "Es wurde keine Kategorie gesetzt. Die Funktion wurde nicht ausgeführt.";
+        }
 	}
 	
 	private function GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid)

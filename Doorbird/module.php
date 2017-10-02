@@ -265,7 +265,7 @@ class Doorbird extends IPSModule
 			}	
 			
 		//Domain Doorbell prüfen
-		if(!$this->is_valid_domain($hostdoorbell) === false)
+		if(!$this->is_valid_localdomain($hostdoorbell) === false)
 		{
 			//Domain ok
 			$domaincheckdoorbell = true;
@@ -624,6 +624,48 @@ class Doorbird extends IPSModule
 		}
 
 	}
+
+    protected function is_valid_localdomain($url)
+    {
+
+        $validation = FALSE;
+        /*Parse URL*/
+        $urlparts = parse_url(filter_var($url, FILTER_SANITIZE_URL));
+        /*Check host exist else path assign to host*/
+        if(!isset($urlparts['host'])){
+            $urlparts['host'] = $urlparts['path'];
+        }
+
+        if($urlparts['host']!=''){
+            /*Add scheme if not found*/
+            if (!isset($urlparts['scheme'])){
+                $urlparts['scheme'] = 'http';
+            }
+            /*Validation*/
+            if(checkdnsrr($urlparts['host'], 'A') && in_array($urlparts['scheme'],array('http','https')) && ip2long($urlparts['host']) === FALSE){
+                $urlparts['host'] = preg_replace('/^www\./', '', $urlparts['host']);
+                $url = $urlparts['scheme'].'://'.$urlparts['host']. "/";
+
+                if (filter_var($url, FILTER_VALIDATE_URL) !== false && @get_headers($url)) {
+                    $validation = TRUE;
+                }
+            }
+        }
+
+        if(!$validation)
+        {
+            //echo $url." Its Invalid Domain Name.";
+            $domaincheck = false;
+            return $domaincheck;
+        }
+        else
+        {
+            //echo $url." is a Valid Domain Name.";
+            $domaincheck = true;
+            return $domaincheck;
+        }
+
+    }
 	
 	protected function GetURLPrefix($url)
 	{
@@ -631,11 +673,11 @@ class Doorbird extends IPSModule
 		$prehttps = strpos($url, "https://");
 		if ($prehttp === 0)
 		{
-		    $prefix = "http://"; //Prefix ist http
+		    $prefix = ""; //Prefix ist http
 		}
 		elseif ($prehttps === 0)
 		{
-			$prefix = "https://"; //Prefix ist https
+			$prefix = ""; //Prefix ist https
 		}
 		else
 		{

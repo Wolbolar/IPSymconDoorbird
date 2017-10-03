@@ -840,8 +840,8 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	
 	public function EmailAlert(string $email)
 	{
-		$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
-		
+		$catid = $this->ReadPropertyInteger('categoryhistory');
+
 		$subject = $this->ReadPropertyString('subject');
 		$emailtext = $this->ReadPropertyString('emailtext');
 		$mediaids = IPS_GetChildrenIDs($catid);
@@ -1061,7 +1061,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 			
 
 			//testen ob im Medienpool existent
-			$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
+            $catid = $this->ReadPropertyInteger('categoryhistory');
 			
 			$MediaID = @IPS_GetObjectIDByIdent($ident.$i, $catid);
 			if ($MediaID === false)

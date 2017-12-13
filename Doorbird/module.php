@@ -1,147 +1,150 @@
 <?
 
+if (@constant('IPS_BASE') == null) //Nur wenn Konstanten noch nicht bekannt sind.
+{
 // --- BASE MESSAGE
-define('IPS_BASE', 10000);                             //Base Message
-define('IPS_KERNELSHUTDOWN', IPS_BASE + 1);            //Pre Shutdown Message, Runlevel UNINIT Follows
-define('IPS_KERNELSTARTED', IPS_BASE + 2);             //Post Ready Message
+    define('IPS_BASE', 10000);                             //Base Message
+    define('IPS_KERNELSHUTDOWN', IPS_BASE + 1);            //Pre Shutdown Message, Runlevel UNINIT Follows
+    define('IPS_KERNELSTARTED', IPS_BASE + 2);             //Post Ready Message
 // --- KERNEL
-define('IPS_KERNELMESSAGE', IPS_BASE + 100);           //Kernel Message
-define('KR_CREATE', IPS_KERNELMESSAGE + 1);            //Kernel is beeing created
-define('KR_INIT', IPS_KERNELMESSAGE + 2);              //Kernel Components are beeing initialised, Modules loaded, Settings read
-define('KR_READY', IPS_KERNELMESSAGE + 3);             //Kernel is ready and running
-define('KR_UNINIT', IPS_KERNELMESSAGE + 4);            //Got Shutdown Message, unloading all stuff
-define('KR_SHUTDOWN', IPS_KERNELMESSAGE + 5);          //Uninit Complete, Destroying Kernel Inteface
+    define('IPS_KERNELMESSAGE', IPS_BASE + 100);           //Kernel Message
+    define('KR_CREATE', IPS_KERNELMESSAGE + 1);            //Kernel is beeing created
+    define('KR_INIT', IPS_KERNELMESSAGE + 2);              //Kernel Components are beeing initialised, Modules loaded, Settings read
+    define('KR_READY', IPS_KERNELMESSAGE + 3);             //Kernel is ready and running
+    define('KR_UNINIT', IPS_KERNELMESSAGE + 4);            //Got Shutdown Message, unloading all stuff
+    define('KR_SHUTDOWN', IPS_KERNELMESSAGE + 5);          //Uninit Complete, Destroying Kernel Inteface
 // --- KERNEL LOGMESSAGE
-define('IPS_LOGMESSAGE', IPS_BASE + 200);              //Logmessage Message
-define('KL_MESSAGE', IPS_LOGMESSAGE + 1);              //Normal Message                      | FG: Black | BG: White  | STLYE : NONE
-define('KL_SUCCESS', IPS_LOGMESSAGE + 2);              //Success Message                     | FG: Black | BG: Green  | STYLE : NONE
-define('KL_NOTIFY', IPS_LOGMESSAGE + 3);               //Notiy about Changes                 | FG: Black | BG: Blue   | STLYE : NONE
-define('KL_WARNING', IPS_LOGMESSAGE + 4);              //Warnings                            | FG: Black | BG: Yellow | STLYE : NONE
-define('KL_ERROR', IPS_LOGMESSAGE + 5);                //Error Message                       | FG: Black | BG: Red    | STLYE : BOLD
-define('KL_DEBUG', IPS_LOGMESSAGE + 6);                //Debug Informations + Script Results | FG: Grey  | BG: White  | STLYE : NONE
-define('KL_CUSTOM', IPS_LOGMESSAGE + 7);               //User Message                        | FG: Black | BG: White  | STLYE : NONE
+    define('IPS_LOGMESSAGE', IPS_BASE + 200);              //Logmessage Message
+    define('KL_MESSAGE', IPS_LOGMESSAGE + 1);              //Normal Message                      | FG: Black | BG: White  | STLYE : NONE
+    define('KL_SUCCESS', IPS_LOGMESSAGE + 2);              //Success Message                     | FG: Black | BG: Green  | STYLE : NONE
+    define('KL_NOTIFY', IPS_LOGMESSAGE + 3);               //Notiy about Changes                 | FG: Black | BG: Blue   | STLYE : NONE
+    define('KL_WARNING', IPS_LOGMESSAGE + 4);              //Warnings                            | FG: Black | BG: Yellow | STLYE : NONE
+    define('KL_ERROR', IPS_LOGMESSAGE + 5);                //Error Message                       | FG: Black | BG: Red    | STLYE : BOLD
+    define('KL_DEBUG', IPS_LOGMESSAGE + 6);                //Debug Informations + Script Results | FG: Grey  | BG: White  | STLYE : NONE
+    define('KL_CUSTOM', IPS_LOGMESSAGE + 7);               //User Message                        | FG: Black | BG: White  | STLYE : NONE
 // --- MODULE LOADER
-define('IPS_MODULEMESSAGE', IPS_BASE + 300);           //ModuleLoader Message
-define('ML_LOAD', IPS_MODULEMESSAGE + 1);              //Module loaded
-define('ML_UNLOAD', IPS_MODULEMESSAGE + 2);            //Module unloaded
+    define('IPS_MODULEMESSAGE', IPS_BASE + 300);           //ModuleLoader Message
+    define('ML_LOAD', IPS_MODULEMESSAGE + 1);              //Module loaded
+    define('ML_UNLOAD', IPS_MODULEMESSAGE + 2);            //Module unloaded
 // --- OBJECT MANAGER
-define('IPS_OBJECTMESSAGE', IPS_BASE + 400);
-define('OM_REGISTER', IPS_OBJECTMESSAGE + 1);          //Object was registered
-define('OM_UNREGISTER', IPS_OBJECTMESSAGE + 2);        //Object was unregistered
-define('OM_CHANGEPARENT', IPS_OBJECTMESSAGE + 3);      //Parent was Changed
-define('OM_CHANGENAME', IPS_OBJECTMESSAGE + 4);        //Name was Changed
-define('OM_CHANGEINFO', IPS_OBJECTMESSAGE + 5);        //Info was Changed
-define('OM_CHANGETYPE', IPS_OBJECTMESSAGE + 6);        //Type was Changed
-define('OM_CHANGESUMMARY', IPS_OBJECTMESSAGE + 7);     //Summary was Changed
-define('OM_CHANGEPOSITION', IPS_OBJECTMESSAGE + 8);    //Position was Changed
-define('OM_CHANGEREADONLY', IPS_OBJECTMESSAGE + 9);    //ReadOnly was Changed
-define('OM_CHANGEHIDDEN', IPS_OBJECTMESSAGE + 10);     //Hidden was Changed
-define('OM_CHANGEICON', IPS_OBJECTMESSAGE + 11);       //Icon was Changed
-define('OM_CHILDADDED', IPS_OBJECTMESSAGE + 12);       //Child for Object was added
-define('OM_CHILDREMOVED', IPS_OBJECTMESSAGE + 13);     //Child for Object was removed
-define('OM_CHANGEIDENT', IPS_OBJECTMESSAGE + 14);      //Ident was Changed
-define('OM_CHANGEDISABLED', IPS_OBJECTMESSAGE + 15);   //Operability has changed
+    define('IPS_OBJECTMESSAGE', IPS_BASE + 400);
+    define('OM_REGISTER', IPS_OBJECTMESSAGE + 1);          //Object was registered
+    define('OM_UNREGISTER', IPS_OBJECTMESSAGE + 2);        //Object was unregistered
+    define('OM_CHANGEPARENT', IPS_OBJECTMESSAGE + 3);      //Parent was Changed
+    define('OM_CHANGENAME', IPS_OBJECTMESSAGE + 4);        //Name was Changed
+    define('OM_CHANGEINFO', IPS_OBJECTMESSAGE + 5);        //Info was Changed
+    define('OM_CHANGETYPE', IPS_OBJECTMESSAGE + 6);        //Type was Changed
+    define('OM_CHANGESUMMARY', IPS_OBJECTMESSAGE + 7);     //Summary was Changed
+    define('OM_CHANGEPOSITION', IPS_OBJECTMESSAGE + 8);    //Position was Changed
+    define('OM_CHANGEREADONLY', IPS_OBJECTMESSAGE + 9);    //ReadOnly was Changed
+    define('OM_CHANGEHIDDEN', IPS_OBJECTMESSAGE + 10);     //Hidden was Changed
+    define('OM_CHANGEICON', IPS_OBJECTMESSAGE + 11);       //Icon was Changed
+    define('OM_CHILDADDED', IPS_OBJECTMESSAGE + 12);       //Child for Object was added
+    define('OM_CHILDREMOVED', IPS_OBJECTMESSAGE + 13);     //Child for Object was removed
+    define('OM_CHANGEIDENT', IPS_OBJECTMESSAGE + 14);      //Ident was Changed
+    define('OM_CHANGEDISABLED', IPS_OBJECTMESSAGE + 15);   //Operability has changed
 // --- INSTANCE MANAGER
-define('IPS_INSTANCEMESSAGE', IPS_BASE + 500);         //Instance Manager Message
-define('IM_CREATE', IPS_INSTANCEMESSAGE + 1);          //Instance created
-define('IM_DELETE', IPS_INSTANCEMESSAGE + 2);          //Instance deleted
-define('IM_CONNECT', IPS_INSTANCEMESSAGE + 3);         //Instance connectged
-define('IM_DISCONNECT', IPS_INSTANCEMESSAGE + 4);      //Instance disconncted
-define('IM_CHANGESTATUS', IPS_INSTANCEMESSAGE + 5);    //Status was Changed
-define('IM_CHANGESETTINGS', IPS_INSTANCEMESSAGE + 6);  //Settings were Changed
-define('IM_CHANGESEARCH', IPS_INSTANCEMESSAGE + 7);    //Searching was started/stopped
-define('IM_SEARCHUPDATE', IPS_INSTANCEMESSAGE + 8);    //Searching found new results
-define('IM_SEARCHPROGRESS', IPS_INSTANCEMESSAGE + 9);  //Searching progress in %
-define('IM_SEARCHCOMPLETE', IPS_INSTANCEMESSAGE + 10); //Searching is complete
+    define('IPS_INSTANCEMESSAGE', IPS_BASE + 500);         //Instance Manager Message
+    define('IM_CREATE', IPS_INSTANCEMESSAGE + 1);          //Instance created
+    define('IM_DELETE', IPS_INSTANCEMESSAGE + 2);          //Instance deleted
+    define('IM_CONNECT', IPS_INSTANCEMESSAGE + 3);         //Instance connectged
+    define('IM_DISCONNECT', IPS_INSTANCEMESSAGE + 4);      //Instance disconncted
+    define('IM_CHANGESTATUS', IPS_INSTANCEMESSAGE + 5);    //Status was Changed
+    define('IM_CHANGESETTINGS', IPS_INSTANCEMESSAGE + 6);  //Settings were Changed
+    define('IM_CHANGESEARCH', IPS_INSTANCEMESSAGE + 7);    //Searching was started/stopped
+    define('IM_SEARCHUPDATE', IPS_INSTANCEMESSAGE + 8);    //Searching found new results
+    define('IM_SEARCHPROGRESS', IPS_INSTANCEMESSAGE + 9);  //Searching progress in %
+    define('IM_SEARCHCOMPLETE', IPS_INSTANCEMESSAGE + 10); //Searching is complete
 // --- VARIABLE MANAGER
-define('IPS_VARIABLEMESSAGE', IPS_BASE + 600);              //Variable Manager Message
-define('VM_CREATE', IPS_VARIABLEMESSAGE + 1);               //Variable Created
-define('VM_DELETE', IPS_VARIABLEMESSAGE + 2);               //Variable Deleted
-define('VM_UPDATE', IPS_VARIABLEMESSAGE + 3);               //On Variable Update
-define('VM_CHANGEPROFILENAME', IPS_VARIABLEMESSAGE + 4);    //On Profile Name Change
-define('VM_CHANGEPROFILEACTION', IPS_VARIABLEMESSAGE + 5);  //On Profile Action Change
+    define('IPS_VARIABLEMESSAGE', IPS_BASE + 600);              //Variable Manager Message
+    define('VM_CREATE', IPS_VARIABLEMESSAGE + 1);               //Variable Created
+    define('VM_DELETE', IPS_VARIABLEMESSAGE + 2);               //Variable Deleted
+    define('VM_UPDATE', IPS_VARIABLEMESSAGE + 3);               //On Variable Update
+    define('VM_CHANGEPROFILENAME', IPS_VARIABLEMESSAGE + 4);    //On Profile Name Change
+    define('VM_CHANGEPROFILEACTION', IPS_VARIABLEMESSAGE + 5);  //On Profile Action Change
 // --- SCRIPT MANAGER
-define('IPS_SCRIPTMESSAGE', IPS_BASE + 700);           //Script Manager Message
-define('SM_CREATE', IPS_SCRIPTMESSAGE + 1);            //On Script Create
-define('SM_DELETE', IPS_SCRIPTMESSAGE + 2);            //On Script Delete
-define('SM_CHANGEFILE', IPS_SCRIPTMESSAGE + 3);        //On Script File changed
-define('SM_BROKEN', IPS_SCRIPTMESSAGE + 4);            //Script Broken Status changed
+    define('IPS_SCRIPTMESSAGE', IPS_BASE + 700);           //Script Manager Message
+    define('SM_CREATE', IPS_SCRIPTMESSAGE + 1);            //On Script Create
+    define('SM_DELETE', IPS_SCRIPTMESSAGE + 2);            //On Script Delete
+    define('SM_CHANGEFILE', IPS_SCRIPTMESSAGE + 3);        //On Script File changed
+    define('SM_BROKEN', IPS_SCRIPTMESSAGE + 4);            //Script Broken Status changed
 // --- EVENT MANAGER
-define('IPS_EVENTMESSAGE', IPS_BASE + 800);             //Event Scripter Message
-define('EM_CREATE', IPS_EVENTMESSAGE + 1);             //On Event Create
-define('EM_DELETE', IPS_EVENTMESSAGE + 2);             //On Event Delete
-define('EM_UPDATE', IPS_EVENTMESSAGE + 3);
-define('EM_CHANGEACTIVE', IPS_EVENTMESSAGE + 4);
-define('EM_CHANGELIMIT', IPS_EVENTMESSAGE + 5);
-define('EM_CHANGESCRIPT', IPS_EVENTMESSAGE + 6);
-define('EM_CHANGETRIGGER', IPS_EVENTMESSAGE + 7);
-define('EM_CHANGETRIGGERVALUE', IPS_EVENTMESSAGE + 8);
-define('EM_CHANGETRIGGEREXECUTION', IPS_EVENTMESSAGE + 9);
-define('EM_CHANGECYCLIC', IPS_EVENTMESSAGE + 10);
-define('EM_CHANGECYCLICDATEFROM', IPS_EVENTMESSAGE + 11);
-define('EM_CHANGECYCLICDATETO', IPS_EVENTMESSAGE + 12);
-define('EM_CHANGECYCLICTIMEFROM', IPS_EVENTMESSAGE + 13);
-define('EM_CHANGECYCLICTIMETO', IPS_EVENTMESSAGE + 14);
+    define('IPS_EVENTMESSAGE', IPS_BASE + 800);             //Event Scripter Message
+    define('EM_CREATE', IPS_EVENTMESSAGE + 1);             //On Event Create
+    define('EM_DELETE', IPS_EVENTMESSAGE + 2);             //On Event Delete
+    define('EM_UPDATE', IPS_EVENTMESSAGE + 3);
+    define('EM_CHANGEACTIVE', IPS_EVENTMESSAGE + 4);
+    define('EM_CHANGELIMIT', IPS_EVENTMESSAGE + 5);
+    define('EM_CHANGESCRIPT', IPS_EVENTMESSAGE + 6);
+    define('EM_CHANGETRIGGER', IPS_EVENTMESSAGE + 7);
+    define('EM_CHANGETRIGGERVALUE', IPS_EVENTMESSAGE + 8);
+    define('EM_CHANGETRIGGEREXECUTION', IPS_EVENTMESSAGE + 9);
+    define('EM_CHANGECYCLIC', IPS_EVENTMESSAGE + 10);
+    define('EM_CHANGECYCLICDATEFROM', IPS_EVENTMESSAGE + 11);
+    define('EM_CHANGECYCLICDATETO', IPS_EVENTMESSAGE + 12);
+    define('EM_CHANGECYCLICTIMEFROM', IPS_EVENTMESSAGE + 13);
+    define('EM_CHANGECYCLICTIMETO', IPS_EVENTMESSAGE + 14);
 // --- MEDIA MANAGER
-define('IPS_MEDIAMESSAGE', IPS_BASE + 900);           //Media Manager Message
-define('MM_CREATE', IPS_MEDIAMESSAGE + 1);             //On Media Create
-define('MM_DELETE', IPS_MEDIAMESSAGE + 2);             //On Media Delete
-define('MM_CHANGEFILE', IPS_MEDIAMESSAGE + 3);         //On Media File changed
-define('MM_AVAILABLE', IPS_MEDIAMESSAGE + 4);          //Media Available Status changed
-define('MM_UPDATE', IPS_MEDIAMESSAGE + 5);
+    define('IPS_MEDIAMESSAGE', IPS_BASE + 900);           //Media Manager Message
+    define('MM_CREATE', IPS_MEDIAMESSAGE + 1);             //On Media Create
+    define('MM_DELETE', IPS_MEDIAMESSAGE + 2);             //On Media Delete
+    define('MM_CHANGEFILE', IPS_MEDIAMESSAGE + 3);         //On Media File changed
+    define('MM_AVAILABLE', IPS_MEDIAMESSAGE + 4);          //Media Available Status changed
+    define('MM_UPDATE', IPS_MEDIAMESSAGE + 5);
 // --- LINK MANAGER
-define('IPS_LINKMESSAGE', IPS_BASE + 1000);           //Link Manager Message
-define('LM_CREATE', IPS_LINKMESSAGE + 1);             //On Link Create
-define('LM_DELETE', IPS_LINKMESSAGE + 2);             //On Link Delete
-define('LM_CHANGETARGET', IPS_LINKMESSAGE + 3);       //On Link TargetID change
+    define('IPS_LINKMESSAGE', IPS_BASE + 1000);           //Link Manager Message
+    define('LM_CREATE', IPS_LINKMESSAGE + 1);             //On Link Create
+    define('LM_DELETE', IPS_LINKMESSAGE + 2);             //On Link Delete
+    define('LM_CHANGETARGET', IPS_LINKMESSAGE + 3);       //On Link TargetID change
 // --- DATA HANDLER
-define('IPS_DATAMESSAGE', IPS_BASE + 1100);             //Data Handler Message
-define('DM_CONNECT', IPS_DATAMESSAGE + 1);             //On Instance Connect
-define('DM_DISCONNECT', IPS_DATAMESSAGE + 2);          //On Instance Disconnect
+    define('IPS_DATAMESSAGE', IPS_BASE + 1100);             //Data Handler Message
+    define('DM_CONNECT', IPS_DATAMESSAGE + 1);             //On Instance Connect
+    define('DM_DISCONNECT', IPS_DATAMESSAGE + 2);          //On Instance Disconnect
 // --- SCRIPT ENGINE
-define('IPS_ENGINEMESSAGE', IPS_BASE + 1200);           //Script Engine Message
-define('SE_UPDATE', IPS_ENGINEMESSAGE + 1);             //On Library Refresh
-define('SE_EXECUTE', IPS_ENGINEMESSAGE + 2);            //On Script Finished execution
-define('SE_RUNNING', IPS_ENGINEMESSAGE + 3);            //On Script Started execution
+    define('IPS_ENGINEMESSAGE', IPS_BASE + 1200);           //Script Engine Message
+    define('SE_UPDATE', IPS_ENGINEMESSAGE + 1);             //On Library Refresh
+    define('SE_EXECUTE', IPS_ENGINEMESSAGE + 2);            //On Script Finished execution
+    define('SE_RUNNING', IPS_ENGINEMESSAGE + 3);            //On Script Started execution
 // --- PROFILE POOL
-define('IPS_PROFILEMESSAGE', IPS_BASE + 1300);
-define('PM_CREATE', IPS_PROFILEMESSAGE + 1);
-define('PM_DELETE', IPS_PROFILEMESSAGE + 2);
-define('PM_CHANGETEXT', IPS_PROFILEMESSAGE + 3);
-define('PM_CHANGEVALUES', IPS_PROFILEMESSAGE + 4);
-define('PM_CHANGEDIGITS', IPS_PROFILEMESSAGE + 5);
-define('PM_CHANGEICON', IPS_PROFILEMESSAGE + 6);
-define('PM_ASSOCIATIONADDED', IPS_PROFILEMESSAGE + 7);
-define('PM_ASSOCIATIONREMOVED', IPS_PROFILEMESSAGE + 8);
-define('PM_ASSOCIATIONCHANGED', IPS_PROFILEMESSAGE + 9);
+    define('IPS_PROFILEMESSAGE', IPS_BASE + 1300);
+    define('PM_CREATE', IPS_PROFILEMESSAGE + 1);
+    define('PM_DELETE', IPS_PROFILEMESSAGE + 2);
+    define('PM_CHANGETEXT', IPS_PROFILEMESSAGE + 3);
+    define('PM_CHANGEVALUES', IPS_PROFILEMESSAGE + 4);
+    define('PM_CHANGEDIGITS', IPS_PROFILEMESSAGE + 5);
+    define('PM_CHANGEICON', IPS_PROFILEMESSAGE + 6);
+    define('PM_ASSOCIATIONADDED', IPS_PROFILEMESSAGE + 7);
+    define('PM_ASSOCIATIONREMOVED', IPS_PROFILEMESSAGE + 8);
+    define('PM_ASSOCIATIONCHANGED', IPS_PROFILEMESSAGE + 9);
 // --- TIMER POOL
-define('IPS_TIMERMESSAGE', IPS_BASE + 1400);            //Timer Pool Message
-define('TM_REGISTER', IPS_TIMERMESSAGE + 1);
-define('TM_UNREGISTER', IPS_TIMERMESSAGE + 2);
-define('TM_SETINTERVAL', IPS_TIMERMESSAGE + 3);
-define('TM_UPDATE', IPS_TIMERMESSAGE + 4);
-define('TM_RUNNING', IPS_TIMERMESSAGE + 5);
+    define('IPS_TIMERMESSAGE', IPS_BASE + 1400);            //Timer Pool Message
+    define('TM_REGISTER', IPS_TIMERMESSAGE + 1);
+    define('TM_UNREGISTER', IPS_TIMERMESSAGE + 2);
+    define('TM_SETINTERVAL', IPS_TIMERMESSAGE + 3);
+    define('TM_UPDATE', IPS_TIMERMESSAGE + 4);
+    define('TM_RUNNING', IPS_TIMERMESSAGE + 5);
 // --- STATUS CODES
-define('IS_SBASE', 100);
-define('IS_CREATING', IS_SBASE + 1); //module is being created
-define('IS_ACTIVE', IS_SBASE + 2); //module created and running
-define('IS_DELETING', IS_SBASE + 3); //module us being deleted
-define('IS_INACTIVE', IS_SBASE + 4); //module is not beeing used
+    define('IS_SBASE', 100);
+    define('IS_CREATING', IS_SBASE + 1); //module is being created
+    define('IS_ACTIVE', IS_SBASE + 2); //module created and running
+    define('IS_DELETING', IS_SBASE + 3); //module us being deleted
+    define('IS_INACTIVE', IS_SBASE + 4); //module is not beeing used
 // --- ERROR CODES
-define('IS_EBASE', 200);          //default errorcode
-define('IS_NOTCREATED', IS_EBASE + 1); //instance could not be created
+    define('IS_EBASE', 200);          //default errorcode
+    define('IS_NOTCREATED', IS_EBASE + 1); //instance could not be created
 // --- Search Handling
-define('FOUND_UNKNOWN', 0);     //Undefined value
-define('FOUND_NEW', 1);         //Device is new and not configured yet
-define('FOUND_OLD', 2);         //Device is already configues (InstanceID should be set)
-define('FOUND_CURRENT', 3);     //Device is already configues (InstanceID is from the current/searching Instance)
-define('FOUND_UNSUPPORTED', 4); //Device is not supported by Module
-define('vtBoolean', 0);
-define('vtInteger', 1);
-define('vtFloat', 2);
-define('vtString', 3);
-define('vtArray', 8);
-define('vtObject', 9);
+    define('FOUND_UNKNOWN', 0);     //Undefined value
+    define('FOUND_NEW', 1);         //Device is new and not configured yet
+    define('FOUND_OLD', 2);         //Device is already configues (InstanceID should be set)
+    define('FOUND_CURRENT', 3);     //Device is already configues (InstanceID is from the current/searching Instance)
+    define('FOUND_UNSUPPORTED', 4); //Device is not supported by Module
+    define('vtBoolean', 0);
+    define('vtInteger', 1);
+    define('vtFloat', 2);
+    define('vtString', 3);
+    define('vtArray', 8);
+    define('vtObject', 9);
+}
 
 // Modul für Doorbird
 
@@ -171,15 +174,66 @@ class Doorbird extends IPSModule
 		$this->RegisterPropertyBoolean("dooropen", true);
 		$this->RegisterPropertyInteger("relaxationdooropen", 10);
 		$this->RegisterPropertyBoolean("activeemail", false);
-		$this->RegisterPropertyString("email", "");
-		$this->RegisterPropertyInteger("smtpmodule", 0);
+        $this->RegisterPropertyString("email", "");
+        $this->RegisterPropertyInteger("smtpmodule", 0);
+        $this->RegisterPropertyString("subject", "Doorbell Klingel!");
+        $this->RegisterPropertyString("emailtext", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
+        $this->RegisterPropertyBoolean("activeemail2", false);
+        $this->RegisterPropertyString("email2", "");
+        $this->RegisterPropertyInteger("smtpmodule2", 0);
+        $this->RegisterPropertyString("subject2", "Doorbell Klingel!");
+        $this->RegisterPropertyString("emailtext2", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
+        $this->RegisterPropertyBoolean("activeemail3", false);
+        $this->RegisterPropertyString("email3", "");
+        $this->RegisterPropertyInteger("smtpmodule3", 0);
+        $this->RegisterPropertyString("subject3", "Doorbell Klingel!");
+        $this->RegisterPropertyString("emailtext3", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
+        $this->RegisterPropertyBoolean("activeemail4", false);
+        $this->RegisterPropertyString("email4", "");
+        $this->RegisterPropertyInteger("smtpmodule4", 0);
+        $this->RegisterPropertyString("subject4", "Doorbell Klingel!");
+        $this->RegisterPropertyString("emailtext4", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
+        $this->RegisterPropertyBoolean("activeemail5", false);
+        $this->RegisterPropertyString("email5", "");
+        $this->RegisterPropertyInteger("smtpmodule5", 0);
+        $this->RegisterPropertyString("subject5", "Doorbell Klingel!");
+        $this->RegisterPropertyString("emailtext5", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
+        $this->RegisterPropertyBoolean("activeemail6", false);
+        $this->RegisterPropertyString("email6", "");
+        $this->RegisterPropertyInteger("smtpmodule6", 0);
+        $this->RegisterPropertyString("subject6", "Doorbell Klingel!");
+        $this->RegisterPropertyString("emailtext6", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
+        $this->RegisterPropertyBoolean("activeemail7", false);
+        $this->RegisterPropertyString("email7", "");
+        $this->RegisterPropertyInteger("smtpmodule7", 0);
+        $this->RegisterPropertyString("subject7", "Doorbell Klingel!");
+        $this->RegisterPropertyString("emailtext7", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
+        $this->RegisterPropertyBoolean("activeemail8", false);
+        $this->RegisterPropertyString("email8", "");
+        $this->RegisterPropertyInteger("smtpmodule8", 0);
+        $this->RegisterPropertyString("subject8", "Doorbell Klingel!");
+        $this->RegisterPropertyString("emailtext8", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
+        $this->RegisterPropertyBoolean("activeemail9", false);
+        $this->RegisterPropertyString("email9", "");
+        $this->RegisterPropertyInteger("smtpmodule9", 0);
+        $this->RegisterPropertyString("subject9", "Doorbell Klingel!");
+        $this->RegisterPropertyString("emailtext9", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
+        $this->RegisterPropertyBoolean("activeemail10", false);
+        $this->RegisterPropertyString("email10", "");
+        $this->RegisterPropertyInteger("smtpmodule10", 0);
+        $this->RegisterPropertyString("subject10", "Doorbell Klingel!");
+        $this->RegisterPropertyString("emailtext10", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
+        $this->RegisterPropertyBoolean("activeemail11", false);
+        $this->RegisterPropertyString("email11", "");
+        $this->RegisterPropertyInteger("smtpmodule11", 0);
+        $this->RegisterPropertyString("subject11", "Doorbell Klingel!");
+        $this->RegisterPropertyString("emailtext11", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
 		$this->RegisterPropertyBoolean("altview", false);
-		$this->RegisterPropertyString("subject", "Doorbell Klingel!");
-		$this->RegisterPropertyString("emailtext", "Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!");
 		$this->RegisterPropertyString("webhookusername", "ipsymcon");
 		$this->RegisterPropertyString("webhookpassword", "user@h0me");
         $this->RegisterPropertyInteger("categoryhistory", 0);
         $this->RegisterPropertyInteger("categorysnapshot", 0);
+        $this->RegisterPropertyInteger("model", 1);
     }
 
     public function ApplyChanges()
@@ -189,17 +243,33 @@ class Doorbird extends IPSModule
 		
 		$this->RegisterVariableString("DoorbirdVideo", "Doorbird Video", "~HTMLBox", 1);
 		$this->RegisterProfileStringDoorbird("Doorbird.Ring", "Alert");
-		$this->RegisterVariableString("LastRingtone", "Zeitpunkt letztes Klingelsignal", "Doorbird.Ring", 2);
+        $model = $this->ReadPropertyInteger("model");
+        if ($model == 1 || $model == 2 || $model == 3 || $model == 6 || $model == 7)
+        {
+            $this->RegisterVariableString("LastRingtone", "Zeitpunkt letztes Klingelsignal", "Doorbird.Ring", 2);
+        }
+        if ($model == 4)
+        {
+            $this->RegisterVariableString("LastRingtone", "Zeitpunkt letztes Klingelsignal", "Doorbird.Ring", 2);
+            $this->RegisterVariableString("LastRingtone2", "Zeitpunkt letztes Klingelsignal 2", "Doorbird.Ring", 3);
+        }
+        if ($model == 5)
+        {
+            $this->RegisterVariableString("LastRingtone", "Zeitpunkt letztes Klingelsignal", "Doorbird.Ring", 2);
+            $this->RegisterVariableString("LastRingtone2", "Zeitpunkt letztes Klingelsignal 2", "Doorbird.Ring", 3);
+            $this->RegisterVariableString("LastRingtone3", "Zeitpunkt letztes Klingelsignal 3", "Doorbird.Ring", 4);
+        }
+
 		$this->RegisterProfileStringDoorbird("Doorbird.Movement", "Motion");
-		$this->RegisterVariableString("LastMovement", "Zeitpunkt letzte Bewegung", "Doorbird.Movement", 3);
+		$this->RegisterVariableString("LastMovement", "Zeitpunkt letzte Bewegung", "Doorbird.Movement", 5);
 		$this->RegisterProfileStringDoorbird("Doorbird.LastDoor", "LockOpen");
-		$this->RegisterVariableString("LastDoorOpen", "Zeitpunkt letzte Türöffnung", "Doorbird.LastDoor", 4);
+		$this->RegisterVariableString("LastDoorOpen", "Zeitpunkt letzte Türöffnung", "Doorbird.LastDoor", 6);
 		$this->RegisterProfileStringDoorbird("Doorbird.Firmware", "Robot");
-		$this->RegisterVariableString("FirmwareVersion", "Doorbird Firmware Version", "Doorbird.Firmware", 5);
+		$this->RegisterVariableString("FirmwareVersion", "Doorbird Firmware Version", "Doorbird.Firmware", 7);
 		$this->RegisterProfileStringDoorbird("Doorbird.Buildnumber", "Gear");
-		$this->RegisterVariableString("Buildnumber", "Doorbird Build Number", "Doorbird.Buildnumber", 6);
+		$this->RegisterVariableString("Buildnumber", "Doorbird Build Number", "Doorbird.Buildnumber", 8);
 		$this->RegisterProfileStringDoorbird("Doorbird.MAC", "Notebook");
-		$this->RegisterVariableString("MACAdress", "Doorbird WLAN MAC", "Doorbird.MAC", 7);
+		$this->RegisterVariableString("MACAdress", "Doorbird WLAN MAC", "Doorbird.MAC", 9);
 		$this->RegisterVariableString("DoorbirdReturn", "Doorbird Return", "~String", 25);
 		$lightass =  Array(
 				Array(0, "Licht einschalten",  "Light", -1)
@@ -265,7 +335,7 @@ class Doorbird extends IPSModule
 			}	
 			
 		//Domain Doorbell prüfen
-		if(!$this->is_valid_domain($hostdoorbell) === false)
+		if(!$this->is_valid_localdomain($hostdoorbell) === false)
 		{
 			//Domain ok
 			$domaincheckdoorbell = true;
@@ -437,36 +507,71 @@ class Doorbird extends IPSModule
 				
 				//Email
 				$emailalert = $this->ReadPropertyBoolean('activeemail');
+                $emailalert2 = $this->ReadPropertyBoolean('activeemail2');
+                $emailalert3 = $this->ReadPropertyBoolean('activeemail3');
+                $emailalert4 = $this->ReadPropertyBoolean('activeemail4');
+                $emailalert5 = $this->ReadPropertyBoolean('activeemail5');
+                $emailalert6 = $this->ReadPropertyBoolean('activeemail6');
+                $emailalert7 = $this->ReadPropertyBoolean('activeemail7');
+                $emailalert8 = $this->ReadPropertyBoolean('activeemail8');
+                $emailalert9 = $this->ReadPropertyBoolean('activeemail9');
+                $emailalert10 = $this->ReadPropertyBoolean('activeemail10');
+                $emailalert11 = $this->ReadPropertyBoolean('activeemail11');
 				if ($emailalert)
 				{
 					$email = $this->ReadPropertyString('email');
-					if ($email == "")
-					{
-						$this->SetStatus(205); //Felder dürfen nicht leer sein
-					}
-					if (filter_var($email, FILTER_VALIDATE_EMAIL))
-					{
-						//email valid
-                        if($ipsversion == 0)
-                        {
-                            //Skript beim EmailAlert
-                            $IDEmail = @($this->GetIDForIdent('SendEmailAlert'));
-                            if ($IDEmail === false)
-                            {
-                                $IDEmail = $this->RegisterScript("SendEmailAlert", "Email Alert", $this->CreateEmailAlertScript($email), 19);
-                                IPS_SetHidden($IDEmail, true);
-                            }
-                            $this->SetEmailEvent($IDEmail, true);
-                        }
-
-					}
-					else
-					{
-						
-						$this->SetStatus(207); //email not valid
-					}
-
+                    $this->CheckEmail($email);
 				}
+                elseif ($emailalert2)
+                {
+                    $email = $this->ReadPropertyString('email2');
+                    $this->CheckEmail($email);
+                }
+                elseif ($emailalert3)
+                {
+                    $email = $this->ReadPropertyString('email3');
+                    $this->CheckEmail($email);
+                }
+                elseif ($emailalert4)
+                {
+                    $email = $this->ReadPropertyString('email4');
+                    $this->CheckEmail($email);
+                }
+                elseif ($emailalert5)
+                {
+                    $email = $this->ReadPropertyString('email5');
+                    $this->CheckEmail($email);
+                }
+                elseif ($emailalert6)
+                {
+                    $email = $this->ReadPropertyString('email6');
+                    $this->CheckEmail($email);
+                }
+                elseif ($emailalert7)
+                {
+                    $email = $this->ReadPropertyString('email7');
+                    $this->CheckEmail($email);
+                }
+                elseif ($emailalert8)
+                {
+                    $email = $this->ReadPropertyString('email8');
+                    $this->CheckEmail($email);
+                }
+                elseif ($emailalert9)
+                {
+                    $email = $this->ReadPropertyString('email9');
+                    $this->CheckEmail($email);
+                }
+                elseif ($emailalert10)
+                {
+                    $email = $this->ReadPropertyString('email10');
+                    $this->CheckEmail($email);
+                }
+                elseif ($emailalert11)
+                {
+                    $email = $this->ReadPropertyString('email11');
+                    $this->CheckEmail($email);
+                }
 				else
 				{
 					$IDEmail = @($this->GetIDForIdent('SendEmailAlert'));
@@ -484,6 +589,34 @@ class Doorbird extends IPSModule
 				$this->SetStatus(102);	
 			}
 	}
+
+	protected function CheckEmail($email)
+    {
+        $ipsversion = $this->GetIPSVersion();
+        if ($email == "")
+        {
+            $this->SetStatus(205); //Felder dürfen nicht leer sein
+        }
+        if (filter_var($email, FILTER_VALIDATE_EMAIL))
+        {
+            //email valid
+            if($ipsversion == 0)
+            {
+                //Skript beim EmailAlert
+                $IDEmail = @($this->GetIDForIdent('SendEmailAlert'));
+                if ($IDEmail === false)
+                {
+                    $IDEmail = $this->RegisterScript("SendEmailAlert", "Email Alert", $this->CreateEmailAlertScript($email), 19);
+                    IPS_SetHidden($IDEmail, true);
+                }
+                $this->SetEmailEvent($IDEmail, true);
+            }
+        }
+        else
+        {
+            $this->SetStatus(207); //email not valid
+        }
+    }
 			
 	private function RegisterHookOLD($WebHook, $TargetID)
     {
@@ -624,6 +757,48 @@ class Doorbird extends IPSModule
 		}
 
 	}
+
+    protected function is_valid_localdomain($url)
+    {
+
+        $validation = FALSE;
+        /*Parse URL*/
+        $urlparts = parse_url(filter_var($url, FILTER_SANITIZE_URL));
+        /*Check host exist else path assign to host*/
+        if(!isset($urlparts['host'])){
+            $urlparts['host'] = $urlparts['path'];
+        }
+
+        if($urlparts['host']!=''){
+            /*Add scheme if not found*/
+            if (!isset($urlparts['scheme'])){
+                $urlparts['scheme'] = 'http';
+            }
+            /*Validation*/
+            if(checkdnsrr($urlparts['host'], 'A') && in_array($urlparts['scheme'],array('http','https')) && ip2long($urlparts['host']) === FALSE){
+                $urlparts['host'] = preg_replace('/^www\./', '', $urlparts['host']);
+                $url = $urlparts['scheme'].'://'.$urlparts['host']. "/";
+
+                if (filter_var($url, FILTER_VALIDATE_URL) !== false && @get_headers($url)) {
+                    $validation = TRUE;
+                }
+            }
+        }
+
+        if(!$validation)
+        {
+            //echo $url." Its Invalid Domain Name.";
+            $domaincheck = false;
+            return $domaincheck;
+        }
+        else
+        {
+            //echo $url." is a Valid Domain Name.";
+            $domaincheck = true;
+            return $domaincheck;
+        }
+
+    }
 	
 	protected function GetURLPrefix($url)
 	{
@@ -631,11 +806,11 @@ class Doorbird extends IPSModule
 		$prehttps = strpos($url, "https://");
 		if ($prehttp === 0)
 		{
-		    $prefix = "http://"; //Prefix ist http
+		    $prefix = ""; //Prefix ist http
 		}
 		elseif ($prehttps === 0)
 		{
-			$prefix = "https://"; //Prefix ist https
+			$prefix = ""; //Prefix ist https
 		}
 		else
 		{
@@ -795,23 +970,111 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	
 	public function EmailAlert(string $email)
 	{
-		$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
-		
-		$subject = $this->ReadPropertyString('subject');
-		$emailtext = $this->ReadPropertyString('emailtext');
-		$mediaids = IPS_GetChildrenIDs($catid);
-		// $countmedia = count($mediaids);
-		foreach ($mediaids as $key=>$mediaid)
-		{
-			$mediainfo = IPS_GetMedia($mediaid);
-			if($mediainfo["MediaFile"] == "media/doorbirdringpic_1.jpg")
-			{
-				$mailer = $this->ReadPropertyInteger('smtpmodule');
-				SMTP_SendMailMediaEx($mailer, $email, $subject, $emailtext, $mediaid);
-			}
-			
-		}
+        $emailalert = $this->ReadPropertyBoolean('activeemail');
+        $emailalert2 = $this->ReadPropertyBoolean('activeemail2');
+        $emailalert3 = $this->ReadPropertyBoolean('activeemail3');
+        $emailalert4 = $this->ReadPropertyBoolean('activeemail4');
+        $emailalert5 = $this->ReadPropertyBoolean('activeemail5');
+        $emailalert6 = $this->ReadPropertyBoolean('activeemail6');
+        $emailalert7 = $this->ReadPropertyBoolean('activeemail7');
+        $emailalert8 = $this->ReadPropertyBoolean('activeemail8');
+        $emailalert9 = $this->ReadPropertyBoolean('activeemail9');
+        $emailalert10 = $this->ReadPropertyBoolean('activeemail10');
+        $emailalert11 = $this->ReadPropertyBoolean('activeemail11');
+        if ($emailalert)
+        {
+            $email = $this->ReadPropertyString('email');
+            $subject = $this->ReadPropertyString('subject');
+            $emailtext = $this->ReadPropertyString('emailtext');
+            $this->SendSMTPEmail($email, $subject, $emailtext);
+        }
+        elseif ($emailalert2)
+        {
+            $email = $this->ReadPropertyString('email2');
+            $subject = $this->ReadPropertyString('subject2');
+            $emailtext = $this->ReadPropertyString('emailtext2');
+            $this->SendSMTPEmail($email, $subject, $emailtext);
+        }
+        elseif ($emailalert3)
+        {
+            $email = $this->ReadPropertyString('email3');
+            $subject = $this->ReadPropertyString('subject3');
+            $emailtext = $this->ReadPropertyString('emailtext3');
+            $this->SendSMTPEmail($email, $subject, $emailtext);
+        }
+        elseif ($emailalert4)
+        {
+            $email = $this->ReadPropertyString('email4');
+            $subject = $this->ReadPropertyString('subject4');
+            $emailtext = $this->ReadPropertyString('emailtext4');
+            $this->SendSMTPEmail($email, $subject, $emailtext);
+        }
+        elseif ($emailalert5)
+        {
+            $email = $this->ReadPropertyString('email5');
+            $subject = $this->ReadPropertyString('subject5');
+            $emailtext = $this->ReadPropertyString('emailtext5');
+            $this->SendSMTPEmail($email, $subject, $emailtext);
+        }
+        elseif ($emailalert6)
+        {
+            $email = $this->ReadPropertyString('email6');
+            $subject = $this->ReadPropertyString('subject6');
+            $emailtext = $this->ReadPropertyString('emailtext6');
+            $this->SendSMTPEmail($email, $subject, $emailtext);
+        }
+        elseif ($emailalert7)
+        {
+            $email = $this->ReadPropertyString('email7');
+            $subject = $this->ReadPropertyString('subject7');
+            $emailtext = $this->ReadPropertyString('emailtext7');
+            $this->SendSMTPEmail($email, $subject, $emailtext);
+        }
+        elseif ($emailalert8)
+        {
+            $email = $this->ReadPropertyString('email8');
+            $subject = $this->ReadPropertyString('subject8');
+            $emailtext = $this->ReadPropertyString('emailtext8');
+            $this->SendSMTPEmail($email, $subject, $emailtext);
+        }
+        elseif ($emailalert9)
+        {
+            $email = $this->ReadPropertyString('email9');
+            $subject = $this->ReadPropertyString('subject9');
+            $emailtext = $this->ReadPropertyString('emailtext9');
+            $this->SendSMTPEmail($email, $subject, $emailtext);
+        }
+        elseif ($emailalert10)
+        {
+            $email = $this->ReadPropertyString('email10');
+            $subject = $this->ReadPropertyString('subject10');
+            $emailtext = $this->ReadPropertyString('emailtext10');
+            $this->SendSMTPEmail($email, $subject, $emailtext);
+        }
+        elseif ($emailalert11)
+        {
+            $email = $this->ReadPropertyString('email11');
+            $subject = $this->ReadPropertyString('subject11');
+            $emailtext = $this->ReadPropertyString('emailtext11');
+            $this->SendSMTPEmail($email, $subject, $emailtext);
+        }
 	}
+
+	protected function SendSMTPEmail($email, $subject, $emailtext)
+    {
+        $catid = $this->ReadPropertyInteger('categoryhistory');
+        $mediaids = IPS_GetChildrenIDs($catid);
+        // $countmedia = count($mediaids);
+        foreach ($mediaids as $key=>$mediaid)
+        {
+            $mediainfo = IPS_GetMedia($mediaid);
+            if($mediainfo["MediaFile"] == "media/doorbirdringpic_1.jpg")
+            {
+                $mailer = $this->ReadPropertyInteger('smtpmodule');
+                SMTP_SendMailMediaEx($mailer, $email, $subject, $emailtext, $mediaid);
+            }
+        }
+    }
 	
 	public function ProcessHookDataOLD()
 	{
@@ -873,12 +1136,20 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$webhookusername = $this->ReadPropertyString('webhookusername');
 		$webhookpassword = $this->ReadPropertyString('webhookpassword');
 		if(!isset($_SERVER['PHP_AUTH_USER']))
-		$_SERVER['PHP_AUTH_USER'] = "";
+        {
+            $_SERVER['PHP_AUTH_USER'] = "";
+            $this->SendDebug("Doorbird:", "Webhook user is empty",0);
+        }
 		if(!isset($_SERVER['PHP_AUTH_PW']))
-			$_SERVER['PHP_AUTH_PW'] = "";
-		 
-		if(($_SERVER['PHP_AUTH_USER'] != $webhookusername) || ($_SERVER['PHP_AUTH_PW'] != $webhookpassword)) {
-			header('WWW-Authenticate: Basic Realm="Doorbird WebHook"');
+        {
+            $_SERVER['PHP_AUTH_PW'] = "";
+            $this->SendDebug("Doorbird:", "Webhook password is empty",0);
+        }
+
+		if(($_SERVER['PHP_AUTH_USER'] != $webhookusername) || ($_SERVER['PHP_AUTH_PW'] != $webhookpassword))
+		{
+            $this->SendDebug("Doorbird:", "wrong webhook user or password",0);
+		    header('WWW-Authenticate: Basic Realm="Doorbird WebHook"');
 			header('HTTP/1.0 401 Unauthorized');
 			echo "Authorization required";
 			return;
@@ -897,18 +1168,22 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		// Doorbird nutzt GET
 		if (isset($_GET["doorbirdevent"]))
 			{
+                $this->SendDebug("Doorbird:", json_encode($_GET),0);
 			$data = $_GET["doorbirdevent"];
 			if ($data == "doorbell")
 				{
-					SetValue($ringid, date('d.m.y H:i:s'));
+                    $this->SendDebug("Doorbird:", "doorbell event",0);
+				    SetValue($ringid, date('d.m.y H:i:s'));
 				}
 			elseif ($data == "motionsensor")
 				{
-					SetValue($movementid, date('d.m.y H:i:s'));
+                    $this->SendDebug("Doorbird:", "motionsensor event",0);
+				    SetValue($movementid, date('d.m.y H:i:s'));
 				}
 			elseif ($data == "dooropen")
 				{
-					SetValue($doorid, date('d.m.y H:i:s'));
+                    $this->SendDebug("Doorbird:", "dooropen event",0);
+				    SetValue($doorid, date('d.m.y H:i:s'));
 				}
 			}
 	}
@@ -1016,7 +1291,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 			
 
 			//testen ob im Medienpool existent
-			$catid = GetValue($this->GetIDForIdent('ObjIDHist'));
+            $catid = $this->ReadPropertyInteger('categoryhistory');
 			
 			$MediaID = @IPS_GetObjectIDByIdent($ident.$i, $catid);
 			if ($MediaID === false)
@@ -1241,7 +1516,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
                 $this->GetSnapshot();
                 break;			
             default:
-                throw new Exception("Invalid ident");
+                $this->SendDebug("Doorbird", "Invalid ident",0);
         }
     }
 	
@@ -1254,7 +1529,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
         } else {
             $profile = IPS_GetVariableProfile($Name);
             if($profile['ProfileType'] != 1)
-            throw new Exception("Variable profile type does not match for profile ".$Name);
+                $this->SendDebug("Doorbird", "Variable profile type does not match for profile ".$Name,0);
         }
         
         IPS_SetVariableProfileIcon($Name, $Icon);
@@ -1294,7 +1569,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
         } else {
             $profile = IPS_GetVariableProfile($Name);
             if($profile['ProfileType'] != 3)
-            throw new Exception("Variable profile type does not match for profile ".$Name);
+                $this->SendDebug("Doorbird", "Variable profile type does not match for profile ".$Name,0);
         }
         
         IPS_SetVariableProfileIcon($Name, $Icon);
@@ -1356,6 +1631,17 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
     {
         $form = '"elements":
             [
+               { "type": "Select", "name": "model", "caption": "model",
+					"options": [
+						{ "label": "D101", "value": 1 },
+						{ "label": "D202", "value": 2 },
+						{ "label": "D2101V", "value": 3 },
+						{ "label": "D2102V", "value": 4 },
+						{ "label": "D2103V", "value": 5 },
+						{ "label": "D21DKV", "value": 6 },
+						{ "label": "D21DKH", "value": 7 }
+					]
+				},
                '.$this->isNotificationInstanceValid().'
                 { "type": "Label", "label": "IP adress or hostname Doorbird" },
                 {
@@ -1419,14 +1705,41 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 				{ "type": "Label", "label": "Relaxation time for dooropen (seconds)" },
 				{ "type": "NumberSpinner", "name": "relaxationdooropen", "caption": "relaxation (s)", "digits": 0},
 				{ "type": "Label", "label": "optionally notification via email (configurated SMTP module required)" },
-				{ "type": "Label", "label": "active email notification" },
+				{ "type": "Label", "label": "active email notification" },';
+		$form .= $this->FormShowEmail();
+		$form .='{ "type": "Label", "label": "if there are problems with the live image in the webfront you can active alterative view" },
 				{
+                    "name": "altview",
+                    "type": "CheckBox",
+                    "caption": "alternative view"
+                },
+				{ "type": "Label", "label": "Connection from Doorbird to IP-Symcon" },
+				{ "type": "Label", "label": "authentication for Doorbird webhook" },
+				{ "name": "webhookusername", "type": "ValidationTextBox", "caption": "username" },
+				{ "type": "PasswordTextBox", "name": "webhookpassword", "caption": "password" },';
+
+        return $form;
+    }
+
+    protected function FormShowEmail()
+    {
+        $activeemail2 = $this->ReadPropertyBoolean("activeemail2");
+        $activeemail3 = $this->ReadPropertyBoolean("activeemail3");
+        $activeemail4 = $this->ReadPropertyBoolean("activeemail4");
+        $activeemail5 = $this->ReadPropertyBoolean("activeemail5");
+        $activeemail6 = $this->ReadPropertyBoolean("activeemail6");
+        $activeemail7 = $this->ReadPropertyBoolean("activeemail7");
+        $activeemail8 = $this->ReadPropertyBoolean("activeemail8");
+        $activeemail9 = $this->ReadPropertyBoolean("activeemail9");
+        $activeemail10 = $this->ReadPropertyBoolean("activeemail10");
+        $activeemail11 = $this->ReadPropertyBoolean("activeemail11");
+
+        $form = '{
                     "name": "activeemail",
                     "type": "CheckBox",
                     "caption": "active email"
                 },
 				{ "type": "SelectInstance", "name": "smtpmodule", "caption": "SMTP module" },
-				
 				{ "type": "Label", "label": "notification email adress" },
                 {
                     "name": "email",
@@ -1445,17 +1758,277 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
                     "type": "ValidationTextBox",
                     "caption": "email text"
                 },
-				{ "type": "Label", "label": "if there are problems with the live image in the webfront you can active alterative view" },
-				{
-                    "name": "altview",
+                {
+                    "name": "activeemail2",
                     "type": "CheckBox",
-                    "caption": "alternative view"
+                    "caption": "active email 2"
+                },';
+        if($activeemail2)
+        {
+            $form .= '{ "type": "SelectInstance", "name": "smtpmodule2", "caption": "SMTP module" },
+				{ "type": "Label", "label": "notification email adress" },
+                {
+                    "name": "email2",
+                    "type": "ValidationTextBox",
+                    "caption": "email"
                 },
-				{ "type": "Label", "label": "Connection from Doorbird to IP-Symcon" },
-				{ "type": "Label", "label": "authentication for Doorbird webhook" },
-				{ "name": "webhookusername", "type": "ValidationTextBox", "caption": "webhook username" },
-				{ "type": "PasswordTextBox", "name": "webhookpassword", "caption": "webhook password" },';
-
+				{ "type": "Label", "label": "email subject" },
+                {
+                    "name": "subject2",
+                    "type": "ValidationTextBox",
+                    "caption": "subject"
+                },
+				{ "type": "Label", "label": "email text" },
+                {
+                    "name": "emailtext2",
+                    "type": "ValidationTextBox",
+                    "caption": "email text"
+                },
+                {
+                    "name": "activeemail3",
+                    "type": "CheckBox",
+                    "caption": "active email"
+                },';
+        }
+        if($activeemail3)
+        {
+            $form .= '{ "type": "SelectInstance", "name": "smtpmodule3", "caption": "SMTP module" },
+				{ "type": "Label", "label": "notification email adress" },
+                {
+                    "name": "email3",
+                    "type": "ValidationTextBox",
+                    "caption": "email"
+                },
+				{ "type": "Label", "label": "email subject" },
+                {
+                    "name": "subject3",
+                    "type": "ValidationTextBox",
+                    "caption": "subject"
+                },
+				{ "type": "Label", "label": "email text" },
+                {
+                    "name": "emailtext3",
+                    "type": "ValidationTextBox",
+                    "caption": "email text"
+                },
+                {
+                    "name": "activeemail4",
+                    "type": "CheckBox",
+                    "caption": "active email"
+                },';
+        }
+        if($activeemail4)
+        {
+            $form .= '{ "type": "SelectInstance", "name": "smtpmodule4", "caption": "SMTP module" },
+				{ "type": "Label", "label": "notification email adress" },
+                {
+                    "name": "email4",
+                    "type": "ValidationTextBox",
+                    "caption": "email"
+                },
+				{ "type": "Label", "label": "email subject" },
+                {
+                    "name": "subject4",
+                    "type": "ValidationTextBox",
+                    "caption": "subject"
+                },
+				{ "type": "Label", "label": "email text" },
+                {
+                    "name": "emailtext4",
+                    "type": "ValidationTextBox",
+                    "caption": "email text"
+                },
+                {
+                    "name": "activeemail5",
+                    "type": "CheckBox",
+                    "caption": "active email"
+                },';
+        }
+        if($activeemail5)
+        {
+            $form .= '{ "type": "SelectInstance", "name": "smtpmodule5", "caption": "SMTP module" },
+				{ "type": "Label", "label": "notification email adress" },
+                {
+                    "name": "email5",
+                    "type": "ValidationTextBox",
+                    "caption": "email"
+                },
+				{ "type": "Label", "label": "email subject" },
+                {
+                    "name": "subject5",
+                    "type": "ValidationTextBox",
+                    "caption": "subject"
+                },
+				{ "type": "Label", "label": "email text" },
+                {
+                    "name": "emailtext5",
+                    "type": "ValidationTextBox",
+                    "caption": "email text"
+                },
+                {
+                    "name": "activeemail6",
+                    "type": "CheckBox",
+                    "caption": "active email"
+                },';
+        }
+        if($activeemail6)
+        {
+            $form .= '{ "type": "SelectInstance", "name": "smtpmodule6", "caption": "SMTP module" },
+				{ "type": "Label", "label": "notification email adress" },
+                {
+                    "name": "email6",
+                    "type": "ValidationTextBox",
+                    "caption": "email"
+                },
+				{ "type": "Label", "label": "email subject" },
+                {
+                    "name": "subject6",
+                    "type": "ValidationTextBox",
+                    "caption": "subject"
+                },
+				{ "type": "Label", "label": "email text" },
+                {
+                    "name": "emailtext6",
+                    "type": "ValidationTextBox",
+                    "caption": "email text"
+                },
+                {
+                    "name": "activeemail7",
+                    "type": "CheckBox",
+                    "caption": "active email"
+                },';
+        }
+        if($activeemail7)
+        {
+            $form .= '
+				{ "type": "SelectInstance", "name": "smtpmodule7", "caption": "SMTP module" },
+				{ "type": "Label", "label": "notification email adress" },
+                {
+                    "name": "email7",
+                    "type": "ValidationTextBox",
+                    "caption": "email"
+                },
+				{ "type": "Label", "label": "email subject" },
+                {
+                    "name": "subject7",
+                    "type": "ValidationTextBox",
+                    "caption": "subject"
+                },
+				{ "type": "Label", "label": "email text" },
+                {
+                    "name": "emailtext7",
+                    "type": "ValidationTextBox",
+                    "caption": "email text"
+                },
+                {
+                    "name": "activeemail8",
+                    "type": "CheckBox",
+                    "caption": "active email"
+                },';
+        }
+        if($activeemail8)
+        {
+            $form .= '{ "type": "SelectInstance", "name": "smtpmodule8", "caption": "SMTP module" },
+				{ "type": "Label", "label": "notification email adress" },
+                {
+                    "name": "email8",
+                    "type": "ValidationTextBox",
+                    "caption": "email"
+                },
+				{ "type": "Label", "label": "email subject" },
+                {
+                    "name": "subject8",
+                    "type": "ValidationTextBox",
+                    "caption": "subject"
+                },
+				{ "type": "Label", "label": "email text" },
+                {
+                    "name": "emailtext8",
+                    "type": "ValidationTextBox",
+                    "caption": "email text"
+                },
+                {
+                    "name": "activeemail9",
+                    "type": "CheckBox",
+                    "caption": "active email"
+                },';
+        }
+        if($activeemail9)
+        {
+            $form .= '{ "type": "SelectInstance", "name": "smtpmodule9", "caption": "SMTP module" },
+				{ "type": "Label", "label": "notification email adress" },
+                {
+                    "name": "email9",
+                    "type": "ValidationTextBox",
+                    "caption": "email"
+                },
+				{ "type": "Label", "label": "email subject" },
+                {
+                    "name": "subject9",
+                    "type": "ValidationTextBox",
+                    "caption": "subject"
+                },
+				{ "type": "Label", "label": "email text" },
+                {
+                    "name": "emailtext9",
+                    "type": "ValidationTextBox",
+                    "caption": "email text"
+                },
+                {
+                    "name": "activeemail10",
+                    "type": "CheckBox",
+                    "caption": "active email"
+                },';
+        }
+        if($activeemail10)
+        {
+            $form .= '{ "type": "SelectInstance", "name": "smtpmodule10", "caption": "SMTP module" },
+				{ "type": "Label", "label": "notification email adress" },
+                {
+                    "name": "email10",
+                    "type": "ValidationTextBox",
+                    "caption": "email"
+                },
+				{ "type": "Label", "label": "email subject" },
+                {
+                    "name": "subject10",
+                    "type": "ValidationTextBox",
+                    "caption": "subject"
+                },
+				{ "type": "Label", "label": "email text" },
+                {
+                    "name": "emailtext10",
+                    "type": "ValidationTextBox",
+                    "caption": "email text"
+                },
+                {
+                    "name": "activeemail11",
+                    "type": "CheckBox",
+                    "caption": "active email"
+                },';
+        }
+        if($activeemail11)
+        {
+            $form .= '{ "type": "SelectInstance", "name": "smtpmodule11", "caption": "SMTP module" },
+				{ "type": "Label", "label": "notification email adress" },
+                {
+                    "name": "email11",
+                    "type": "ValidationTextBox",
+                    "caption": "email"
+                },
+				{ "type": "Label", "label": "email subject" },
+                {
+                    "name": "subject11",
+                    "type": "ValidationTextBox",
+                    "caption": "subject"
+                },
+				{ "type": "Label", "label": "email text" },
+                {
+                    "name": "emailtext11",
+                    "type": "ValidationTextBox",
+                    "caption": "email text"
+                },';
+        }
         return $form;
     }
 

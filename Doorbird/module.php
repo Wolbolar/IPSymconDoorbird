@@ -1579,25 +1579,35 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
     }
 	
 	protected function GetIPSVersion ()
-		{
-			$ipsversion = IPS_GetKernelVersion ( );
-			$ipsversion = explode( ".", $ipsversion);
-			// $ipsmajor = intval($ipsversion[0]);
-			$ipsminor = intval($ipsversion[1]);
-			if($ipsminor < 10) // 4.0
-			{
-				$ipsversion = 0;
-			}
-			elseif ($ipsminor >= 10 && $ipsminor < 20) // 4.1
-			{
-				$ipsversion = 1;
-			}
-			else   // > 4.2
-			{
-				$ipsversion = 2;
-			}
-			return $ipsversion;
-		}
+    {
+        $ipsversion = floatval(IPS_GetKernelVersion());
+        if($ipsversion < 4.1) // 4.0
+        {
+            $ipsversion = 0;
+        }
+        elseif ($ipsversion >= 4.1 && $ipsversion < 4.2) // 4.1
+        {
+            $ipsversion = 1;
+        }
+        elseif ($ipsversion >= 4.2 && $ipsversion < 4.3) // 4.2
+        {
+            $ipsversion = 2;
+        }
+        elseif ($ipsversion >= 4.3 && $ipsversion < 4.4) // 4.3
+        {
+            $ipsversion = 3;
+        }
+        elseif ($ipsversion >= 4.4 && $ipsversion < 5) // 4.4
+        {
+            $ipsversion = 4;
+        }
+        else   // 5
+        {
+            $ipsversion = 5;
+        }
+
+        return $ipsversion;
+    }
 
     //Configuration Form
     public function GetConfigurationForm()

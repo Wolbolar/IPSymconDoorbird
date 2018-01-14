@@ -98,8 +98,8 @@ if (@constant('IPS_BASE') == null) //Nur wenn Konstanten noch nicht bekannt sind
     define('LM_CHANGETARGET', IPS_LINKMESSAGE + 3);       //On Link TargetID change
 // --- DATA HANDLER
     define('IPS_DATAMESSAGE', IPS_BASE + 1100);             //Data Handler Message
-    define('DM_CONNECT', IPS_DATAMESSAGE + 1);             //On Instance Connect
-    define('DM_DISCONNECT', IPS_DATAMESSAGE + 2);          //On Instance Disconnect
+    define('FM_CONNECT', IPS_DATAMESSAGE + 1);             //On Instance Connect
+    define('FM_DISCONNECT', IPS_DATAMESSAGE + 2);          //On Instance Disconnect
 // --- SCRIPT ENGINE
     define('IPS_ENGINEMESSAGE', IPS_BASE + 1200);           //Script Engine Message
     define('SE_UPDATE', IPS_ENGINEMESSAGE + 1);             //On Library Refresh
@@ -1379,12 +1379,19 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 				//Images base 64 codiert in allmedia einlesen
 						
 				$allmedia = $this->GetallImages($mediaids);
-				$mediaid20 = array_search(20, array_column($allmedia, 'picid'));
-				unset ($allmedia[$mediaid20]);
-				//Neues Bild zu allmedia hinzufügen
-				$allmedia = $this->AddCurrentPic($allmedia, $mediaids, $Content);
-				//allmedia schreiben
-				$this->SaveImagestoPicSlot($allmedia, $ident, $name, $catid);
+                if($allmedia)
+                {
+                    $mediaid20 = array_search(20, array_column($allmedia, 'picid'));
+                    unset ($allmedia[$mediaid20]);
+                    //Neues Bild zu allmedia hinzufügen
+                    $allmedia = $this->AddCurrentPic($allmedia, $mediaids, $Content);
+                    //allmedia schreiben
+                    $this->SaveImagestoPicSlot($allmedia, $ident, $name, $catid);
+                }
+                else
+                {
+                    $this->SendDebug("Doorbird", "No media image found",0);
+                }
 			}
 		else
 			{
@@ -1419,10 +1426,17 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 						//Array auslesen und Bilder +1 neu zuordnen
 						//Images base 64 codiert in allmedia einlesen
 						$allmedia = $this->GetallImages($mediaids);
-						//Neues Bild zu allmedia hinzufügen
-						$allmedia = $this->AddCurrentPic($allmedia, $mediaids, $Content);
-						//allmedia schreiben
-						$this->SaveImagestoPicSlot($allmedia, $ident, $name, $catid);
+                        if($allmedia)
+                        {
+                            //Neues Bild zu allmedia hinzufügen
+                            $allmedia = $this->AddCurrentPic($allmedia, $mediaids, $Content);
+                            //allmedia schreiben
+                            $this->SaveImagestoPicSlot($allmedia, $ident, $name, $catid);
+                        }
+                        else
+                        {
+                            $this->SendDebug("Doorbird", "No media image found",0);
+                        }
 					}
 				
 				}
@@ -1432,24 +1446,32 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	private function GetallImages($mediaids)
 	{
 		$countmedia = count($mediaids);
-		$allmedia = array();
-		for ($i = 0; $i <= ($countmedia-1); $i++)
-			{
-			$mediakey = IPS_GetObject($mediaids[$i])['ObjectIdent'];
-			$mediakey = explode("Pic", $mediakey);
-			$mediakey = intval($mediakey[1]);
-			//$name = IPS_GetName($mediaids[$i]);
-			//$name = explode(" ", $name);
-			//$savedate = $name[3];
-			//$savetime = $name[4];
-			//$saveinfo =  $savedate." ".$savetime;
-			$saveinfo = IPS_GetObject($mediaids[$i])['ObjectInfo'];
-			$allmedia[$i]['objid'] = $mediaids[$i];
-			$allmedia[$i]['picid'] = $mediakey;
-			$allmedia[$i]['saveinfo'] = $saveinfo;
-			$allmedia[$i]['imagebase64'] = IPS_GetMediaContent($mediaids[$i]); //base64 codiert
-								 
-			}
+		if($countmedia > 0)
+        {
+            $allmedia = array();
+            for ($i = 0; $i <= ($countmedia-1); $i++)
+            {
+                $mediakey = IPS_GetObject($mediaids[$i])['ObjectIdent'];
+                $mediakey = explode("Pic", $mediakey);
+                $mediakey = intval($mediakey[1]);
+                //$name = IPS_GetName($mediaids[$i]);
+                //$name = explode(" ", $name);
+                //$savedate = $name[3];
+                //$savetime = $name[4];
+                //$saveinfo =  $savedate." ".$savetime;
+                $saveinfo = IPS_GetObject($mediaids[$i])['ObjectInfo'];
+                $allmedia[$i]['objid'] = $mediaids[$i];
+                $allmedia[$i]['picid'] = $mediakey;
+                $allmedia[$i]['saveinfo'] = $saveinfo;
+                $allmedia[$i]['imagebase64'] = IPS_GetMediaContent($mediaids[$i]); //base64 codiert
+
+            }
+        }
+        else
+        {
+            $allmedia = false;
+        }
+
 		return $allmedia;
 		
 	}

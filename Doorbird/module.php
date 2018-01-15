@@ -1483,13 +1483,20 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 			{
 			 	$picid = $media['picid'];
  				$newpicid = $picid+1;
-				$mediaid = IPS_GetObjectIDByIdent($ident.$newpicid, $catid);
-				$saveinfo = $media['saveinfo'];
-				$imagebase64 = $media['imagebase64']; 
-				IPS_SetMediaContent($mediaid, $imagebase64);  //Bild Base64 codiert ablegen
-				IPS_SetName($mediaid, $name." ".$newpicid." ".$saveinfo); // Medienobjekt benennen					
-				IPS_SetInfo ($mediaid, $saveinfo);
-				IPS_SendMediaEvent($mediaid); //aktualisieren
+				$mediaid = @IPS_GetObjectIDByIdent($ident.$newpicid, $catid);
+                if($mediaid)
+                {
+                    $saveinfo = $media['saveinfo'];
+                    $imagebase64 = $media['imagebase64'];
+                    IPS_SetMediaContent($mediaid, $imagebase64);  //Bild Base64 codiert ablegen
+                    IPS_SetName($mediaid, $name." ".$newpicid." ".$saveinfo); // Medienobjekt benennen
+                    IPS_SetInfo ($mediaid, $saveinfo);
+                    IPS_SendMediaEvent($mediaid); //aktualisieren
+                }
+                else
+                {
+                    $this->SendDebug("Doorbird", "No picture with ident ".$ident.$newpicid." found",0);
+                }
 			}
 	}
 	

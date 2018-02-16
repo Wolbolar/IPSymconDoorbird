@@ -383,7 +383,7 @@ class Doorbird extends IPSModule
 				{
 					$DoorbirdVideoHTML = '<iframe src="'.$prefix.$hostdoorbell.':'.$portdoorbell.'/bha-api/video.cgi?http-user='.$doorbirduser.'&http-password='.$password.'" border="0" frameborder="0" style= "width: 100%; height: 500px;"/></iframe>';
 				}
-				SetValueString($this->GetIDForIdent('DoorbirdVideo'), $DoorbirdVideoHTML);
+				$this->SetValue('DoorbirdVideo', $DoorbirdVideoHTML);
 				
 				$ipsversion = $this->GetIPSVersion();
 				if($ipsversion == 0)
@@ -1078,9 +1078,6 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 	
 	public function ProcessHookDataOLD()
 	{
-		$ringid = $this->GetIDForIdent('LastRingtone');
-		$movementid = $this->GetIDForIdent('LastMovement');
-		$doorid = $this->GetIDForIdent('LastDoorOpen');
 		$webhookusername = $this->ReadPropertyString('webhookusername');
 		$webhookpassword = $this->ReadPropertyString('webhookpassword');
 		if(!isset($_SERVER['PHP_AUTH_USER']))
@@ -1111,15 +1108,15 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 			$data = $_GET["doorbirdevent"];
 			if ($data == "doorbell")
 				{
-					SetValue($ringid, date('d.m.y H:i:s'));
+					$this->SetValue('LastRingtone', date('d.m.y H:i:s'));
 				}
 			elseif ($data == "motionsensor")
 				{
-					SetValue($movementid, date('d.m.y H:i:s'));
+					$this->SetValue('LastMovement', date('d.m.y H:i:s'));
 				}
 			elseif ($data == "dooropen")
 				{
-					SetValue($doorid, date('d.m.y H:i:s'));
+					$this->SetValue('LastDoorOpen', date('d.m.y H:i:s'));
 				}
 			}	
 	}
@@ -1130,9 +1127,6 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		
 	protected function ProcessHookData()
 	{
-		$ringid = $this->GetIDForIdent('LastRingtone');
-		$movementid = $this->GetIDForIdent('LastMovement');
-		$doorid = $this->GetIDForIdent('LastDoorOpen');
 		$webhookusername = $this->ReadPropertyString('webhookusername');
 		$webhookpassword = $this->ReadPropertyString('webhookpassword');
 		if(!isset($_SERVER['PHP_AUTH_USER']))
@@ -1173,17 +1167,17 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 			if ($data == "doorbell")
 				{
                     $this->SendDebug("Doorbird:", "doorbell event",0);
-				    SetValue($ringid, date('d.m.y H:i:s'));
+					$this->SetValue('LastRingtone', date('d.m.y H:i:s'));
 				}
 			elseif ($data == "motionsensor")
 				{
                     $this->SendDebug("Doorbird:", "motionsensor event",0);
-				    SetValue($movementid, date('d.m.y H:i:s'));
+					$this->SetValue('LastMovement', date('d.m.y H:i:s'));
 				}
 			elseif ($data == "dooropen")
 				{
                     $this->SendDebug("Doorbird:", "dooropen event",0);
-				    SetValue($doorid, date('d.m.y H:i:s'));
+					$this->SetValue('LastDoorOpen', date('d.m.y H:i:s'));
 				}
 			}
 	}
@@ -1240,7 +1234,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		//dooropen
 		$URL = $prefixdoorbird.$hostdoorbird.':'.$portdoorbell.'/bha-api/notification.cgi?event=dooropen&subscribe='.$selectiondooropen.'&relaxation='.$relaxationdooropen.'&user='.$webhookusername.'&password='.$webhookpassword.'&url='.$prefixips.$hostips.':'.$portips.'/hook/doorbird'.$this->InstanceID.'?doorbirdevent=dooropen';
 		$result = $this->SendDoorbird($URL);
-		SetValueString($this->GetIDForIdent('DoorbirdReturn'),$result);
+		$this->SetValue('DoorbirdReturn', $result);
 	}
 	
 	public function SendDoorbird(string $URL)
@@ -1269,11 +1263,11 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$result = $this->SendDoorbird($URL);
 		$result = json_decode($result);
 		$firmware = $result->BHA->VERSION[0]->FIRMWARE;
-		SetValue($this->GetIDForIdent("FirmwareVersion"), $firmware);
+		$this->SetValue('FirmwareVersion', $firmware);
 		$buildnumber = $result->BHA->VERSION[0]->BUILD_NUMBER;
-		SetValue($this->GetIDForIdent("Buildnumber"), $buildnumber);
+		$this->SetValue('Buildnumber', $buildnumber);
 		$wifimacaddr = $result->BHA->VERSION[0]->WIFI_MAC_ADDR;
-		SetValue($this->GetIDForIdent("MACAdress"), $wifimacaddr);
+		$this->SetValue('MACAdress', $wifimacaddr);
 		return $result;
 	}
 	
@@ -2151,6 +2145,16 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
         return $form;
     }
 
+	//Add this Polyfill for IP-Symcon 4.4 and older
+	protected function SetValue($Ident, $Value)
+	{
+
+		if (IPS_GetKernelVersion() >= 5) {
+			parent::SetValue($Ident, $Value);
+		} else {
+			SetValue($this->GetIDForIdent($Ident), $Value);
+		}
+	}
 }
 
 ?>

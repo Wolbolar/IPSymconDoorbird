@@ -1524,6 +1524,24 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		$result = $this->SendDoorbird($URL);
 		return $result;
 	}
+
+	public function OpenDoorRelais(int $relais)
+	{
+		$hostdoorbird = $this->ReadPropertyString('Host');
+		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
+		$URL = $prefixdoorbird.$hostdoorbird.'/bha-api/open-door.cgi?r='.$relais.'@1';
+		$result = $this->SendDoorbird($URL);
+		return $result;
+	}
+
+	public function OpenDoorRelaisNumber(int $relaisnumber)
+	{
+		$hostdoorbird = $this->ReadPropertyString('Host');
+		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
+		$URL = $prefixdoorbird.$hostdoorbird.'/bha-api/open-door.cgi?r='.$relaisnumber;
+		$result = $this->SendDoorbird($URL);
+		return $result;
+	}
 	
 	
 	public function RequestAction($Ident, $Value)

@@ -1525,7 +1525,7 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		return $result;
 	}
 
-	public function OpenDoorRelais(int $relais)
+	public function OpenDoorRelais(string $relais)
 	{
 		$hostdoorbird = $this->ReadPropertyString('Host');
 		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);

@@ -1525,11 +1525,11 @@ Doorbird_EmailAlert('.$this->InstanceID.', "'.$email.'");
 		return $result;
 	}
 
-	public function OpenDoorRelais(string $relais)
+	public function OpenDoorRelais(string $doorcontrollerID, int $relaisnumber)
 	{
 		$hostdoorbird = $this->ReadPropertyString('Host');
 		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
-		$URL = $prefixdoorbird.$hostdoorbird.'/bha-api/open-door.cgi?r='.$relais.'@1';
+		$URL = $prefixdoorbird.$hostdoorbird.'/bha-api/open-door.cgi?r='.$doorcontrollerID.'@'.$relaisnumber;
 		$result = $this->SendDoorbird($URL);
 		return $result;
 	}

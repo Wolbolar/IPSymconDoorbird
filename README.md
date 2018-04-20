@@ -95,7 +95,22 @@ der zu speichernden Bilder kann das maximale Limit der zu speichernden Bilder an
 Wird das Limit erreicht werden die Bilder von vorne überschrieben. Insofern eine Email Instanz in IP-Symcon eingerichtet worden ist
 kann diese im Formular angegeben werden. Wenn die Email Benachrichtigung optional aktiv gesetzt wird wird bei jedem Klingeln eine Email mit Text und dem Foto verschickt.
 
+Unter Benachrichtigungs Einstellungen kann festgelegt werden ob eine Benachrichigung erfolgen soll und wie lange das Intervall sein soll bis erneut eine Benachrichtigung ausgelöst wird.
 
+![Modules](docs/benachrichtigungseinstellung.png?raw=true "Doorbird Form 3")
+
+__Wichtig__ 
+
+Doorbird sendet Infomationen an IP-Symon über einen Webhook, damit dies sicher ist im Feld Benutzername und Passwort ein Wert einzutragen.
+
+![Modules](docs/webhook.png?raw=true "Doorbird Form 4")
+
+
+Nachdem alle notwendigen Angaben gemacht worden sind und mit _Übernehmen_ alles gespeichert wurde, kann im Anschluss in der Testumgebung auf
+_Benachrichtigung einrichten_ gedrückt werden um die Benachrichtigungen der Doorbird einzurichten.
+In der Testumgebung stehen dann noch weitere Funktionen zur Verfügung.
+
+![Modules](docs/testumgebung.png?raw=true "Doorbird Testumgebung")
 
 ## 4. Funktionsreferenz
 

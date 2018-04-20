@@ -62,7 +62,7 @@
 			"password":"Passwort",
 			"Setup notifications from doorbird to IP-Symcon": "Benachrichtigung von Doorbird an IP-Symcon einrichten",
 			"Please fill in all fields in this form and then press the button below for the notification setup of the Doorbird for IP-Symcon": "Bitte zunächst alle Felder im Konfigurationsformular ausfüllen und dann den Button unterhalb drücken um die Benachrichtigung von Doorbird zu IP-Symcon einzurichten",
-			"Setup Notification": "Benachrichtung einrichten",
+			"Setup Notification": "Benachrichtigung einrichten",
 			"Get buildnumber, WLAN MAC and firmwareversion of Doorbird": "Buildnumber, WLAN MAC und Firmware Version der Doorbird auslesen",
 			"get info": "Infos auslesen",
 			"Get snapshot from the doorbird camera": "Snapshot der Doorbird anfordern",

@@ -776,58 +776,61 @@ class Doorbird extends IPSModule
 	public function ReceiveData($JSONString) {
 
 		$this->SendDebug("Doorbird:", $JSONString, 0);
-		$payload = json_decode($JSONString);
+		$payload_udp = json_decode($JSONString);
 		// $type = $payload->Type;
-		$this->SendDebug("Doorbird:", json_encode($payload->Buffer), 0);
-		/*
-		if($type == 0)
+		$this->SendDebug("Doorbird:", json_encode($payload_udp->Buffer), 0);
+		$doorbird_user = $this->ReadPropertyString('User');
+		$doorbird_password = $this->ReadPropertyString('Password');
+		// Step 1: get packet via UDP:
+		$payload = $payload_udp->Buffer;
+		// Step 2: Split up:
+		$ident = substr($payload, 0, 3); // lenght 3 Bytes, 0xDE 0xAD 0xBE
+		if(bin2hex($ident) == "deadbe")
 		{
-			$this->SendDebug("Doorbird:", json_encode($payload->Buffer), 0);
+			$this->SendDebug("Doorbird:", "Ident: ".bin2hex($ident), 0);
+			$version = substr($payload, 3, 1); // lenght 1 Bytes, 0x01
+			$this->SendDebug("Doorbird:", "Version: ".bin2hex($version), 0);
+			$opslimit = substr($payload, 4, 4);// lenght 4 Bytes, Used for password stretching with Argon2i.
+			$this->SendDebug("Doorbird:", "OPSLimit: ".bin2hex($opslimit), 0);
+			$memlimit = substr($payload, 8, 4);// lenght 4 Bytes, Used for password stretching with Argon2i.
+			$this->SendDebug("Doorbird:", "MEMLimit: ".bin2hex($memlimit), 0);
+			$salt = substr($payload, 12, 16);// lenght 16 Bytes, Used for password stretching with Argon2i.
+			$this->SendDebug("Doorbird:", "Salt: ".bin2hex($salt), 0);
+			$nonce = substr($payload, 28, 8); // lenght 8 Bytes, Used for encryption with ChaCha20-Poly1305
+			$this->SendDebug("Doorbird:", "Nonce: ".bin2hex($nonce), 0);
+
+			$ciphertext = substr($payload, 36, 34); // lenght 8 Bytes, With ChaCha20-Poly1305 encrypted text which contains informations about the Event.
+			$this->SendDebug("Doorbird:", "Ciphertext: ".bin2hex($ciphertext), 0);
+			// Step 3: Generate stretched password
+			$password = substr($doorbird_password, 0, 5); // first 5 chars of your password
+			$out_len = SODIUM_CRYPTO_SIGN_SEEDBYTES;
+			$key = sodium_crypto_pwhash(
+				SODIUM_CRYPTO_SIGN_SEEDBYTES,
+				$password,
+				$salt, // SALT
+				unpack("N",$opslimit)[1], //OPSLIMIT
+				unpack("N",$memlimit)[1], //MEMLIMIT
+				SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
+			);
+			$this->SendDebug("Doorbird:", "Key für decrypt in HEX: ".bin2hex($key), 0);
+			// Step 4: Decrypt CIPHERTEXT with ChaCha20-Poly1305, use the stretched password and NONCE
+			$decrypted = sodium_crypto_aead_chacha20poly1305_decrypt ($ciphertext , null , $nonce , $key );
+			$this->SendDebug("Doorbird:", "decrypted Payload in HEX: ".bin2hex($decrypted), 0);
+			// Step 5: Split the output up
+			$INTERCOM_ID = substr($decrypted,0,6); // Starting 6 chars from the user name
+			$this->SendDebug("Doorbird:", "decrypted Payload in HEX: ".bin2hex($decrypted), 0);
+			$EVENT = (int)trim(substr($decrypted,6,8));
+			/*
+			if($EVENT == 102) // Contains the doorbell or „motion“ to detect which event was triggered
+			{
+
+			}
+			*/
+			$this->SendDebug("Doorbird:", "Event: ".$EVENT, 0);
+			$TIMESTAMP = unpack('N',substr($decrypted,14,4))[1];
+			$this->SendDebug("Doorbird:", "TIMESTAMP to UTC: ".gmdate('H:i:s d.m.Y', $TIMESTAMP), 0);
+			$this->SendDebug("Doorbird:", "TIMESTAMP to local: ".date('H:i:s d.m.Y', $TIMESTAMP), 0);
 		}
-		*/
-		/*
-		$password = 'QzT3j'; // Nur die ersten 5 Byte des User Passwort !!!
-		$out_len = SODIUM_CRYPTO_SIGN_SEEDBYTES;
-		$key = sodium_crypto_pwhash(
-			SODIUM_CRYPTO_SIGN_SEEDBYTES,
-			$password,
-			"\x77\x35\x36\xDC\xC3\x0E\x2E\x84\x7E\x0E\x75\x29\xE2\x34\x60\xCF", // SALT
-			unpack("N","\x00\x00\x00\x04")[1], //OPSLIMIT
-			unpack("N","\x00\x00\x20\x00")[1], //MEMLIMIT
-			SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
-		);
-		echo 'Key für decrypt in HEX:'.PHP_EOL;
-		var_dump(bin2hex($key));
-
-		$ciphertext = "\xDC\x1A\x71\x80\xF2\x9B\x2E\xA0\x27\xA9\x82\x41\x9C\xCE\x45\x9D\x27\x45\x2E\x42\x14\xBE\x9C\x74\xE9\x33\x3A\x21\xDB\x10\x78\xB9\xF6\x7B";
-		$nonce ="\xE3\xFF\xCC\x52\x3F\x37\xB2\xF2";
-
-		$decrypted = sodium_crypto_aead_chacha20poly1305_decrypt ($ciphertext , null , $nonce , $key );
-		echo 'decrypted Payload in HEX:'.PHP_EOL;
-		var_dump(bin2hex($decrypted));
-		echo PHP_EOL;
-		echo 'decrypted Payload in RAW:'.PHP_EOL;
-		var_dump($decrypted);
-		echo PHP_EOL;
-		$INTERCOM_ID = substr($decrypted,0,6);
-		$EVENT = (int)trim(substr($decrypted,6,8));
-		$TIMESTAMP = unpack('N',substr($decrypted,14,4))[1];
-
-		echo 'INTERCOM_ID:'.PHP_EOL;
-		var_dump($INTERCOM_ID);
-		echo PHP_EOL;
-		echo 'EVENT:'.PHP_EOL;
-		var_dump($EVENT);
-		echo PHP_EOL;
-		echo 'TIMESTAMP:'.PHP_EOL;
-		var_dump($TIMESTAMP);
-		echo PHP_EOL;
-		echo 'TIMESTAMP to UTC:'.PHP_EOL;
-		echo gmdate('H:i:s d.m.Y', $TIMESTAMP).PHP_EOL.PHP_EOL;
-		echo 'TIMESTAMP to local:'.PHP_EOL;
-		echo date('H:i:s d.m.Y', $TIMESTAMP).PHP_EOL.PHP_EOL;
-		return;
-		*/
 	}
 
 
@@ -1945,8 +1948,6 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 	{
 		$form = '"actions":
 			[
-				{ "type": "Label", "label": "Setup notifications from doorbird to IP-Symcon" },
-				{ "type": "Button", "label": "Setup Notification", "onClick": "Doorbird_SetupNotification($id);" },
 				{ "type": "Label", "label": "Get buildnumber, WLAN MAC and firmwareversion of Doorbird" },
 				{ "type": "Button", "label": "get info", "onClick": "Doorbird_GetInfo($id);" },
 				{ "type": "Label", "label": "Get snapshot from the doorbird camera" },
@@ -1956,6 +1957,8 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 				{ "type": "Button", "label": "ir light", "onClick": "Doorbird_Light($id);" }
 			],';
 		return $form;
+		// { "type": "Label", "label": "Setup notifications from doorbird to IP-Symcon" },
+		// { "type": "Button", "label": "Setup Notification", "onClick": "Doorbird_SetupNotification($id);" },
 	}
 
 	protected function FormStatus()

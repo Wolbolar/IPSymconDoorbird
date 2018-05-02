@@ -158,6 +158,7 @@ class Doorbird extends IPSModule
 
 		//These lines are parsed on Symcon Startup or Instance creation
 		//You cannot use variables here. Just static values.
+		$this->RequireParent("{82347F20-F541-41E1-AC5B-A636FD3AE2D8}");
 
 		$this->RegisterPropertyString("Host", "");
 		$this->RegisterPropertyInteger("PortDoorbell", 80);
@@ -267,7 +268,7 @@ class Doorbird extends IPSModule
 		$this->RegisterVariableString("Buildnumber", "Doorbird Build Number", "Doorbird.Buildnumber", 8);
 		$this->RegisterProfileStringDoorbird("Doorbird.MAC", "Notebook");
 		$this->RegisterVariableString("MACAdress", "Doorbird WLAN MAC", "Doorbird.MAC", 9);
-		$this->RegisterVariableString("DoorbirdReturn", "Doorbird Return", "~String", 25);
+		// $this->RegisterVariableString("DoorbirdReturn", "Doorbird Return", "~String", 25);
 		$lightass = Array(
 			Array(0, "Licht einschalten", "Light", -1)
 		);
@@ -515,6 +516,25 @@ class Doorbird extends IPSModule
 		}
 	}
 
+	public function GetConfigurationForParent()
+	{
+		$Config['Host'] = $this->GetHostIP();
+		$Config['Port'] = 6524;
+		$Config['BindPort'] = 6524;
+		return json_encode($Config);
+	}
+
+	protected function GetHostIP()
+	{
+		$ip = exec("sudo ifconfig eth0 | grep 'inet Adresse:' | cut -d: -f2 | awk '{ print $1}'");
+		if($ip == "")
+		{
+			$ipinfo = Sys_GetNetworkInfo ( );
+			$ip = $ipinfo[0]['IP'];
+		}
+		return $ip;
+	}
+
 	protected function CheckEmail($email)
 	{
 		$ipsversion = $this->GetIPSVersion();
@@ -752,6 +772,64 @@ class Doorbird extends IPSModule
 		}
 
 	}
+
+	public function ReceiveData($JSONString) {
+
+		$this->SendDebug("Doorbird:", $JSONString, 0);
+		$payload = json_decode($JSONString);
+		// $type = $payload->Type;
+		$this->SendDebug("Doorbird:", json_encode($payload->Buffer), 0);
+		/*
+		if($type == 0)
+		{
+			$this->SendDebug("Doorbird:", json_encode($payload->Buffer), 0);
+		}
+		*/
+		/*
+		$password = 'QzT3j'; // Nur die ersten 5 Byte des User Passwort !!!
+		$out_len = SODIUM_CRYPTO_SIGN_SEEDBYTES;
+		$key = sodium_crypto_pwhash(
+			SODIUM_CRYPTO_SIGN_SEEDBYTES,
+			$password,
+			"\x77\x35\x36\xDC\xC3\x0E\x2E\x84\x7E\x0E\x75\x29\xE2\x34\x60\xCF", // SALT
+			unpack("N","\x00\x00\x00\x04")[1], //OPSLIMIT
+			unpack("N","\x00\x00\x20\x00")[1], //MEMLIMIT
+			SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
+		);
+		echo 'Key für decrypt in HEX:'.PHP_EOL;
+		var_dump(bin2hex($key));
+
+		$ciphertext = "\xDC\x1A\x71\x80\xF2\x9B\x2E\xA0\x27\xA9\x82\x41\x9C\xCE\x45\x9D\x27\x45\x2E\x42\x14\xBE\x9C\x74\xE9\x33\x3A\x21\xDB\x10\x78\xB9\xF6\x7B";
+		$nonce ="\xE3\xFF\xCC\x52\x3F\x37\xB2\xF2";
+
+		$decrypted = sodium_crypto_aead_chacha20poly1305_decrypt ($ciphertext , null , $nonce , $key );
+		echo 'decrypted Payload in HEX:'.PHP_EOL;
+		var_dump(bin2hex($decrypted));
+		echo PHP_EOL;
+		echo 'decrypted Payload in RAW:'.PHP_EOL;
+		var_dump($decrypted);
+		echo PHP_EOL;
+		$INTERCOM_ID = substr($decrypted,0,6);
+		$EVENT = (int)trim(substr($decrypted,6,8));
+		$TIMESTAMP = unpack('N',substr($decrypted,14,4))[1];
+
+		echo 'INTERCOM_ID:'.PHP_EOL;
+		var_dump($INTERCOM_ID);
+		echo PHP_EOL;
+		echo 'EVENT:'.PHP_EOL;
+		var_dump($EVENT);
+		echo PHP_EOL;
+		echo 'TIMESTAMP:'.PHP_EOL;
+		var_dump($TIMESTAMP);
+		echo PHP_EOL;
+		echo 'TIMESTAMP to UTC:'.PHP_EOL;
+		echo gmdate('H:i:s d.m.Y', $TIMESTAMP).PHP_EOL.PHP_EOL;
+		echo 'TIMESTAMP to local:'.PHP_EOL;
+		echo date('H:i:s d.m.Y', $TIMESTAMP).PHP_EOL.PHP_EOL;
+		return;
+		*/
+	}
+
 
 	private function CreateWebHookScript()
 	{

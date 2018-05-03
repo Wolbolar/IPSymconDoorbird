@@ -779,7 +779,8 @@ class Doorbird extends IPSModule
 		// $this->SendDebug("Doorbird:", $JSONString, 0);
 		$payload_udp = json_decode($JSONString);
 		// $type = $payload->Type;
-		$this->SendDebug("Doorbird:", $payload_udp->Buffer, 1);
+		$this->SendDebug("Doorbird Recieve:", $payload_udp->Buffer, 1);
+		$this->SendDebug("Doorbird Recieve:", bin2hex($payload_udp->Buffer), 0);
 		$doorbird_user = $this->ReadPropertyString('User');
 		$dataraw = $payload_udp->Buffer;
 		$INTERCOM_ID = substr($doorbird_user,0,6);

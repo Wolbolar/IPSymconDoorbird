@@ -792,7 +792,7 @@ class Doorbird extends IPSModule
 		$doorbird_password = $this->ReadPropertyString('Password_1');
 		if($doorbird_id == $INTERCOM_ID)
 		{
-			$this->SendDebug("Doorbird:", $payload_udp->Buffer, 0);
+			$this->SendDebug("Doorbird Recieve:", $payload_udp->Buffer, 0);
 		}
 		else
 		{
@@ -835,22 +835,29 @@ class Doorbird extends IPSModule
 			$this->SendDebug("Doorbird Key:", $key, 1); // Key für decrypt in HEX
 			// Step 4: Decrypt CIPHERTEXT with ChaCha20-Poly1305, use the stretched password and NONCE
 			$decrypted = sodium_crypto_aead_chacha20poly1305_decrypt ($ciphertext , null , $nonce , $key );
-			$this->SendDebug("Doorbird Decrypted Data:", $decrypted, 1);
-			// $this->SendDebug("Doorbird:", "decrypted Payload in HEX: ".bin2hex($decrypted), 0);
-			// Step 5: Split the output up
-			$INTERCOM_ID = substr($decrypted,0,6); // Starting 6 chars from the user name
-			$EVENT = (int)trim(substr($decrypted,6,8));
-			/*
-			if($EVENT == 102) // Contains the doorbell or „motion“ to detect which event was triggered
+			if($decrypted)
 			{
+				$this->SendDebug("Doorbird:", "decryption successfull", 0);
+				$this->SendDebug("Doorbird Decrypted Data:", $decrypted, 1);
+				// Step 5: Split the output up
+				$INTERCOM_ID = substr($decrypted,0,6); // Starting 6 chars from the user name
+				$this->SendDebug("Doorbird Intercom ID:", $INTERCOM_ID, 0);
+				$EVENT = (int)trim(substr($decrypted,6,8));
 
+				if($EVENT == 1) // Contains the doorbell or „motion“ to detect which event was triggered
+				{
+					$this->SendDebug("Doorbird:", "doorbell event", 0);
+					$this->SetValue('LastRingtone', date('d.m.y H:i:s'));
+				}
+				$this->SendDebug("Doorbird Event:", $EVENT, 0);
+				$TIMESTAMP = unpack('N',substr($decrypted,14,4))[1];
+				$this->SendDebug("Doorbird Timestamp UTC:", gmdate('H:i:s d.m.Y', $TIMESTAMP), 0);
+				$this->SendDebug("Doorbird Timestamp local:", date('H:i:s d.m.Y', $TIMESTAMP), 0);
 			}
-			*/
-			$this->SendDebug("Doorbird:", "Event: ".$EVENT, 1);
-			// $this->SendDebug("Doorbird:", "Event: ".$EVENT, 0);
-			$TIMESTAMP = unpack('N',substr($decrypted,14,4))[1];
-			$this->SendDebug("Doorbird:", "TIMESTAMP to UTC: ".gmdate('H:i:s d.m.Y', $TIMESTAMP), 0);
-			$this->SendDebug("Doorbird:", "TIMESTAMP to local: ".date('H:i:s d.m.Y', $TIMESTAMP), 0);
+			else
+			{
+				$this->SendDebug("Doorbird:", "decryption not successfull", 0);
+			}
 		}
 	}
 

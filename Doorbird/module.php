@@ -269,6 +269,7 @@ class Doorbird extends IPSModule
 		$this->RegisterProfileStringDoorbird("Doorbird.MAC", "Notebook");
 		$this->RegisterVariableString("MACAdress", "Doorbird WLAN MAC", "Doorbird.MAC", 9);
 		// $this->RegisterVariableString("DoorbirdReturn", "Doorbird Return", "~String", 25);
+		//IPS_SetHidden($this->GetIDForIdent('DoorbirdReturn'), true);
 		$lightass = Array(
 			Array(0, "Licht einschalten", "Light", -1)
 		);
@@ -287,7 +288,7 @@ class Doorbird extends IPSModule
 		$this->EnableAction("DoorbirdButtonDoor");
 		$this->RegisterVariableInteger("DoorbirdButtonSnapshot", "Doorbird Bild abspeichern", "Doorbird.Snapshot", 12);
 		$this->EnableAction("DoorbirdButtonSnapshot");
-		IPS_SetHidden($this->GetIDForIdent('DoorbirdReturn'), true);
+
 
 		$this->ValidateConfiguration();
 
@@ -775,32 +776,47 @@ class Doorbird extends IPSModule
 
 	public function ReceiveData($JSONString) {
 
-		$this->SendDebug("Doorbird:", $JSONString, 0);
+		// $this->SendDebug("Doorbird:", $JSONString, 0);
 		$payload_udp = json_decode($JSONString);
 		// $type = $payload->Type;
-		$this->SendDebug("Doorbird:", json_encode($payload_udp->Buffer), 0);
+		$this->SendDebug("Doorbird:", $payload_udp->Buffer, 1);
 		$doorbird_user = $this->ReadPropertyString('User');
+		$dataraw = $payload_udp->Buffer;
+		$INTERCOM_ID = substr($doorbird_user,0,6);
+		$data = explode(":", $dataraw);
+		$doorbird_id = $data[1];
 		$doorbird_password = $this->ReadPropertyString('Password');
-		// Step 1: get packet via UDP:
-		$payload = $payload_udp->Buffer;
-		// Step 2: Split up:
-		$ident = substr($payload, 0, 3); // lenght 3 Bytes, 0xDE 0xAD 0xBE
-		if(bin2hex($ident) == "deadbe")
+		if($doorbird_id == $INTERCOM_ID)
 		{
-			$this->SendDebug("Doorbird:", "Ident: ".bin2hex($ident), 0);
+			$this->SendDebug("Doorbird:", $payload_udp->Buffer, 0);
+		}
+		else
+		{
+			// Step 1: get packet via UDP:
+			$payload = $payload_udp->Buffer;
+			// Step 2: Split up:
+			$ident = substr($payload, 0, 3); // lenght 3 Bytes, 0xDE 0xAD 0xBE
+			$this->SendDebug("Doorbird Ident:", $ident, 1);
+			// $this->SendDebug("Doorbird:", "Ident: ".bin2hex($ident), 0);
 			$version = substr($payload, 3, 1); // lenght 1 Bytes, 0x01
-			$this->SendDebug("Doorbird:", "Version: ".bin2hex($version), 0);
+			$this->SendDebug("Doorbird Version:", $version, 1);
+			//$this->SendDebug("Doorbird:", "Version: ".bin2hex($version), 0);
 			$opslimit = substr($payload, 4, 4);// lenght 4 Bytes, Used for password stretching with Argon2i.
-			$this->SendDebug("Doorbird:", "OPSLimit: ".bin2hex($opslimit), 0);
+			$this->SendDebug("Doorbird OPSLimit:", $opslimit, 1);
+			// $this->SendDebug("Doorbird:", "OPSLimit: ".bin2hex($opslimit), 0);
 			$memlimit = substr($payload, 8, 4);// lenght 4 Bytes, Used for password stretching with Argon2i.
-			$this->SendDebug("Doorbird:", "MEMLimit: ".bin2hex($memlimit), 0);
+			$this->SendDebug("Doorbird MEMLimit:", $memlimit, 1);
+			// $this->SendDebug("Doorbird:", "MEMLimit: ".bin2hex($memlimit), 0);
 			$salt = substr($payload, 12, 16);// lenght 16 Bytes, Used for password stretching with Argon2i.
-			$this->SendDebug("Doorbird:", "Salt: ".bin2hex($salt), 0);
+			$this->SendDebug("Doorbird Salt:", $salt, 1);
+			// $this->SendDebug("Doorbird:", "Salt: ".bin2hex($salt), 0);
 			$nonce = substr($payload, 28, 8); // lenght 8 Bytes, Used for encryption with ChaCha20-Poly1305
-			$this->SendDebug("Doorbird:", "Nonce: ".bin2hex($nonce), 0);
+			$this->SendDebug("Doorbird Nonce:", $nonce, 1);
+			// $this->SendDebug("Doorbird:", "Nonce: ".bin2hex($nonce), 0);
 
 			$ciphertext = substr($payload, 36, 34); // lenght 8 Bytes, With ChaCha20-Poly1305 encrypted text which contains informations about the Event.
-			$this->SendDebug("Doorbird:", "Ciphertext: ".bin2hex($ciphertext), 0);
+			$this->SendDebug("Doorbird Ciphertext:", $ciphertext, 1);
+			// $this->SendDebug("Doorbird:", "Ciphertext: ".bin2hex($ciphertext), 0);
 			// Step 3: Generate stretched password
 			$password = substr($doorbird_password, 0, 5); // first 5 chars of your password
 			$out_len = SODIUM_CRYPTO_SIGN_SEEDBYTES;
@@ -812,13 +828,13 @@ class Doorbird extends IPSModule
 				unpack("N",$memlimit)[1], //MEMLIMIT
 				SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
 			);
-			$this->SendDebug("Doorbird:", "Key für decrypt in HEX: ".bin2hex($key), 0);
+			$this->SendDebug("Doorbird Key:", $key, 1); // Key für decrypt in HEX
 			// Step 4: Decrypt CIPHERTEXT with ChaCha20-Poly1305, use the stretched password and NONCE
 			$decrypted = sodium_crypto_aead_chacha20poly1305_decrypt ($ciphertext , null , $nonce , $key );
-			$this->SendDebug("Doorbird:", "decrypted Payload in HEX: ".bin2hex($decrypted), 0);
+			$this->SendDebug("Doorbird Decrypted Data:", $decrypted, 1);
+			// $this->SendDebug("Doorbird:", "decrypted Payload in HEX: ".bin2hex($decrypted), 0);
 			// Step 5: Split the output up
 			$INTERCOM_ID = substr($decrypted,0,6); // Starting 6 chars from the user name
-			$this->SendDebug("Doorbird:", "decrypted Payload in HEX: ".bin2hex($decrypted), 0);
 			$EVENT = (int)trim(substr($decrypted,6,8));
 			/*
 			if($EVENT == 102) // Contains the doorbell or „motion“ to detect which event was triggered
@@ -826,7 +842,8 @@ class Doorbird extends IPSModule
 
 			}
 			*/
-			$this->SendDebug("Doorbird:", "Event: ".$EVENT, 0);
+			$this->SendDebug("Doorbird:", "Event: ".$EVENT, 1);
+			// $this->SendDebug("Doorbird:", "Event: ".$EVENT, 0);
 			$TIMESTAMP = unpack('N',substr($decrypted,14,4))[1];
 			$this->SendDebug("Doorbird:", "TIMESTAMP to UTC: ".gmdate('H:i:s d.m.Y', $TIMESTAMP), 0);
 			$this->SendDebug("Doorbird:", "TIMESTAMP to local: ".date('H:i:s d.m.Y', $TIMESTAMP), 0);
@@ -1144,7 +1161,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 		//dooropen
 		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/notification.cgi?event=dooropen&subscribe=' . $selectiondooropen . '&relaxation=' . $relaxationdooropen . '&user=' . $webhookusername . '&password=' . $webhookpassword . '&url=' . $prefixips . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=dooropen';
 		$result = $this->SendDoorbird($URL);
-		$this->SetValue('DoorbirdReturn', $result);
+		// $this->SetValue('DoorbirdReturn', $result);
 	}
 
 	public function SendDoorbird(string $URL)

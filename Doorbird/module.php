@@ -166,6 +166,8 @@ class Doorbird extends IPSModule
 		$this->RegisterPropertyInteger("PortIPS", 3777);
 		$this->RegisterPropertyString("User", "");
 		$this->RegisterPropertyString("Password", "");
+		$this->RegisterPropertyString("User_1", "");
+		$this->RegisterPropertyString("Password_1", "");
 		$this->RegisterPropertyInteger("picturelimitring", 20);
 		$this->RegisterPropertyInteger("picturelimitsnapshot", 20);
 		$this->RegisterPropertyBoolean("doorbell", true);
@@ -268,8 +270,8 @@ class Doorbird extends IPSModule
 		$this->RegisterVariableString("Buildnumber", "Doorbird Build Number", "Doorbird.Buildnumber", 8);
 		$this->RegisterProfileStringDoorbird("Doorbird.MAC", "Notebook");
 		$this->RegisterVariableString("MACAdress", "Doorbird WLAN MAC", "Doorbird.MAC", 9);
-		// $this->RegisterVariableString("DoorbirdReturn", "Doorbird Return", "~String", 25);
-		//IPS_SetHidden($this->GetIDForIdent('DoorbirdReturn'), true);
+		$this->RegisterVariableString("DoorbirdReturn", "Doorbird Return", "~String", 25);
+		IPS_SetHidden($this->GetIDForIdent('DoorbirdReturn'), true);
 		$lightass = Array(
 			Array(0, "Licht einschalten", "Light", -1)
 		);
@@ -307,6 +309,8 @@ class Doorbird extends IPSModule
 		$hostips = $this->ReadPropertyString('IPSIP');
 		$doorbirduser = $this->ReadPropertyString('User');
 		$password = $this->ReadPropertyString('Password');
+		$doorbirduser_1 = $this->ReadPropertyString('User_1');
+		$password_1 = $this->ReadPropertyString('Password_1');
 		$portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
 		$webhookusername = $this->ReadPropertyString('webhookusername');
 		$webhookpassword = $this->ReadPropertyString('webhookpassword');
@@ -351,7 +355,7 @@ class Doorbird extends IPSModule
 		}
 
 		//User und Passwort prüfen
-		if ($doorbirduser == "" || $password == "" || $webhookusername == "" || $webhookpassword == "") {
+		if ($doorbirduser == "" || $password == "" || $doorbirduser_1 == "" || $password_1 == "" || $webhookusername == "" || $webhookpassword == "") {
 			$this->SetStatus(205); //Felder dürfen nicht leer sein
 		} elseif ($doorbirduser !== "" && $password !== "" && $hostcheck === true) {
 			$selectionaltview = $this->ReadPropertyBoolean('altview');
@@ -779,10 +783,9 @@ class Doorbird extends IPSModule
 		// $this->SendDebug("Doorbird:", $JSONString, 0);
 		$payload_udp = json_decode($JSONString);
 		// $type = $payload->Type;
-		$this->SendDebug("Doorbird Recieve:", $payload_udp->Buffer, 1);
-		$this->SendDebug("Doorbird Recieve:", bin2hex($payload_udp->Buffer), 0);
+		$this->SendDebug("Doorbird Recieve:", utf8_decode($payload_udp->Buffer), 1);
+		$dataraw = utf8_decode($payload_udp->Buffer);
 		$doorbird_user = $this->ReadPropertyString('User');
-		$dataraw = $payload_udp->Buffer;
 		$INTERCOM_ID = substr($doorbird_user,0,6);
 		$data = explode(":", $dataraw);
 		$doorbird_id = $data[1];
@@ -794,7 +797,7 @@ class Doorbird extends IPSModule
 		else
 		{
 			// Step 1: get packet via UDP:
-			$payload = $payload_udp->Buffer;
+			$payload = utf8_decode($payload_udp->Buffer);
 			// Step 2: Split up:
 			$ident = substr($payload, 0, 3); // lenght 3 Bytes, 0xDE 0xAD 0xBE
 			$this->SendDebug("Doorbird Ident:", $ident, 1);
@@ -1151,18 +1154,25 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 		$relaxationdooropen = $this->ReadPropertyInteger('relaxationdooropen');
 		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
 		$prefixips = $this->GetURLPrefix($hostips);
-		//doorbell
-		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/notification.cgi?event=doorbell&subscribe=' . $selectiondoorbell . '&relaxation=' . $relaxationdoorbell . '&user=' . $webhookusername . '&password=' . $webhookpassword . '&url=' . $prefixips . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=doorbell';
+		//doorbell add favorites
+
+		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/favorites.cgi?action=save&type=http&title=IPSDoorbell&value='. $prefixips . $webhookusername . ':' . $webhookpassword . '@' . $hostips . ':' . $portips .  '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=doorbell&id=111';
+		// $URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/notification.cgi?event=doorbell&subscribe=' . $selectiondoorbell . '&relaxation=' . $relaxationdoorbell . '&user=' . $webhookusername . '&password=' . $webhookpassword . '&url=' . $prefixips . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=doorbell';
+
 		$this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//motionsensor
-		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/notification.cgi?event=motionsensor&subscribe=' . $selectionmotionsensor . '&relaxation=' . $relaxationmotionsensor . '&user=' . $webhookusername . '&password=' . $webhookpassword . '&url=' . $prefixips . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=motionsensor';
+		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/favorites.cgi?action=save&type=http&title=IPSMotionsensor&value='. $prefixips . $webhookusername . ':' . $webhookpassword . '@' . $hostips . ':' . $portips .  '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=motionsensor&id=112';
+		// $URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/notification.cgi?event=motionsensor&subscribe=' . $selectionmotionsensor . '&relaxation=' . $relaxationmotionsensor . '&user=' . $webhookusername . '&password=' . $webhookpassword . '&url=' . $prefixips . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=motionsensor';
+
 		$this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//dooropen
-		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/notification.cgi?event=dooropen&subscribe=' . $selectiondooropen . '&relaxation=' . $relaxationdooropen . '&user=' . $webhookusername . '&password=' . $webhookpassword . '&url=' . $prefixips . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=dooropen';
+		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/favorites.cgi?action=save&type=http&title=IPSDooropen&value='. $prefixips . $webhookusername . ':' . $webhookpassword . '@' . $hostips . ':' . $portips .  '?doorbirdevent=dooropen&id=113';
+		// $URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/notification.cgi?event=dooropen&subscribe=' . $selectiondooropen . '&relaxation=' . $relaxationdooropen . '&user=' . $webhookusername . '&password=' . $webhookpassword . '&url=' . $prefixips . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=dooropen';
+
 		$result = $this->SendDoorbird($URL);
-		// $this->SetValue('DoorbirdReturn', $result);
+		$this->SetValue('DoorbirdReturn', $result);
 	}
 
 	public function SendDoorbird(string $URL)
@@ -1182,6 +1192,27 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 		return $result;
 	}
 
+	public function GetFavorites()
+	{
+		$hostdoorbird = $this->ReadPropertyString('Host');
+		$portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
+		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
+
+		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/favorites.cgi';
+		$result = $this->SendDoorbird($URL);
+		return $result;
+	}
+
+	public function DeleteFavorites(int $id, string $type)
+	{
+		$hostdoorbird = $this->ReadPropertyString('Host');
+		$portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
+		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
+
+		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/favorites.cgi?action=remove&type='.$type.'&id='.$id;
+		$result = $this->SendDoorbird($URL);
+		return $result;
+	}
 
 	public function GetInfo()
 	{
@@ -1592,6 +1623,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 				{ "type": "Label", "label": "port of Doorbell" },
 				{ "type": "NumberSpinner", "name": "PortDoorbell", "caption": "Port Doorbell" },
 				{ "type": "Label", "label": "Doorbird login credentials" },
+				{ "type": "Label", "label": "Doorbird user with authorization as API-Operator" },
                 {
                     "name": "User",
                     "type": "ValidationTextBox",
@@ -1601,6 +1633,17 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
                     "name": "Password",
                     "type": "ValidationTextBox",
                     "caption": "Password"
+                },
+                { "type": "Label", "label": "Doorbird user with ID 0001 for data decryption" },
+                {
+                    "name": "User_1",
+                    "type": "ValidationTextBox",
+                    "caption": "User 0001"
+                },
+				{
+                    "name": "Password_1",
+                    "type": "ValidationTextBox",
+                    "caption": "Password for user 0001"
                 },
 				{ "type": "Label", "label": "category for doorbird ring pictures, please create first a category in the objekt tree of IP-Symcon and then select it in the field below" },
 				{ "type": "Label", "label": "doorbird ring pictures category" },
@@ -1966,6 +2009,8 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 	{
 		$form = '"actions":
 			[
+				{ "type": "Label", "label": "Setup notifications from doorbird to IP-Symcon" },
+				{ "type": "Button", "label": "Setup Notification", "onClick": "Doorbird_SetupNotification($id);" },
 				{ "type": "Label", "label": "Get buildnumber, WLAN MAC and firmwareversion of Doorbird" },
 				{ "type": "Button", "label": "get info", "onClick": "Doorbird_GetInfo($id);" },
 				{ "type": "Label", "label": "Get snapshot from the doorbird camera" },
@@ -1975,8 +2020,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 				{ "type": "Button", "label": "ir light", "onClick": "Doorbird_Light($id);" }
 			],';
 		return $form;
-		// { "type": "Label", "label": "Setup notifications from doorbird to IP-Symcon" },
-		// { "type": "Button", "label": "Setup Notification", "onClick": "Doorbird_SetupNotification($id);" },
+
 	}
 
 	protected function FormStatus()

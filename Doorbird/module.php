@@ -532,9 +532,8 @@ class Doorbird extends IPSModule
 	protected function GetHostIP()
 	{
 		$ip = exec("sudo ifconfig eth0 | grep 'inet Adresse:' | cut -d: -f2 | awk '{ print $1}'");
-		if($ip == "")
-		{
-			$ipinfo = Sys_GetNetworkInfo ( );
+		if ($ip == "") {
+			$ipinfo = Sys_GetNetworkInfo();
 			$ip = $ipinfo[0]['IP'];
 		}
 		return $ip;
@@ -778,7 +777,8 @@ class Doorbird extends IPSModule
 
 	}
 
-	public function ReceiveData($JSONString) {
+	public function ReceiveData($JSONString)
+	{
 
 		// $this->SendDebug("Doorbird:", $JSONString, 0);
 		$payload_udp = json_decode($JSONString);
@@ -786,16 +786,13 @@ class Doorbird extends IPSModule
 		$this->SendDebug("Doorbird Recieve:", utf8_decode($payload_udp->Buffer), 1);
 		$dataraw = utf8_decode($payload_udp->Buffer);
 		$doorbird_user = $this->ReadPropertyString('User_1');
-		$INTERCOM_ID = substr($doorbird_user,0,6);
+		$INTERCOM_ID = substr($doorbird_user, 0, 6);
 		$data = explode(":", $dataraw);
 		$doorbird_id = $data[1];
 		$doorbird_password = $this->ReadPropertyString('Password_1');
-		if($doorbird_id == $INTERCOM_ID)
-		{
+		if ($doorbird_id == $INTERCOM_ID) {
 			$this->SendDebug("Doorbird Recieve:", $payload_udp->Buffer, 0);
-		}
-		else
-		{
+		} else {
 			// Step 1: get packet via UDP:
 			$payload = utf8_decode($payload_udp->Buffer);
 			// Step 2: Split up:
@@ -828,34 +825,31 @@ class Doorbird extends IPSModule
 				SODIUM_CRYPTO_SIGN_SEEDBYTES,
 				$password,
 				$salt, // SALT
-				unpack("N",$opslimit)[1], //OPSLIMIT
-				unpack("N",$memlimit)[1], //MEMLIMIT
+				unpack("N", $opslimit)[1], //OPSLIMIT
+				unpack("N", $memlimit)[1], //MEMLIMIT
 				SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
 			);
 			$this->SendDebug("Doorbird Key:", $key, 1); // Key für decrypt in HEX
 			// Step 4: Decrypt CIPHERTEXT with ChaCha20-Poly1305, use the stretched password and NONCE
-			$decrypted = sodium_crypto_aead_chacha20poly1305_decrypt ($ciphertext , null , $nonce , $key );
-			if($decrypted)
-			{
+			$decrypted = sodium_crypto_aead_chacha20poly1305_decrypt($ciphertext, null, $nonce, $key);
+			if ($decrypted) {
 				$this->SendDebug("Doorbird:", "decryption successfull", 0);
 				$this->SendDebug("Doorbird Decrypted Data:", $decrypted, 1);
 				// Step 5: Split the output up
-				$INTERCOM_ID = substr($decrypted,0,6); // Starting 6 chars from the user name
+				$INTERCOM_ID = substr($decrypted, 0, 6); // Starting 6 chars from the user name
 				$this->SendDebug("Doorbird Intercom ID:", $INTERCOM_ID, 0);
-				$EVENT = (int)trim(substr($decrypted,6,8));
+				$EVENT = (int)trim(substr($decrypted, 6, 8));
 
-				if($EVENT == 1) // Contains the doorbell or „motion“ to detect which event was triggered
+				if ($EVENT == 1) // Contains the doorbell or „motion“ to detect which event was triggered
 				{
 					$this->SendDebug("Doorbird:", "doorbell event", 0);
 					$this->SetValue('LastRingtone', date('d.m.y H:i:s'));
 				}
 				$this->SendDebug("Doorbird Event:", $EVENT, 0);
-				$TIMESTAMP = unpack('N',substr($decrypted,14,4))[1];
+				$TIMESTAMP = unpack('N', substr($decrypted, 14, 4))[1];
 				$this->SendDebug("Doorbird Timestamp UTC:", gmdate('H:i:s d.m.Y', $TIMESTAMP), 0);
 				$this->SendDebug("Doorbird Timestamp local:", date('H:i:s d.m.Y', $TIMESTAMP), 0);
-			}
-			else
-			{
+			} else {
 				$this->SendDebug("Doorbird:", "decryption not successfull", 0);
 			}
 		}
@@ -1163,23 +1157,57 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 		$prefixips = $this->GetURLPrefix($hostips);
 		//doorbell add favorites
 
-		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/favorites.cgi?action=save&type=http&title=IPSDoorbell&value='. $prefixips . $webhookusername . ':' . $webhookpassword . '@' . $hostips . ':' . $portips .  '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=doorbell&id=111';
+		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/favorites.cgi?action=save&type=http&title=IPSDoorbell&value=' . $prefixips . $webhookusername . ':' . $webhookpassword . '@' . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=doorbell&id=111';
 		// $URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/notification.cgi?event=doorbell&subscribe=' . $selectiondoorbell . '&relaxation=' . $relaxationdoorbell . '&user=' . $webhookusername . '&password=' . $webhookpassword . '&url=' . $prefixips . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=doorbell';
-
+		$this->SendDebug("Doorbird", "Add Favorite 111 IPSDoorbell", 0);
 		$this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//motionsensor
-		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/favorites.cgi?action=save&type=http&title=IPSMotionsensor&value='. $prefixips . $webhookusername . ':' . $webhookpassword . '@' . $hostips . ':' . $portips .  '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=motionsensor&id=112';
+		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/favorites.cgi?action=save&type=http&title=IPSMotionsensor&value=' . $prefixips . $webhookusername . ':' . $webhookpassword . '@' . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=motionsensor&id=112';
 		// $URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/notification.cgi?event=motionsensor&subscribe=' . $selectionmotionsensor . '&relaxation=' . $relaxationmotionsensor . '&user=' . $webhookusername . '&password=' . $webhookpassword . '&url=' . $prefixips . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=motionsensor';
-
+		$this->SendDebug("Doorbird", "Add Favorite 112 IPSMotionsensor", 0);
 		$this->SendDoorbird($URL);
 		IPS_Sleep(300);
 		//dooropen
-		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/favorites.cgi?action=save&type=http&title=IPSDooropen&value='. $prefixips . $webhookusername . ':' . $webhookpassword . '@' . $hostips . ':' . $portips .  '?doorbirdevent=dooropen&id=113';
+		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/favorites.cgi?action=save&type=http&title=IPSDooropen&value=' . $prefixips . $webhookusername . ':' . $webhookpassword . '@' . $hostips . ':' . $portips . '?doorbirdevent=dooropen&id=113';
 		// $URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/notification.cgi?event=dooropen&subscribe=' . $selectiondooropen . '&relaxation=' . $relaxationdooropen . '&user=' . $webhookusername . '&password=' . $webhookpassword . '&url=' . $prefixips . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=dooropen';
+		$this->SendDebug("Doorbird", "Add Favorite 113 IPSDooropen", 0);
+		$this->SendDoorbird($URL);
 
-		$result = $this->SendDoorbird($URL);
-		$this->SetValue('DoorbirdReturn', $result);
+		$schedule = $this->GetSchedule();
+		$data = json_decode($schedule);
+		foreach ($data as $key => $entry) {
+			if ($entry->input == "doorbell") {
+				$output = $entry->output;
+				foreach ($output as $outputentry) {
+					$event = $outputentry->event;
+					$param = $outputentry->param;
+					if ($event == "http" && $param == "111") {
+						$this->SendDebug("Doorbird", "schedule with favorite 111 exists", 0);
+						echo "eintrag für doorbird trigger gefunden";
+					} else {
+						$this->SendDebug("Doorbird", "create schedule with favorite 111", 0);
+						$this->AddHTTPDoorbellSchedule();
+					}
+				}
+			}
+			if ($entry->input == "motion") {
+				$output = $entry->output;
+				var_dump($output);
+				foreach ($output as $outputentry) {
+					$event = $outputentry->event;
+					$param = $outputentry->param;
+					if ($event == "http" && $param == "112") {
+						$this->SendDebug("Doorbird", "schedule with favorite 112 exists", 0);
+					} else {
+						$this->SendDebug("Doorbird", "create schedule with favorite 112", 0);
+						$this->AddHTTPMotionSchedule();
+					}
+				}
+			}
+		}
+		$current_schedule = $this->GetSchedule();
+		$this->SetValue('DoorbirdReturn', $current_schedule);
 	}
 
 	public function SendDoorbird(string $URL)
@@ -1216,8 +1244,118 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 		$portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
 		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
 
-		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/favorites.cgi?action=remove&type='.$type.'&id='.$id;
+		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/favorites.cgi?action=remove&type=' . $type . '&id=' . $id;
 		$result = $this->SendDoorbird($URL);
+		return $result;
+	}
+
+	public function GetSchedule()
+	{
+		$hostdoorbird = $this->ReadPropertyString('Host');
+		$portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
+		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
+
+		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/schedule.cgi';
+		$result = $this->SendDoorbird($URL);
+		return $result;
+	}
+
+	public function AddSchedule(string $schedule)
+	{
+		$hostdoorbird = $this->ReadPropertyString('Host');
+		$portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
+		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
+
+		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/schedule.cgi';
+		$result = $this->SendDoorbirdPOST($URL, $schedule);
+		return $result;
+	}
+
+	protected function AddHTTPDoorbellSchedule()
+	{
+		$postdata =
+			[
+				'input' => 'doorbell',
+				'param' => '1',
+				'output' => [[
+					'enabled' => '1',
+					'event' => 'notify',
+					'param' => '',
+					'schedule' => [
+						'weekdays' => [[
+							'from' => '0',
+							'to' => '604799'
+						]]
+					]
+				],
+					[
+						'enabled' => '1',
+						'event' => 'http',
+						'param' => '111',
+						'schedule' => [
+							'weekdays' => [[
+								'from' => '0',
+								'to' => '604799'
+							]]
+						]
+					]]
+			];
+		$data_json = json_encode($postdata);
+		$result = $this->AddSchedule($data_json);
+		return $result;
+	}
+
+	protected function AddHTTPMotionSchedule()
+	{
+		$postdata =
+			[
+				'input' => 'motion',
+				'param' => '',
+				'output' => [[
+					'enabled' => '1',
+					'event' => 'notify',
+					'param' => '',
+					'schedule' => [
+						'weekdays' => [[
+							'from' => '0',
+							'to' => '604799'
+						]]
+					]
+				],
+					[
+						'enabled' => '1',
+						'event' => 'http',
+						'param' => '112',
+						'schedule' => [
+							'weekdays' => [[
+								'from' => '0',
+								'to' => '604799'
+							]]
+						]
+					]]
+			];
+		$data_json = json_encode($postdata);
+		$result = $this->AddSchedule($data_json);
+		return $result;
+	}
+
+	protected function SendDoorbirdPOST(string $URL, string $data_json)
+	{
+		$doorbirduser = $this->ReadPropertyString('User');
+		$doorbirdpassword = $this->ReadPropertyString('Password');
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $URL);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Content-Length: ' . strlen($data_json)));
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 30); //timeout after 30 seconds
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+		curl_setopt($ch, CURLOPT_USERPWD, "$doorbirduser:$doorbirdpassword");
+		$status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);   //get status code
+		$this->SendDebug("Doorbird Status Code", $status_code, 0);
+		$result = curl_exec($ch);
+		curl_close($ch);
 		return $result;
 	}
 

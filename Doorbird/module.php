@@ -842,8 +842,7 @@ class Doorbird extends IPSModule
 
 				if ($EVENT == 1) // Contains the doorbell or „motion“ to detect which event was triggered
 				{
-					$this->SendDebug("Doorbird:", "doorbell event", 0);
-					$this->SetValue('LastRingtone', date('d.m.y H:i:s'));
+					$this->SetLastRingtone();
 				}
 				$this->SendDebug("Doorbird Event:", $EVENT, 0);
 				$TIMESTAMP = unpack('N', substr($decrypted, 14, 4))[1];
@@ -852,6 +851,40 @@ class Doorbird extends IPSModule
 			} else {
 				$this->SendDebug("Doorbird:", "decryption not successfull", 0);
 			}
+		}
+	}
+
+	protected function SetLastRingtone()
+	{
+		$relaxationdoorbell = $this->ReadPropertyInteger('relaxationdoorbell');
+		$last_write = IPS_GetVariable($this->GetIDForIdent("LastRingtone"))["VariableChanged"];
+		$current_time = time();
+		if(($current_time - $last_write) > $relaxationdoorbell)
+		{
+			$this->SendDebug("Doorbird:", "doorbell event", 0);
+			$this->SetValue('LastRingtone', date('d.m.y H:i:s'));
+		}
+	}
+
+	protected function SetLastMovement()
+	{
+		$relaxationmotionsensor = $this->ReadPropertyInteger('relaxationmotionsensor');
+		$last_write = IPS_GetVariable($this->GetIDForIdent("LastMovement"))["VariableChanged"];
+		$current_time = time();
+		if(($current_time - $last_write) > $relaxationmotionsensor) {
+			$this->SendDebug("Doorbird:", "motionsensor event", 0);
+			$this->SetValue('LastMovement', date('d.m.y H:i:s'));
+		}
+	}
+
+	protected function SetLastDoorOpen()
+	{
+		$relaxationdooropen = $this->ReadPropertyInteger('relaxationdooropen');
+		$last_write = IPS_GetVariable($this->GetIDForIdent("LastDoorOpen"))["VariableChanged"];
+		$current_time = time();
+		if(($current_time - $last_write) > $relaxationdooropen) {
+			$this->SendDebug("Doorbird:", "dooropen event", 0);
+			$this->SetValue('LastDoorOpen', date('d.m.y H:i:s'));
 		}
 	}
 
@@ -1063,11 +1096,11 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 		if (isset($_GET["doorbirdevent"])) {
 			$data = $_GET["doorbirdevent"];
 			if ($data == "doorbell") {
-				$this->SetValue('LastRingtone', date('d.m.y H:i:s'));
+				$this->SetLastRingtone();
 			} elseif ($data == "motionsensor") {
-				$this->SetValue('LastMovement', date('d.m.y H:i:s'));
+				$this->SetLastMovement();
 			} elseif ($data == "dooropen") {
-				$this->SetValue('LastDoorOpen', date('d.m.y H:i:s'));
+				$this->SetLastDoorOpen();
 			}
 		}
 	}
@@ -1111,14 +1144,12 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 			$this->SendDebug("Doorbird:", json_encode($_GET), 0);
 			$data = $_GET["doorbirdevent"];
 			if ($data == "doorbell") {
-				$this->SendDebug("Doorbird:", "doorbell event", 0);
-				$this->SetValue('LastRingtone', date('d.m.y H:i:s'));
+				$this->SetLastRingtone();
 			} elseif ($data == "motionsensor") {
-				$this->SendDebug("Doorbird:", "motionsensor event", 0);
-				$this->SetValue('LastMovement', date('d.m.y H:i:s'));
+				$this->SetLastMovement();
 			} elseif ($data == "dooropen") {
 				$this->SendDebug("Doorbird:", "dooropen event", 0);
-				$this->SetValue('LastDoorOpen', date('d.m.y H:i:s'));
+				$this->SetLastDoorOpen();
 			}
 		}
 	}
@@ -1138,21 +1169,18 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 		} else {
 			$selectiondoorbell = 0;
 		}
-		$relaxationdoorbell = $this->ReadPropertyInteger('relaxationdoorbell');
 		$selectionmotionsensor = $this->ReadPropertyBoolean('motionsensor');
 		if ($selectionmotionsensor == true) {
 			$selectionmotionsensor = 1;
 		} else {
 			$selectionmotionsensor = 0;
 		}
-		$relaxationmotionsensor = $this->ReadPropertyInteger('relaxationmotionsensor');
 		$selectiondooropen = $this->ReadPropertyBoolean('dooropen');
 		if ($selectiondooropen == true) {
 			$selectiondooropen = 1;
 		} else {
 			$selectiondooropen = 0;
 		}
-		$relaxationdooropen = $this->ReadPropertyInteger('relaxationdooropen');
 		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
 		$prefixips = $this->GetURLPrefix($hostips);
 		//doorbell add favorites

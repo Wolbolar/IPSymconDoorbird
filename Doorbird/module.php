@@ -1184,7 +1184,6 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 					$param = $outputentry->param;
 					if ($event == "http" && $param == "111") {
 						$this->SendDebug("Doorbird", "schedule with favorite 111 exists", 0);
-						echo "eintrag für doorbird trigger gefunden";
 					} else {
 						$this->SendDebug("Doorbird", "create schedule with favorite 111", 0);
 						$this->AddHTTPDoorbellSchedule();

@@ -270,7 +270,7 @@ class Doorbird extends IPSModule
 		$this->RegisterVariableString("Buildnumber", "Doorbird Build Number", "Doorbird.Buildnumber", 8);
 		$this->RegisterProfileStringDoorbird("Doorbird.MAC", "Notebook");
 		$this->RegisterVariableString("MACAdress", "Doorbird WLAN MAC", "Doorbird.MAC", 9);
-		$this->RegisterVariableString("DoorbirdReturn", "Doorbird Return", "~String", 25);
+		$this->RegisterVariableString("DoorbirdReturn", "Doorbird Return", "", 25);
 		IPS_SetHidden($this->GetIDForIdent('DoorbirdReturn'), true);
 		$lightass = Array(
 			Array(0, "Licht einschalten", "Light", -1)
@@ -1148,7 +1148,6 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 			} elseif ($data == "motionsensor") {
 				$this->SetLastMovement();
 			} elseif ($data == "dooropen") {
-				$this->SendDebug("Doorbird:", "dooropen event", 0);
 				$this->SetLastDoorOpen();
 			}
 		}

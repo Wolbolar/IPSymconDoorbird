@@ -779,7 +779,6 @@ class Doorbird extends IPSModule
 
 	public function ReceiveData($JSONString)
 	{
-
 		// $this->SendDebug("Doorbird:", $JSONString, 0);
 		$payload_udp = json_decode($JSONString);
 		// $type = $payload->Type;
@@ -787,11 +786,14 @@ class Doorbird extends IPSModule
 		$dataraw = utf8_decode($payload_udp->Buffer);
 		$doorbird_user = $this->ReadPropertyString('User_1');
 		$INTERCOM_ID = substr($doorbird_user, 0, 6);
-		$data = explode(":", $dataraw);
-		$doorbird_id = $data[1];
 		$doorbird_password = $this->ReadPropertyString('Password_1');
-		if ($doorbird_id == $INTERCOM_ID) {
-			$this->SendDebug("Doorbird Recieve:", $payload_udp->Buffer, 0);
+		$data = explode(":", $dataraw);
+		if (isset($data[1])) {
+			$doorbird_id = $data[1];
+
+			if ($doorbird_id == $INTERCOM_ID) {
+				$this->SendDebug("Doorbird Recieve:", $payload_udp->Buffer, 0);
+			}
 		} else {
 			// Step 1: get packet via UDP:
 			$payload = utf8_decode($payload_udp->Buffer);
@@ -859,8 +861,7 @@ class Doorbird extends IPSModule
 		$relaxationdoorbell = $this->ReadPropertyInteger('relaxationdoorbell');
 		$last_write = IPS_GetVariable($this->GetIDForIdent("LastRingtone"))["VariableChanged"];
 		$current_time = time();
-		if(($current_time - $last_write) > $relaxationdoorbell)
-		{
+		if (($current_time - $last_write) > $relaxationdoorbell) {
 			$this->SendDebug("Doorbird:", "doorbell event", 0);
 			$this->SetValue('LastRingtone', date('d.m.y H:i:s'));
 		}
@@ -871,7 +872,7 @@ class Doorbird extends IPSModule
 		$relaxationmotionsensor = $this->ReadPropertyInteger('relaxationmotionsensor');
 		$last_write = IPS_GetVariable($this->GetIDForIdent("LastMovement"))["VariableChanged"];
 		$current_time = time();
-		if(($current_time - $last_write) > $relaxationmotionsensor) {
+		if (($current_time - $last_write) > $relaxationmotionsensor) {
 			$this->SendDebug("Doorbird:", "motionsensor event", 0);
 			$this->SetValue('LastMovement', date('d.m.y H:i:s'));
 		}
@@ -882,7 +883,7 @@ class Doorbird extends IPSModule
 		$relaxationdooropen = $this->ReadPropertyInteger('relaxationdooropen');
 		$last_write = IPS_GetVariable($this->GetIDForIdent("LastDoorOpen"))["VariableChanged"];
 		$current_time = time();
-		if(($current_time - $last_write) > $relaxationdooropen) {
+		if (($current_time - $last_write) > $relaxationdooropen) {
 			$this->SendDebug("Doorbird:", "dooropen event", 0);
 			$this->SetValue('LastDoorOpen', date('d.m.y H:i:s'));
 		}

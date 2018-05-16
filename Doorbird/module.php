@@ -766,13 +766,11 @@ class Doorbird extends IPSModule
 			$email = $this->ReadPropertyString("email");
 			$this->EmailAlert($email);
 			$this->SendDebug("Doorbird recieved LastRingtone at", date("H:i", time()), 0);
-			//IPS_LogMessage("Doorbird", "Message from SenderID ".$SenderID." with Message ".$Message."\r\n Data: ".print_r($Data, true));
-			IPS_LogMessage("Doorbird", "Message from SenderID " . $SenderID . " with Message " . $Message . "\r\n Data: " . print_r($Data, true));
+			$this->SendDebug("Doorbird", "Message from SenderID ".$SenderID." with Message ".$Message."\r\n Data: ".print_r($Data, true), 0);
 		} elseif ($SenderID == $this->GetIDForIdent('LastMovement')) {
 			$this->GetSnapshot();
 			$this->SendDebug("Doorbird recieved LastMovement at", date("H:i", time()), 0);
-			//IPS_LogMessage("Doorbird", "Message from SenderID ".$SenderID." with Message ".$Message."\r\n Data: ".print_r($Data, true));
-			IPS_LogMessage("Doorbird", "Message from SenderID " . $SenderID . " with Message " . $Message . "\r\n Data: " . print_r($Data, true));
+			$this->SendDebug("Doorbird", "Message from SenderID " . $SenderID . " with Message " . $Message . "\r\n Data: " . print_r($Data, true), 0);
 		}
 
 	}

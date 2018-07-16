@@ -1390,13 +1390,23 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 		$prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
 		$URL = $prefixdoorbird . $hostdoorbird . '/bha-api/info.cgi';
 		$result = $this->SendDoorbird($URL);
+		$this->SendDebug("Doorbird Info:", $result, 0);
 		$result = json_decode($result);
-		$firmware = $result->BHA->VERSION[0]->FIRMWARE;
-		$this->SetValue('FirmwareVersion', $firmware);
-		$buildnumber = $result->BHA->VERSION[0]->BUILD_NUMBER;
-		$this->SetValue('Buildnumber', $buildnumber);
-		$wifimacaddr = $result->BHA->VERSION[0]->WIFI_MAC_ADDR;
-		$this->SetValue('MACAdress', $wifimacaddr);
+		if(isset($result->BHA->VERSION[0]->FIRMWARE))
+		{
+			$firmware = $result->BHA->VERSION[0]->FIRMWARE;
+			$this->SetValue('FirmwareVersion', $firmware);
+		}
+		if(isset($result->BHA->VERSION[0]->BUILD_NUMBER))
+		{
+			$buildnumber = $result->BHA->VERSION[0]->BUILD_NUMBER;
+			$this->SetValue('Buildnumber', $buildnumber);
+		}
+		if(isset($result->BHA->VERSION[0]->WIFI_MAC_ADDR))
+		{
+			$wifimacaddr = $result->BHA->VERSION[0]->WIFI_MAC_ADDR;
+			$this->SetValue('MACAdress', $wifimacaddr);
+		}
 		return $result;
 	}
 

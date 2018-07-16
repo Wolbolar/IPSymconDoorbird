@@ -82,8 +82,10 @@ In diese beiden Kategorien werden dann später vom Modul bei einem Klingelsignal
 Wir legen also eine Kategorie an der gewünschten Position im Objektbaum an (_CTRL+0_) und benennen diese z.B. mit den Namen _Doorbird Besucherhistorie_ und _Doorbird Klingelhistorie_.
 	
 In IP-Symcon nun _Instanz hinzufügen_ (_CTRL+1_) auswählen unter der Kategorie, unter der man die Doorbird hinzufügen will, und _Doorbird_ auswählen.
-Im Konfigurationsformular ist der Doorbird User und das Doorbird Passwort zu ergänzen. Hierbei ist darauf zu achten, dass in der Doorbird App unter _Einstellungen_ (Zahnrad) unter _Weitere Funktionen_ ->
+Im Konfigurationsformular wird zwei mal ein Doorbird User und das Doorbird Passwort abgefragt. Hierbei ist darauf zu achten, dass in der Doorbird App unter _Einstellungen_ (Zahnrad) unter _Weitere Funktionen_ ->
 _Administration_ ein neuer Nutzer angelegt worden ist. Es muss ein Nutzer mit User und Passwort im Modul eingetragen werden und nicht der Administrator Account benutzt werden.
+Es kann ein spezieller Nutzer für IP-Symcon in der Doorbird App angelegt werden, dieser muss in der Doorbird App unter Berechtigungen die Berechtigung als _API Operator_ zugewiesen bekommen.
+Desweiteren ist im Konfiguartionsformular die Daten des Doorbird Nutzers mit der ID 0001 einzutragen. Dieser Benutzer wird gebraucht um Daten, die von der Doorbird verschlüsselt übertragen werden, zu entschlüsseln. 
 Wenn bereits ein Nutzer angelegt worden ist, können Username und Passwort in der Doorbird App nachgeschlagen werden. Die IP Adresse von Doorbird
 und die IP Adresse von IP-Symcon ist zu ergänzen.
 
@@ -164,7 +166,13 @@ Schaltet die IR Lampen des Doorbird ein, entspricht Lampen Button in der App
 
 `Doorbird_OpenDoor(integer $InstanceID)`
 
-Betätigt den Türöffner der Doorbird       
+Betätigt den Türöffner der Doorbird   
+
+`Doorbird_GetFavorites(integer $InstanceID)`
+
+Liest Favoriten aus der Doorbird aus  
+
+   
 
 
 

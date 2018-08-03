@@ -1202,37 +1202,45 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 
 		$schedule = $this->GetSchedule();
 		$data = json_decode($schedule);
-		foreach ($data as $key => $entry) {
-			if ($entry->input == "doorbell") {
-				$output = $entry->output;
-				foreach ($output as $outputentry) {
-					$event = $outputentry->event;
-					$param = $outputentry->param;
-					if ($event == "http" && $param == "111") {
-						$this->SendDebug("Doorbird", "schedule with favorite 111 exists", 0);
-					} else {
-						$this->SendDebug("Doorbird", "create schedule with favorite 111", 0);
-						$this->AddHTTPDoorbellSchedule();
-					}
-				}
-			}
-			if ($entry->input == "motion") {
-				$output = $entry->output;
-				var_dump($output);
-				foreach ($output as $outputentry) {
-					$event = $outputentry->event;
-					$param = $outputentry->param;
-					if ($event == "http" && $param == "112") {
-						$this->SendDebug("Doorbird", "schedule with favorite 112 exists", 0);
-					} else {
-						$this->SendDebug("Doorbird", "create schedule with favorite 112", 0);
-						$this->AddHTTPMotionSchedule();
-					}
-				}
-			}
+		if(is_null($data))
+		{
+			$this->SendDebug("Doorbird", "could not get schedule", 0);
+			echo "could not get schedule";
 		}
-		$current_schedule = $this->GetSchedule();
-		$this->SetValue('DoorbirdReturn', $current_schedule);
+		else
+		{
+			foreach ($data as $key => $entry) {
+				if ($entry->input == "doorbell") {
+					$output = $entry->output;
+					foreach ($output as $outputentry) {
+						$event = $outputentry->event;
+						$param = $outputentry->param;
+						if ($event == "http" && $param == "111") {
+							$this->SendDebug("Doorbird", "schedule with favorite 111 exists", 0);
+						} else {
+							$this->SendDebug("Doorbird", "create schedule with favorite 111", 0);
+							$this->AddHTTPDoorbellSchedule();
+						}
+					}
+				}
+				if ($entry->input == "motion") {
+					$output = $entry->output;
+					var_dump($output);
+					foreach ($output as $outputentry) {
+						$event = $outputentry->event;
+						$param = $outputentry->param;
+						if ($event == "http" && $param == "112") {
+							$this->SendDebug("Doorbird", "schedule with favorite 112 exists", 0);
+						} else {
+							$this->SendDebug("Doorbird", "create schedule with favorite 112", 0);
+							$this->AddHTTPMotionSchedule();
+						}
+					}
+				}
+			}
+			$current_schedule = $this->GetSchedule();
+			$this->SetValue('DoorbirdReturn', $current_schedule);
+		}
 	}
 
 	public function SendDoorbird(string $URL)
@@ -1282,6 +1290,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 
 		$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/schedule.cgi';
 		$result = $this->SendDoorbird($URL);
+		$this->SendDebug("Doorbird Schedule", $result, 0);
 		return $result;
 	}
 

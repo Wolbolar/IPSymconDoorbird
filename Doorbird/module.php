@@ -1212,7 +1212,6 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 			foreach ($data as $key => $entry) {
 				if ($entry->input == "doorbell") {
 					$output = $entry->output;
-					$this->SendDebug("Doorbird Doorbell", json_encode($output), 0);
 					foreach ($output as $outputentry) {
 						$event = $outputentry->event;
 						$param = $outputentry->param;
@@ -1226,7 +1225,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 				}
 				if ($entry->input == "motion") {
 					$output = $entry->output;
-					$this->SendDebug("Doorbird Motion", json_encode($output), 0);
+					var_dump($output);
 					foreach ($output as $outputentry) {
 						$event = $outputentry->event;
 						$param = $outputentry->param;

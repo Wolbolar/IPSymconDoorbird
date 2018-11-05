@@ -842,7 +842,11 @@ class Doorbird extends IPSModule
 
 				if ($EVENT == 1) // Contains the doorbell or „motion“ to detect which event was triggered
 				{
-					$this->SetLastRingtone();
+					$this->SetLastRingtone(1);
+				}
+				if ($EVENT == 101) // Contains the doorbell or „motion“ to detect which event was triggered
+				{
+					$this->SetLastRingtone(2);
 				}
 				$this->SendDebug("Doorbird Event:", $EVENT, 0);
 				$TIMESTAMP = unpack('N', substr($decrypted, 14, 4))[1];
@@ -854,14 +858,28 @@ class Doorbird extends IPSModule
 		}
 	}
 
-	protected function SetLastRingtone()
+	protected function SetLastRingtone($doorbellid)
 	{
 		$relaxationdoorbell = $this->ReadPropertyInteger('relaxationdoorbell');
-		$last_write = IPS_GetVariable($this->GetIDForIdent("LastRingtone"))["VariableChanged"];
+		if($doorbellid = 1)
+		{
+			$last_write = IPS_GetVariable($this->GetIDForIdent("LastRingtone"))["VariableChanged"];
+		}
+		else
+		{
+			$last_write = IPS_GetVariable($this->GetIDForIdent("LastRingtone".$doorbellid))["VariableChanged"];
+		}
 		$current_time = time();
 		if (($current_time - $last_write) > $relaxationdoorbell) {
 			$this->SendDebug("Doorbird:", "doorbell event", 0);
-			$this->SetValue('LastRingtone', date('d.m.y H:i:s'));
+			if($doorbellid = 1)
+			{
+				$this->SetValue('LastRingtone', date('d.m.y H:i:s'));
+			}
+			else
+			{
+				$this->SetValue('LastRingtone'.$doorbellid, date('d.m.y H:i:s'));
+			}
 		}
 	}
 

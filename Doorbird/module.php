@@ -1113,7 +1113,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 		if (isset($_GET["doorbirdevent"])) {
 			$data = $_GET["doorbirdevent"];
 			if ($data == "doorbell") {
-				$this->SetLastRingtone();
+				$this->SetLastRingtone(1);
 			} elseif ($data == "motionsensor") {
 				$this->SetLastMovement();
 			} elseif ($data == "dooropen") {
@@ -1161,7 +1161,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 			$this->SendDebug("Doorbird:", json_encode($_GET), 0);
 			$data = $_GET["doorbirdevent"];
 			if ($data == "doorbell") {
-				$this->SetLastRingtone();
+				$this->SetLastRingtone(1);
 			} elseif ($data == "motionsensor") {
 				$this->SetLastMovement();
 			} elseif ($data == "dooropen") {

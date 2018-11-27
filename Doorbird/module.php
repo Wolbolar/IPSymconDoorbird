@@ -448,6 +448,14 @@ class Doorbird extends IPSModule
 					$this->RegisterMessage($this->GetIDForIdent('LastRingtone'), VM_UPDATE);
 					$this->SendDebug("Doorbird", "Register Message LastRingtone", 0);
 				}
+				if ($this->GetIDForIdent('LastRingtone2') > 0) {
+					$this->RegisterMessage($this->GetIDForIdent('LastRingtone2'), VM_UPDATE);
+					$this->SendDebug("Doorbird", "Register Message LastRingtone2", 0);
+				}
+				if ($this->GetIDForIdent('LastRingtone3') > 0) {
+					$this->RegisterMessage($this->GetIDForIdent('LastRingtone3'), VM_UPDATE);
+					$this->SendDebug("Doorbird", "Register Message LastRingtone3", 0);
+				}
 			}
 
 			if ($ipsversion >= 1) {
@@ -766,8 +774,23 @@ class Doorbird extends IPSModule
 			$email = $this->ReadPropertyString("email");
 			$this->EmailAlert($email);
 			$this->SendDebug("Doorbird recieved LastRingtone at", date("H:i", time()), 0);
-			$this->SendDebug("Doorbird", "Message from SenderID ".$SenderID." with Message ".$Message."\r\n Data: ".print_r($Data, true), 0);
-		} elseif ($SenderID == $this->GetIDForIdent('LastMovement')) {
+			$this->SendDebug("Doorbird", "Message from SenderID " . $SenderID . " with Message " . $Message . "\r\n Data: " . print_r($Data, true), 0);
+		}
+		if ($SenderID == $this->GetIDForIdent('LastRingtone2')) {
+			$this->GetRingPicture();
+			$email = $this->ReadPropertyString("email");
+			$this->EmailAlert($email);
+			$this->SendDebug("Doorbird recieved LastRingtone2 at", date("H:i", time()), 0);
+			$this->SendDebug("Doorbird", "Message from SenderID " . $SenderID . " with Message " . $Message . "\r\n Data: " . print_r($Data, true), 0);
+		}
+		if ($SenderID == $this->GetIDForIdent('LastRingtone3')) {
+			$this->GetRingPicture();
+			$email = $this->ReadPropertyString("email");
+			$this->EmailAlert($email);
+			$this->SendDebug("Doorbird recieved LastRingtone3 at", date("H:i", time()), 0);
+			$this->SendDebug("Doorbird", "Message from SenderID " . $SenderID . " with Message " . $Message . "\r\n Data: " . print_r($Data, true), 0);
+		}
+		if ($SenderID == $this->GetIDForIdent('LastMovement')) {
 			$this->GetSnapshot();
 			$this->SendDebug("Doorbird recieved LastMovement at", date("H:i", time()), 0);
 			$this->SendDebug("Doorbird", "Message from SenderID " . $SenderID . " with Message " . $Message . "\r\n Data: " . print_r($Data, true), 0);
@@ -858,27 +881,21 @@ class Doorbird extends IPSModule
 		}
 	}
 
-	protected function SetLastRingtone($doorbellid)
+	protected function SetLastRingtone($doorbell_id)
 	{
 		$relaxationdoorbell = $this->ReadPropertyInteger('relaxationdoorbell');
-		if($doorbellid = 1)
-		{
+		if ($doorbell_id == 1) {
 			$last_write = IPS_GetVariable($this->GetIDForIdent("LastRingtone"))["VariableChanged"];
-		}
-		else
-		{
-			$last_write = IPS_GetVariable($this->GetIDForIdent("LastRingtone".$doorbellid))["VariableChanged"];
+		} else {
+			$last_write = IPS_GetVariable($this->GetIDForIdent("LastRingtone" . $doorbell_id))["VariableChanged"];
 		}
 		$current_time = time();
 		if (($current_time - $last_write) > $relaxationdoorbell) {
 			$this->SendDebug("Doorbird:", "doorbell event", 0);
-			if($doorbellid = 1)
-			{
+			if ($doorbellid = 1) {
 				$this->SetValue('LastRingtone', date('d.m.y H:i:s'));
-			}
-			else
-			{
-				$this->SetValue('LastRingtone'.$doorbellid, date('d.m.y H:i:s'));
+			} else {
+				$this->SetValue('LastRingtone' . $doorbellid, date('d.m.y H:i:s'));
 			}
 		}
 	}
@@ -1113,7 +1130,16 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 		if (isset($_GET["doorbirdevent"])) {
 			$data = $_GET["doorbirdevent"];
 			if ($data == "doorbell") {
-				$this->SetLastRingtone(1);
+				$id = $_GET["id"];
+				if ($id == "111") {
+					$this->SetLastRingtone(1);
+				}
+				if ($id == "211") {
+					$this->SetLastRingtone(2);
+				}
+				if ($id == "311") {
+					$this->SetLastRingtone(3);
+				}
 			} elseif ($data == "motionsensor") {
 				$this->SetLastMovement();
 			} elseif ($data == "dooropen") {
@@ -1161,7 +1187,20 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 			$this->SendDebug("Doorbird:", json_encode($_GET), 0);
 			$data = $_GET["doorbirdevent"];
 			if ($data == "doorbell") {
-				$this->SetLastRingtone(1);
+				$id = $_GET["id"];
+				if ($id == "111") {
+					$this->SetLastRingtone(1);
+				}
+				if ($id == "211") {
+					$this->SetLastRingtone(2);
+				}
+				if ($id == "311") {
+					$this->SetLastRingtone(3);
+				}
+			} elseif ($data == "motionsensor") {
+				$this->SetLastMovement();
+			} elseif ($data == "motionsensor") {
+				$this->SetLastMovement();
 			} elseif ($data == "motionsensor") {
 				$this->SetLastMovement();
 			} elseif ($data == "dooropen") {
@@ -1217,16 +1256,30 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 		// $URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/notification.cgi?event=dooropen&subscribe=' . $selectiondooropen . '&relaxation=' . $relaxationdooropen . '&user=' . $webhookusername . '&password=' . $webhookpassword . '&url=' . $prefixips . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=dooropen';
 		$this->SendDebug("Doorbird", "Add Favorite 113 IPSDooropen", 0);
 		$this->SendDoorbird($URL);
+		IPS_Sleep(300);
+		$model = $this->ReadPropertyInteger("model");
+		if ($model == 4 || $model == 5) {
+			$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/favorites.cgi?action=save&type=http&title=IPSDoorbell2&value=' . $prefixips . $webhookusername . ':' . $webhookpassword . '@' . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=doorbell&id=211';
+			// $URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/notification.cgi?event=doorbell&subscribe=' . $selectiondoorbell . '&relaxation=' . $relaxationdoorbell . '&user=' . $webhookusername . '&password=' . $webhookpassword . '&url=' . $prefixips . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=doorbell';
+			$this->SendDebug("Doorbird", "Add Favorite 211 IPSDoorbell2", 0);
+			$this->SendDoorbird($URL);
+			IPS_Sleep(300);
+		}
+		if ($model == 5) {
+			$URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/favorites.cgi?action=save&type=http&title=IPSDoorbell3&value=' . $prefixips . $webhookusername . ':' . $webhookpassword . '@' . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=doorbell&id=311';
+			// $URL = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/notification.cgi?event=doorbell&subscribe=' . $selectiondoorbell . '&relaxation=' . $relaxationdoorbell . '&user=' . $webhookusername . '&password=' . $webhookpassword . '&url=' . $prefixips . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=doorbell';
+			$this->SendDebug("Doorbird", "Add Favorite 311 IPSDoorbell3", 0);
+			$this->SendDoorbird($URL);
+			IPS_Sleep(300);
+		}
+
 
 		$schedule = $this->GetSchedule();
 		$data = json_decode($schedule);
-		if(is_null($data))
-		{
+		if (is_null($data)) {
 			$this->SendDebug("Doorbird", "could not get schedule", 0);
 			echo "could not get schedule";
-		}
-		else
-		{
+		} else {
 			foreach ($data as $key => $entry) {
 				if ($entry->input == "doorbell") {
 					$output = $entry->output;
@@ -1421,18 +1474,15 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 		$result = $this->SendDoorbird($URL);
 		$this->SendDebug("Doorbird Info:", $result, 0);
 		$result = json_decode($result);
-		if(isset($result->BHA->VERSION[0]->FIRMWARE))
-		{
+		if (isset($result->BHA->VERSION[0]->FIRMWARE)) {
 			$firmware = $result->BHA->VERSION[0]->FIRMWARE;
 			$this->SetValue('FirmwareVersion', $firmware);
 		}
-		if(isset($result->BHA->VERSION[0]->BUILD_NUMBER))
-		{
+		if (isset($result->BHA->VERSION[0]->BUILD_NUMBER)) {
 			$buildnumber = $result->BHA->VERSION[0]->BUILD_NUMBER;
 			$this->SetValue('Buildnumber', $buildnumber);
 		}
-		if(isset($result->BHA->VERSION[0]->WIFI_MAC_ADDR))
-		{
+		if (isset($result->BHA->VERSION[0]->WIFI_MAC_ADDR)) {
 			$wifimacaddr = $result->BHA->VERSION[0]->WIFI_MAC_ADDR;
 			$this->SetValue('MACAdress', $wifimacaddr);
 		}

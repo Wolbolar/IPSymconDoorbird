@@ -150,10 +150,17 @@ if (@constant('IPS_BASE') == null) //Nur wenn Konstanten noch nicht bekannt sind
 
 class Doorbird extends IPSModule
 {
+	private const D101 = 1; // D101
+	private const D202 = 2; // D202
+	private const D2101V = 3; // D2101V
+	private const D2102V = 4; // D2102V
+	private const D2103V = 5; // D2103V
+	private const D21DKV = 6; // D21DKV
+	private const D21DKH = 7; // D21DKH
 
 	public function Create()
 	{
-//Never delete this line!
+		//Never delete this line!
 		parent::Create();
 
 		//These lines are parsed on Symcon Startup or Instance creation
@@ -247,14 +254,14 @@ class Doorbird extends IPSModule
 		$this->RegisterVariableString("DoorbirdVideo", "Doorbird Video", "~HTMLBox", 1);
 		$this->RegisterProfileStringDoorbird("Doorbird.Ring", "Alert");
 		$model = $this->ReadPropertyInteger("model");
-		if ($model == 1 || $model == 2 || $model == 3 || $model == 6 || $model == 7) {
+		if ($model == self::D101 || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH) {
 			$this->RegisterVariableString("LastRingtone", "Zeitpunkt letztes Klingelsignal", "Doorbird.Ring", 2);
 		}
-		if ($model == 4) {
+		if ($model == self::D2102V) {
 			$this->RegisterVariableString("LastRingtone", "Zeitpunkt letztes Klingelsignal", "Doorbird.Ring", 2);
 			$this->RegisterVariableString("LastRingtone2", "Zeitpunkt letztes Klingelsignal 2", "Doorbird.Ring", 3);
 		}
-		if ($model == 5) {
+		if ($model == self::D2103V) {
 			$this->RegisterVariableString("LastRingtone", "Zeitpunkt letztes Klingelsignal", "Doorbird.Ring", 2);
 			$this->RegisterVariableString("LastRingtone2", "Zeitpunkt letztes Klingelsignal 2", "Doorbird.Ring", 3);
 			$this->RegisterVariableString("LastRingtone3", "Zeitpunkt letztes Klingelsignal 3", "Doorbird.Ring", 4);
@@ -363,7 +370,7 @@ class Doorbird extends IPSModule
 			if ($selectionaltview) {
 				$DoorbirdVideoHTML = '<img src="' . $prefix . $hostdoorbell . ':' . $portdoorbell . '/bha-api/video.cgi?http-user=' . $doorbirduser . '&http-password=' . $password . '" style="width: 960px; height:540px;" >';
 			} else {
-				$DoorbirdVideoHTML = '<iframe src="' . $prefix . $hostdoorbell . ':' . $portdoorbell . '/bha-api/video.cgi?http-user=' . $doorbirduser . '&http-password=' . $password . '" border="0" frameborder="0" style= "width: 100%; height: 500px;"/></iframe>';
+				$DoorbirdVideoHTML = '<iframe src="' . $prefix . $hostdoorbell . ':' . $portdoorbell . '/bha-api/video.cgi?http-user=' . $doorbirduser . '&http-password=' . $password . '"  frameborder="0" style= "width: 100%; height: 500px;"/></iframe>';
 			}
 			$this->SetValue('DoorbirdVideo', $DoorbirdVideoHTML);
 
@@ -449,13 +456,13 @@ class Doorbird extends IPSModule
 					$this->RegisterMessage($this->GetIDForIdent('LastRingtone'), VM_UPDATE);
 					$this->SendDebug("Doorbird", "Register Message LastRingtone", 0);
 				}
-				if($model == 4 || $model == 5) {
+				if($model == self::D2102V || $model == self::D2103V) {
 					if ($this->GetIDForIdent('LastRingtone2') > 0) {
 						$this->RegisterMessage($this->GetIDForIdent('LastRingtone2'), VM_UPDATE);
 						$this->SendDebug("Doorbird", "Register Message LastRingtone2", 0);
 					}
 				}
-				if($model == 5) {
+				if($model == self::D2103V) {
 					if ($this->GetIDForIdent('LastRingtone3') > 0) {
 						$this->RegisterMessage($this->GetIDForIdent('LastRingtone3'), VM_UPDATE);
 						$this->SendDebug("Doorbird", "Register Message LastRingtone3", 0);
@@ -536,7 +543,8 @@ class Doorbird extends IPSModule
 
 	public function GetConfigurationForParent()
 	{
-		$Config['Host'] = $this->GetHostIP();
+		// todo IP 0.0.0.0
+		// $Config['Host'] = $this->GetHostIP();
 		$Config['Port'] = 6524;
 		$Config['BindPort'] = 6524;
 		return json_encode($Config);
@@ -1873,6 +1881,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
             [
                { "type": "Select", "name": "model", "caption": "model",
 					"options": [
+						{ "label": "Please select a modell", "value": 0 },
 						{ "label": "D101", "value": 1 },
 						{ "label": "D202", "value": 2 },
 						{ "label": "D2101V", "value": 3 },

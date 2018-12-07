@@ -243,7 +243,7 @@ class Doorbird extends IPSModule
 		$this->RegisterPropertyString("webhookpassword", "useripsh0me");
 		$this->RegisterPropertyInteger("categoryhistory", 0);
 		$this->RegisterPropertyInteger("categorysnapshot", 0);
-		$this->RegisterPropertyInteger("model", 1);
+		$this->RegisterPropertyInteger("model", 0);
 	}
 
 	public function ApplyChanges()

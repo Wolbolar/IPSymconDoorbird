@@ -1207,9 +1207,15 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 			$_SERVER['PHP_AUTH_USER'] = "";
 			$this->SendDebug("Doorbird:", "Webhook user is empty", 0);
 		}
+		if (isset($_SERVER['PHP_AUTH_USER'])) {
+			$this->SendDebug("Doorbird Recieve:", "webhook user: " . $_SERVER['PHP_AUTH_USER'], 0);
+		}
 		if (!isset($_SERVER['PHP_AUTH_PW'])) {
 			$_SERVER['PHP_AUTH_PW'] = "";
 			$this->SendDebug("Doorbird:", "Webhook password is empty", 0);
+		}
+		if (isset($_SERVER['PHP_AUTH_PW'])) {
+			$this->SendDebug("Doorbird Recieve:", "webhook password: " . $_SERVER['PHP_AUTH_PW'], 0);
 		}
 
 		if (($_SERVER['PHP_AUTH_USER'] != $webhookusername) || ($_SERVER['PHP_AUTH_PW'] != $webhookpassword)) {

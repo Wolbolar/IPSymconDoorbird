@@ -313,14 +313,23 @@ class Doorbird extends IPSModule
 	private function ValidateConfiguration()
 	{
 		$hostdoorbell = $this->ReadPropertyString('Host');
+		$this->SendDebug("Doorbird", "Doorbird adress: " . $hostdoorbell, 0);
 		$hostips = $this->ReadPropertyString('IPSIP');
+		$this->SendDebug("Doorbird", "IP Symcon IP: " . $hostips, 0);
 		$doorbirduser = $this->ReadPropertyString('User');
+		$this->SendDebug("Doorbird", "Doorbird User: " . $doorbirduser, 0);
 		$password = $this->ReadPropertyString('Password');
+		$this->SendDebug("Doorbird", "Password: " . $password, 0);
 		$doorbirduser_1 = $this->ReadPropertyString('User_1');
+		$this->SendDebug("Doorbird", "Doorbird User 1: " . $doorbirduser_1, 0);
 		$password_1 = $this->ReadPropertyString('Password_1');
+		$this->SendDebug("Doorbird", "Password User 1: " . $password_1, 0);
 		$portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
+		$this->SendDebug("Doorbird", "Port: " . $portdoorbell, 0);
 		$webhookusername = $this->ReadPropertyString('webhookusername');
+		$this->SendDebug("Doorbird", "Webhook User: " . $webhookusername, 0);
 		$webhookpassword = $this->ReadPropertyString('webhookpassword');
+		$this->SendDebug("Doorbird", "Webhook Password: " . $webhookpassword, 0);
 
 		//IP Doorbell prüfen
 		if (!filter_var($hostdoorbell, FILTER_VALIDATE_IP) === false) {
@@ -328,6 +337,7 @@ class Doorbird extends IPSModule
 			$ipcheckdoorbird = true;
 		} else {
 			$ipcheckdoorbird = false;
+			$this->SendDebug("Doorbird", "ip check Doorbird failed", 0);
 		}
 
 		//IP IP-Symcon prüfen
@@ -336,6 +346,7 @@ class Doorbird extends IPSModule
 			$ipcheckips = true;
 		} else {
 			$ipcheckips = false;
+			$this->SendDebug("Doorbird", "ip check IP-Symcon failed", 0);
 		}
 
 		//Domain Doorbell prüfen
@@ -358,13 +369,28 @@ class Doorbird extends IPSModule
 			$hostcheck = true;
 		} else {
 			$hostcheck = false;
+			$this->SendDebug("Doorbird", "host not valid", 0);
 			$this->SetStatus(203); //IP Adresse oder Host ist ungültig
 		}
 
 		//User und Passwort prüfen
-		if ($doorbirduser == "" || $password == "" || $doorbirduser_1 == "" || $password_1 == "" || $webhookusername == "" || $webhookpassword == "") {
-			$this->SetStatus(205); //Felder dürfen nicht leer sein
-		} elseif ($doorbirduser !== "" && $password !== "" && $hostcheck === true) {
+		if ($doorbirduser == "") {
+			$this->SendDebug("Doorbird", "doorbird user field must not be empty", 0);
+			$this->SetStatus(210); //Felder dürfen nicht leer sein
+		}
+		if ($password == "") {
+			$this->SendDebug("Doorbird", "doorbird password field must not be empty", 0);
+			$this->SetStatus(211); //Felder dürfen nicht leer sein
+		}
+		if ($webhookusername == "") {
+			$this->SendDebug("Doorbird", "webhook user field must not be empty", 0);
+			$this->SetStatus(212); //Felder dürfen nicht leer sein
+		}
+		if ($webhookpassword == "") {
+			$this->SendDebug("Doorbird", "webhook password field must not be empty", 0);
+			$this->SetStatus(213); //Felder dürfen nicht leer sein
+		}
+		if ($doorbirduser !== "" && $password !== "" && $hostcheck === true) {
 			$selectionaltview = $this->ReadPropertyBoolean('altview');
 			$prefix = $this->GetURLPrefix($hostdoorbell);
 			if ($selectionaltview) {
@@ -401,6 +427,7 @@ class Doorbird extends IPSModule
 			if ($category_snapshot > 0) {
 				$this->SendDebug("Doorbird", "Kategorie mit ObjektID " . $category_snapshot . " gefunden", 0);
 			} else {
+				$this->SendDebug("Doorbird", "category snapshot not set", 0);
 				$this->SetStatus(208); //category doorbird snapshot not set
 			}
 			if ($category_history > 0) {
@@ -478,7 +505,9 @@ class Doorbird extends IPSModule
 			}
 
 			$this->SetupNotification();
-			$this->GetInfo();
+			$this->SendDebug("Doorbird", "Setup notification", 0);
+			$info = $this->GetInfo();
+			$this->SendDebug("Doorbird", "Info: " . json_encode($info), 0);
 
 			//Email
 			$emailalert = $this->ReadPropertyBoolean('activeemail');
@@ -564,7 +593,7 @@ class Doorbird extends IPSModule
 	{
 		$ipsversion = $this->GetIPSVersion();
 		if ($email == "") {
-			$this->SetStatus(205); //Felder dürfen nicht leer sein
+			$this->SetStatus(214); // email not set
 		}
 		if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
 			//email valid
@@ -2820,6 +2849,31 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 				'code' => 209,
 				'icon' => 'error',
 				'caption' => 'category doorbird history not set.'
+			],
+			[
+				'code' => 210,
+				'icon' => 'error',
+				'caption' => 'doorbird user not set.'
+			],
+			[
+				'code' => 211,
+				'icon' => 'error',
+				'caption' => 'doorbird password not set.'
+			],
+			[
+				'code' => 212,
+				'icon' => 'error',
+				'caption' => 'webhook user not set.'
+			],
+			[
+				'code' => 213,
+				'icon' => 'error',
+				'caption' => 'webhook password not set.'
+			],
+			[
+				'code' => 214,
+				'icon' => 'error',
+				'caption' => 'email not set.'
 			]
 		];
 

@@ -1259,10 +1259,6 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 
 			} elseif ($data == "motionsensor") {
 				$this->SetLastMovement();
-			} elseif ($data == "motionsensor") {
-				$this->SetLastMovement();
-			} elseif ($data == "motionsensor") {
-				$this->SetLastMovement();
 			} elseif ($data == "dooropen") {
 				$this->SetLastDoorOpen();
 			}

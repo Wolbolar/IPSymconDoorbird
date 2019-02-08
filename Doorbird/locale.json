@@ -1,7 +1,7 @@
 {
 	"translations": {
 		"de": { 
-			"model": "Modell",
+			"Type": "Gerätetyp",
 			"IP adress or hostname Doorbird": "IP Adresse oder Hostname Doorbird",
 			"Port Doorbell": "Port Doorbell",
 			"port of Doorbell": "Port der Doorbell",
@@ -16,7 +16,7 @@
 			"User 0001": "Benutzername 0001",
 			"Password user1": "Passwort Nutzer1",
 			"Password for user 0001": "Passwort Nutzer 0001",
-			"Please select a modell": "Bitte Modell auswählen",
+			"Please select a device type": "Bitte Gerätetyp auswählen",
 			"Doorbird Settings": "Doorbird Einstellungen",
 			"Doorbird Picture Settings": "Doorbird Bildeinstellungen",
 			"IP Symcon Settings": "IP Symcon Einstellungen",

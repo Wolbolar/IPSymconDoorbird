@@ -320,10 +320,12 @@ class Doorbird extends IPSModule
 		$this->SendDebug("Doorbird", "Doorbird User: " . $doorbirduser, 0);
 		$password = $this->ReadPropertyString('Password');
 		$this->SendDebug("Doorbird", "Password: " . $password, 0);
+		/*
 		$doorbirduser_1 = $this->ReadPropertyString('User_1');
 		$this->SendDebug("Doorbird", "Doorbird User 1: " . $doorbirduser_1, 0);
 		$password_1 = $this->ReadPropertyString('Password_1');
 		$this->SendDebug("Doorbird", "Password User 1: " . $password_1, 0);
+		*/
 		$portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
 		$this->SendDebug("Doorbird", "Port: " . $portdoorbell, 0);
 		$webhookusername = $this->ReadPropertyString('webhookusername');
@@ -1920,10 +1922,10 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 			[
 				'type' => 'Select',
 				'name' => 'model',
-				'caption' => 'model',
+				'caption' => 'Type',
 				'options' => [
 					[
-						'label' => 'Please select a modell',
+						'label' => 'Please select a device type',
 						'value' => 0
 					],
 					[
@@ -2024,20 +2026,6 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 							'name' => 'Password',
 							'type' => 'PasswordTextBox',
 							'caption' => 'Password'
-						],
-						[
-							'type' => 'Label',
-							'label' => 'Doorbird user with ID 0001 for data decryption'
-						],
-						[
-							'name' => 'User_1',
-							'type' => 'ValidationTextBox',
-							'caption' => 'User 0001'
-						],
-						[
-							'name' => 'Password_1',
-							'type' => 'PasswordTextBox',
-							'caption' => 'Password for user 0001'
 						]
 					]
 				],

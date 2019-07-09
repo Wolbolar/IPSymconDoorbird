@@ -77,7 +77,7 @@ _Open_ the object tree .
 
 Open the instance _'Modules'_ below core instances in the object tree of IP-Symcon (>= Ver 5.x) with a double-click and press the _Plus_ button.
 
-![Modules](img/modules.png?raw=true "Modules")	
+![Modules](img/Modules.png?raw=true "Modules")	
 
 ![Plus](img/plus.png?raw=true "Plus")	
 
@@ -88,9 +88,7 @@ Enter the following URL in the field and confirm with _OK_:
 ```
 https://github.com/Wolbolar/IPSymconDoorbird 
 ```  
-	     
-and confirm with _OK_.    
-    
+	         
 Then an entry for the module appears in the list of the instance _Modules_
 
 By default, the branch _master_ is loaded, which contains current changes and adjustments.
@@ -103,8 +101,7 @@ It opens another window,
 
 ![SelectBranch](img/select_branch_en.png?raw=true "select branch") 
 
-here you can switch to another branch, for older versions smaller than 4.1 is here
-_Old-Version_ to select.
+here you can switch to another branch, for older versions smaller than 4.1 select _Old-Version_ .
 
 ### b. Configuration in IP-Symcon
 
@@ -115,7 +112,7 @@ So we create a category at the desired position in the object tree (_rightclick 
 the name _Doorbird Visitor History_ and _Doorbird Ring History_.
 
 In IP-Symcon add _Instance_ (_rightclick -> add object -> instance_) under the category under which you want to add the Doorbird,
-and _Doorbird_.
+and select _Doorbird_.
 	 
 In the configuration form, the appropriate device type of the Doorbird must first be selected.
 	 
@@ -174,7 +171,7 @@ There are also other functions available in the test environment.
 
 ![Buttons](img/doorbird_buttons_en.png?raw=true "Buttons")
 
-## 4. Function reference
+## 4. Functionreference
 
 ### Doorbird:
 
@@ -201,7 +198,7 @@ The live image can be viewed in IP-Symcon as well as the history of the last vis
 
 
 
-## 6. Annnex
+## 6. Annex
 
 ###  a. Functions:
 

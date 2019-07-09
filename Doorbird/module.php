@@ -1212,7 +1212,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 						$this->SetLastDoorOpen(1);
 					}
 					if ($id == "2") {
-						$this->SetLastDoorOpen(1);
+						$this->SetLastDoorOpen(2);
 					}
 				}
 				else{
@@ -1294,7 +1294,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', "' . $email . '");
 						$this->SetLastDoorOpen(1);
 					}
 					if ($id == "2") {
-						$this->SetLastDoorOpen(1);
+						$this->SetLastDoorOpen(2);
 					}
 				}
 				else{

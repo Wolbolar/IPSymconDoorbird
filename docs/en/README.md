@@ -1,7 +1,7 @@
 # IPSymconDoorbird
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)](https://www.symcon.de/forum/threads/38222-IP-Symcon-5-0-verf%C3%BCgbar)
-
+![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 
 Module for IP-Symcon from version 5.x. Allows communication with a Doorbird doorphone.
 
@@ -47,7 +47,7 @@ The module can be used to send commands to a Doorbird door intercom and to recei
 
 ### a. Loading the module
 
-Open the IP Console's web console with _http://<IP-Symcon IP>:3777/console/_.
+Open the IP Console's web console with _http:// <IP-Symcon IP> :3777/console/_.
 
 Then click on the module store icon (IP-Symcon > 5.1) in the upper right corner.
 

@@ -47,7 +47,7 @@ The module can be used to send commands to a Doorbird door intercom and to recei
 
 ### a. Loading the module
 
-Open the IP Console's web console with _http://<IP-Symcon IP>:3777/console/_.
+Open the IP Console's web console with _http://{IP-Symcon IP}:3777/console/_.
 
 Then click on the module store icon (IP-Symcon > 5.1) in the upper right corner.
 
@@ -69,7 +69,7 @@ Then select the module and click _Install_
 
 #### Install alternative via Modules instance (IP-Symcon < 5.1)
 
-Open the IP Console's web console with _http://<IP-Symcon IP>:3777/console/_.
+Open the IP Console's web console with _http://{IP-Symcon IP}:3777/console/_.
 
 _Open_ the object tree .
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 if (@constant('IPS_BASE') == null) //Nur wenn Konstanten noch nicht bekannt sind.
 {
     // --- BASE MESSAGE
@@ -299,18 +301,13 @@ class Doorbird extends IPSModule
         $this->RegisterVariableInteger('DoorbirdButtonSnapshot', 'Doorbird Bild abspeichern', 'Doorbird.Snapshot', 12);
         $this->EnableAction('DoorbirdButtonSnapshot');
 
-
         $this->ValidateConfiguration();
-
     }
 
     /**
      * Die folgenden Funktionen stehen automatisch zur Verfügung, wenn das Modul über die 'Module Control' eingefügt wurden.
      * Die Funktionen werden, mit dem selbst eingerichteten Prefix, in PHP und JSON-RPC wiefolgt zur Verfügung gestellt:
-     *
-     *
      */
-
     private function ValidateConfiguration()
     {
         $hostdoorbell = $this->ReadPropertyString('Host');
@@ -322,11 +319,11 @@ class Doorbird extends IPSModule
         $password = $this->ReadPropertyString('Password');
         $this->SendDebug('Doorbird', 'Password: ' . $password, 0);
         /*
-		$doorbirduser_1 = $this->ReadPropertyString('User_1');
-		$this->SendDebug('Doorbird', 'Doorbird User 1: ' . $doorbirduser_1, 0);
-		$password_1 = $this->ReadPropertyString('Password_1');
-		$this->SendDebug('Doorbird', 'Password User 1: ' . $password_1, 0);
-		*/
+         $doorbirduser_1 = $this->ReadPropertyString('User_1');
+         $this->SendDebug('Doorbird', 'Doorbird User 1: ' . $doorbirduser_1, 0);
+         $password_1 = $this->ReadPropertyString('Password_1');
+         $this->SendDebug('Doorbird', 'Password User 1: ' . $password_1, 0);
+         */
         $portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
         $this->SendDebug('Doorbird', 'Port: ' . $portdoorbell, 0);
         $webhookusername = $this->ReadPropertyString('webhookusername');
@@ -402,7 +399,7 @@ class Doorbird extends IPSModule
                     . $password . ' style=width: 960px; height:540px; >';
             } else {
                 $DoorbirdVideoHTML = '<iframe src=' . $prefix . $hostdoorbell . ':' . $portdoorbell . '/bha-api/video.cgi?http-user=' . $doorbirduser
-                                     . '&http-password=' . $password . '  style=width: 960px; height: 540px; ></iframe>';
+                                     . '&http-password=' . $password . '  width= 960px; height= 540px; ></iframe>';
             }
             $this->SetValue('DoorbirdVideo', $DoorbirdVideoHTML);
 
@@ -426,7 +423,6 @@ class Doorbird extends IPSModule
                 $this->RegisterHook('/hook/doorbird' . $this->InstanceID);
             }
 
-
             // Kategorie prüfen
             $category_snapshot = $this->ReadPropertyInteger('categorysnapshot');
             $category_history  = $this->ReadPropertyInteger('categoryhistory');
@@ -444,17 +440,17 @@ class Doorbird extends IPSModule
             //Timer für Historie
             // Ersetzt durch Event das Bilder bei Klingeln abholt
             /*
-			$timerscript = 'Doorbird_GetHistory($this->InstanceID)';
-			$timerid = @IPS_GetEventIDByName('Get Doorbird History', $this->InstanceID);
-			if ($timerid === false)
-			{
-				$timerid = $this->RegisterTimer('Get Doorbird History', 3600000, $timerscript);
-			}
-			else
-			{
-				//echo 'Die Ereignis-ID lautet: '. $timerid;
-			}
-			*/
+             $timerscript = 'Doorbird_GetHistory($this->InstanceID)';
++            $timerid = @IPS_GetEventIDByName('Get Doorbird History', $this->InstanceID);
++            if ($timerid === false)
++            {
++                $timerid = $this->RegisterTimer('Get Doorbird History', 3600000, $timerscript);
++            }
++            else
++            {
++                //echo 'Die Ereignis-ID lautet: '. $timerid;
++            }
++            */
 
             if ($ipsversion == 0) {
                 //Skript bei Bewegung
@@ -570,7 +566,6 @@ class Doorbird extends IPSModule
 
             }
 
-
             // Status Aktiv
             $this->SetStatus(102);
         }
@@ -578,7 +573,6 @@ class Doorbird extends IPSModule
 
     public function GetConfigurationForParent()
     {
-        // todo IP 0.0.0.0
         // $Config['Host'] = $this->GetHostIP();
         $Config['Port']     = 6524;
         $Config['BindPort'] = 6524;
@@ -620,7 +614,7 @@ class Doorbird extends IPSModule
     private function RegisterHookOLD($WebHook, $TargetID)
     {
         $ids = IPS_GetInstanceListByModuleID('{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}');
-        if (sizeof($ids) > 0) {
+        if (count($ids) > 0) {
             $hooks = json_decode(IPS_GetProperty($ids[0], 'Hooks'), true);
             $found = false;
             foreach ($hooks as $index => $hook) {
@@ -643,7 +637,7 @@ class Doorbird extends IPSModule
     private function RegisterHook($WebHook)
     {
         $ids = IPS_GetInstanceListByModuleID('{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}');
-        if (sizeof($ids) > 0) {
+        if (count($ids) > 0) {
             $hooks = json_decode(IPS_GetProperty($ids[0], 'Hooks'), true);
             $found = false;
             foreach ($hooks as $index => $hook) {
@@ -665,15 +659,13 @@ class Doorbird extends IPSModule
 
     /**
      * Löscht einen WebHook, wenn vorhanden.
-     *
-     * @access private
-     *
      * @param string $WebHook URI des WebHook.
      */
     protected function UnregisterHook($WebHook)
     {
         $ids = IPS_GetInstanceListByModuleID('{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}');
-        if (sizeof($ids) > 0) {
+        $index = 0;
+        if (count($ids) > 0) {
             $hooks = json_decode(IPS_GetProperty($ids[0], 'Hooks'), true);
             $found = false;
             foreach ($hooks as $index => $hook) {
@@ -692,10 +684,7 @@ class Doorbird extends IPSModule
 
     /**
      * Löscht eine Script, sofern vorhanden.
-     *
-     * @access private
-     *
-     * @param int $Ident Ident der Variable.
+     * @param string $Ident Ident der Variable.
      */
     protected function UnregisterScript($Ident)
     {
@@ -805,7 +794,7 @@ class Doorbird extends IPSModule
     {
         $InstanzenListe = IPS_GetInstanceListByModuleID('{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}');
         $InstanzCount   = 0;
-        $ConnectControl = false;
+        $ConnectControl = 0;
         foreach ($InstanzenListe as $InstanzID) {
             $ConnectControl = $InstanzID;
             $InstanzCount++;
@@ -892,13 +881,13 @@ class Doorbird extends IPSModule
             $version = substr($payload, 3, 1); // lenght 1 Bytes, 0x01
             $this->SendDebug('Doorbird Version:', $version, 1);
             //$this->SendDebug('Doorbird:', 'Version: '.bin2hex($version), 0);
-            $opslimit = substr($payload, 4, 4);// lenght 4 Bytes, Used for password stretching with Argon2i.
+            $opslimit = substr($payload, 4, 4); // lenght 4 Bytes, Used for password stretching with Argon2i.
             $this->SendDebug('Doorbird OPSLimit:', $opslimit, 1);
             // $this->SendDebug('Doorbird:', 'OPSLimit: '.bin2hex($opslimit), 0);
-            $memlimit = substr($payload, 8, 4);// lenght 4 Bytes, Used for password stretching with Argon2i.
+            $memlimit = substr($payload, 8, 4); // lenght 4 Bytes, Used for password stretching with Argon2i.
             $this->SendDebug('Doorbird MEMLimit:', $memlimit, 1);
             // $this->SendDebug('Doorbird:', 'MEMLimit: '.bin2hex($memlimit), 0);
-            $salt = substr($payload, 12, 16);// lenght 16 Bytes, Used for password stretching with Argon2i.
+            $salt = substr($payload, 12, 16); // lenght 16 Bytes, Used for password stretching with Argon2i.
             $this->SendDebug('Doorbird Salt:', $salt, 1);
             // $this->SendDebug('Doorbird:', 'Salt: '.bin2hex($salt), 0);
             $nonce = substr($payload, 28, 8); // lenght 8 Bytes, Used for encryption with ChaCha20-Poly1305
@@ -919,7 +908,7 @@ class Doorbird extends IPSModule
             );
             $this->SendDebug('Doorbird Key:', $key, 1); // Key für decrypt in HEX
             // Step 4: Decrypt CIPHERTEXT with ChaCha20-Poly1305, use the stretched password and NONCE
-            $decrypted = sodium_crypto_aead_chacha20poly1305_decrypt($ciphertext, null, $nonce, $key);
+            $decrypted = sodium_crypto_aead_chacha20poly1305_decrypt($ciphertext, '', $nonce, $key);
             if ($decrypted) {
                 $this->SendDebug('Doorbird:', 'decryption successfull', 0);
                 $this->SendDebug('Doorbird Decrypted Data:', $decrypted, 1);
@@ -936,7 +925,7 @@ class Doorbird extends IPSModule
                 {
                     $this->SetLastRingtone(2);
                 }
-                $this->SendDebug('Doorbird Event:', $EVENT, 0);
+                $this->SendDebug('Doorbird Event:', strval($EVENT), 0);
                 $TIMESTAMP = unpack('N', substr($decrypted, 14, 4))[1];
                 $this->SendDebug('Doorbird Timestamp UTC:', gmdate('H:i:s d.m.Y', $TIMESTAMP), 0);
                 $this->SendDebug('Doorbird Timestamp local:', date('H:i:s d.m.Y', $TIMESTAMP), 0);
@@ -990,7 +979,6 @@ class Doorbird extends IPSModule
             }
         }
     }
-
 
     private function CreateWebHookScript()
     {
@@ -1222,7 +1210,6 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
     /**
      * This function will be called by the hook control. Visibility should be protected!
      */
-
     protected function ProcessHookData()
     {
         $webhookusername = $this->ReadPropertyString('webhookusername');
@@ -1290,25 +1277,6 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         // $selectiondoorbell = $this->ReadPropertyBoolean('doorbell');
         $webhookusername = $this->ReadPropertyString('webhookusername');
         $webhookpassword = $this->ReadPropertyString('webhookpassword');
-        /*
-		if ($selectiondoorbell == true) {
-			$selectiondoorbell = 1;
-		} else {
-			$selectiondoorbell = 0;
-		}
-		$selectionmotionsensor = $this->ReadPropertyBoolean('motionsensor');
-		if ($selectionmotionsensor == true) {
-			$selectionmotionsensor = 1;
-		} else {
-			$selectionmotionsensor = 0;
-		}
-		$selectiondooropen = $this->ReadPropertyBoolean('dooropen');
-		if ($selectiondooropen == true) {
-			$selectiondooropen = 1;
-		} else {
-			$selectiondooropen = 0;
-		}
-		*/
         $prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
         $prefixips      = $this->GetURLPrefix($hostips);
         //doorbell add favorites
@@ -1369,7 +1337,6 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
             $this->SendDoorbird($URL);
             IPS_Sleep(300);
         }
-
 
         $schedule = $this->GetSchedule();
         $data     = json_decode($schedule);
@@ -1587,7 +1554,6 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
             $URL     = $prefixdoorbird . $hostdoorbird . '/bha-api/history.cgi?index=' . $i;
             $Content = $this->SendDoorbird($URL);
 
-
             //testen ob im Medienpool existent
             $catid = $this->ReadPropertyInteger('categoryhistory');
 
@@ -1669,7 +1635,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
             $allmedia = $this->GetallImages($mediaids);
             if ($allmedia) {
                 $lastmediaid = array_search($picturelimit, array_column($allmedia, 'picid'));
-                unset ($allmedia[$lastmediaid]);
+                unset($allmedia[$lastmediaid]);
                 //Neues Bild zu allmedia hinzufügen
                 $allmedia = $this->AddCurrentPic($allmedia, $mediaids, $Content);
                 //allmedia schreiben
@@ -1854,29 +1820,20 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         IPS_SetVariableProfileValues(
             $Name, $MinValue, $MaxValue, $StepSize
         ); // string $ProfilName, float $Minimalwert, float $Maximalwert, float $Schrittweite
-
     }
 
     protected function RegisterProfileIntegerDoorbirdAss($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $Stepsize, $Digits, $Associations)
     {
-        if (sizeof($Associations) === 0) {
+        if (count($Associations) === 0) {
             $MinValue = 0;
             $MaxValue = 0;
         }
-        /*
-		else {
-            //undefiened offset
-			$MinValue = $Associations[0][0];
-            $MaxValue = $Associations[sizeof($Associations)-1][0];
-        }
-        */
         $this->RegisterProfileIntegerDoorbird($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $Stepsize, $Digits);
 
         //boolean IPS_SetVariableProfileAssociation ( string $ProfilName, float $Wert, string $Name, string $Icon, integer $Farbe )
         foreach ($Associations as $Association) {
             IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
         }
-
     }
 
     protected function RegisterProfileStringDoorbird($Name, $Icon)
@@ -1894,7 +1851,6 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         IPS_SetVariableProfileIcon($Name, $Icon);
         //IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
         //IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize);
-
     }
 
     protected function GetIPSVersion()
@@ -1928,7 +1884,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
      ***********************************************************/
 
     /**
-     * build configuration form
+     * build configuration form.
      *
      * @return string
      */
@@ -1944,7 +1900,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
     }
 
     /**
-     * return form configurations on configuration step
+     * return form configurations on configuration step.
      *
      * @return array
      */
@@ -2572,7 +2528,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
     }
 
     /**
-     * return form actions by token
+     * return form actions by token.
      *
      * @return array
      */
@@ -2616,7 +2572,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
     }
 
     /**
-     * return from status
+     * return from status.
      *
      * @return array
      */

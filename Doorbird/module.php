@@ -1784,7 +1784,13 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $result         = $this->SendDoorbird($URL);
         return $result;
     }
-    
+
+    /** Request Action
+     * @param $Ident
+     * @param $Value
+     *
+     * @return bool|void
+     */
     public function RequestAction($Ident, $Value)
     {
         switch ($Ident) {

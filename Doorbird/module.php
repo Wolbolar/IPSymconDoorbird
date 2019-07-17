@@ -306,7 +306,7 @@ class Doorbird extends IPSModule
 
     /**
      * Die folgenden Funktionen stehen automatisch zur Verfügung, wenn das Modul über die 'Module Control' eingefügt wurden.
-     * Die Funktionen werden, mit dem selbst eingerichteten Prefix, in PHP und JSON-RPC wiefolgt zur Verfügung gestellt:
+     * Die Funktionen werden, mit dem selbst eingerichteten Prefix, in PHP und JSON-RPC wiefolgt zur Verfügung gestellt.
      */
     private function ValidateConfiguration()
     {
@@ -659,6 +659,7 @@ class Doorbird extends IPSModule
 
     /**
      * Löscht einen WebHook, wenn vorhanden.
+     *
      * @param string $WebHook URI des WebHook.
      */
     protected function UnregisterHook($WebHook)
@@ -684,6 +685,7 @@ class Doorbird extends IPSModule
 
     /**
      * Löscht eine Script, sofern vorhanden.
+     *
      * @param string $Ident Ident der Variable.
      */
     protected function UnregisterScript($Ident)
@@ -1782,8 +1784,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $result         = $this->SendDoorbird($URL);
         return $result;
     }
-
-
+    
     public function RequestAction($Ident, $Value)
     {
         switch ($Ident) {

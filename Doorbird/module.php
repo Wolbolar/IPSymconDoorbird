@@ -1341,44 +1341,47 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         }
 
         $schedule = $this->GetSchedule();
-        $data     = json_decode($schedule);
-        if (is_null($data)) {
-            $this->SendDebug('Doorbird', 'could not get schedule', 0);
-            echo 'could not get schedule';
-        } else {
-            foreach ($data as $key => $entry) {
-                if ($entry->input == 'doorbell') {
-                    $output = $entry->output;
-                    $this->SendDebug('Doorbird doorbell', json_encode($output), 0);
-                    $this->SendDebug('Doorbird', 'create schedule with favorite 112', 0);
-                    foreach ($output as $outputentry) {
-                        $event = $outputentry->event;
-                        $param = $outputentry->param;
-                        if ($event == 'http' && $param == '111') {
-                            $this->SendDebug('Doorbird', 'schedule with favorite 111 exists', 0);
-                        } else {
-                            $this->SendDebug('Doorbird', 'create schedule with favorite 111', 0);
-                            $this->AddHTTPDoorbellSchedule();
+        if($schedule)
+        {
+            $data     = json_decode($schedule);
+            if (is_null($data)) {
+                $this->SendDebug('Doorbird', 'could not get schedule', 0);
+                echo 'could not get schedule';
+            } else {
+                foreach ($data as $key => $entry) {
+                    if ($entry->input == 'doorbell') {
+                        $output = $entry->output;
+                        $this->SendDebug('Doorbird doorbell', json_encode($output), 0);
+                        $this->SendDebug('Doorbird', 'create schedule with favorite 112', 0);
+                        foreach ($output as $outputentry) {
+                            $event = $outputentry->event;
+                            $param = $outputentry->param;
+                            if ($event == 'http' && $param == '111') {
+                                $this->SendDebug('Doorbird', 'schedule with favorite 111 exists', 0);
+                            } else {
+                                $this->SendDebug('Doorbird', 'create schedule with favorite 111', 0);
+                                $this->AddHTTPDoorbellSchedule();
+                            }
+                        }
+                    }
+                    if ($entry->input == 'motion') {
+                        $output = $entry->output;
+                        $this->SendDebug('Doorbird motion', json_encode($output), 0);
+                        foreach ($output as $outputentry) {
+                            $event = $outputentry->event;
+                            $param = $outputentry->param;
+                            if ($event == 'http' && $param == '112') {
+                                $this->SendDebug('Doorbird', 'schedule with favorite 112 exists', 0);
+                            } else {
+                                $this->SendDebug('Doorbird', 'create schedule with favorite 112', 0);
+                                $this->AddHTTPMotionSchedule();
+                            }
                         }
                     }
                 }
-                if ($entry->input == 'motion') {
-                    $output = $entry->output;
-                    $this->SendDebug('Doorbird motion', json_encode($output), 0);
-                    foreach ($output as $outputentry) {
-                        $event = $outputentry->event;
-                        $param = $outputentry->param;
-                        if ($event == 'http' && $param == '112') {
-                            $this->SendDebug('Doorbird', 'schedule with favorite 112 exists', 0);
-                        } else {
-                            $this->SendDebug('Doorbird', 'create schedule with favorite 112', 0);
-                            $this->AddHTTPMotionSchedule();
-                        }
-                    }
-                }
+                $current_schedule = $this->GetSchedule();
+                $this->SetValue('DoorbirdReturn', $current_schedule);
             }
-            $current_schedule = $this->GetSchedule();
-            $this->SetValue('DoorbirdReturn', $current_schedule);
         }
     }
 

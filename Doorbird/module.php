@@ -169,7 +169,7 @@ class Doorbird extends IPSModule
     private const GET_IMAGE          = '/bha-api/image.cgi'; // Get Image
     private const OPEN_DOOR          = '/bha-api/open-door.cgi'; // Open Door
     private const LIVE_VIDEO_REQUEST = '/bha-api/video.cgi'; // Live Video Request
-    
+
     public function Create()
     {
         //Never delete this line!

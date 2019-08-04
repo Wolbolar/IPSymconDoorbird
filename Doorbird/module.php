@@ -152,17 +152,24 @@ if (@constant('IPS_BASE') == null) //Nur wenn Konstanten noch nicht bekannt sind
 
 class Doorbird extends IPSModule
 {
-    private const D101              = 1; // D101
-    private const D202              = 2; // D202
-    private const D2101V            = 3; // D2101V
-    private const D2102V            = 4; // D2102V
-    private const D2103V            = 5; // D2103V
-    private const D21DKV            = 6; // D21DKV
-    private const D21DKH            = 7; // D21DKH
-    private const GET_FAVORITES     = '/bha-api/favorites.cgi'; // Get Favorites URL
-    private const SET_HTTP_FAVORITE = '/bha-api/favorites.cgi?action=save&type=http&title='; // Set Favorites URL
-    private const DELETE_FAVORITE   = '/bha-api/favorites.cgi?action=remove&type='; // Delete Fovorites URL
-
+    private const D101               = 1; // D101
+    private const D202               = 2; // D202
+    private const D2101V             = 3; // D2101V
+    private const D2102V             = 4; // D2102V
+    private const D2103V             = 5; // D2103V
+    private const D21DKV             = 6; // D21DKV
+    private const D21DKH             = 7; // D21DKH
+    private const GET_FAVORITES      = '/bha-api/favorites.cgi'; // Get Favorites URL
+    private const SET_HTTP_FAVORITE  = '/bha-api/favorites.cgi?action=save&type=http&title='; // Set Favorites URL
+    private const DELETE_FAVORITE    = '/bha-api/favorites.cgi?action=remove&type='; // Delete Fovorites URL
+    private const GET_INFO           = '/bha-api/info.cgi'; // Get Info
+    private const GET_HISTORY        = '/bha-api/history.cgi?index='; // Get History
+    private const GET_SCHEDULE       = '/bha-api/schedule.cgi'; // Get Schedule
+    private const LIGHT              = '/bha-api/light-on.cgi'; // Light
+    private const GET_IMAGE          = '/bha-api/image.cgi'; // Get Image
+    private const OPEN_DOOR          = '/bha-api/open-door.cgi'; // Open Door
+    private const LIVE_VIDEO_REQUEST = '/bha-api/video.cgi'; // Live Video Request
+    
     public function Create()
     {
         //Never delete this line!
@@ -400,10 +407,10 @@ class Doorbird extends IPSModule
             $prefix           = $this->GetURLPrefix($hostdoorbell);
             if ($selectionaltview) {
                 $DoorbirdVideoHTML =
-                    '<img src=' . $prefix . $hostdoorbell . ':' . $portdoorbell . '/bha-api/video.cgi?http-user=' . $doorbirduser . '&http-password='
+                    '<img src=' . $prefix . $hostdoorbell . ':' . $portdoorbell . self::LIVE_VIDEO_REQUEST . '?http-user=' . $doorbirduser . '&http-password='
                     . $password . ' style=width: 960px; height:540px; >';
             } else {
-                $DoorbirdVideoHTML = '<iframe src=' . $prefix . $hostdoorbell . ':' . $portdoorbell . '/bha-api/video.cgi?http-user=' . $doorbirduser
+                $DoorbirdVideoHTML = '<iframe src=' . $prefix . $hostdoorbell . ':' . $portdoorbell . self::LIVE_VIDEO_REQUEST . '?http-user=' . $doorbirduser
                                      . '&http-password=' . $password . '  width= 960px; height= 540px; ></iframe>';
             }
             $this->SetValue('DoorbirdVideo', $DoorbirdVideoHTML);
@@ -1284,7 +1291,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
             $this->SendDebug('Doorbird SIP Value', $sipclient['value'], 0);
             $this->SendDebug('Doorbird SIP Key', $key, 0);
         }
-        $http = $data['http'];
+        $http                     = $data['http'];
         $webhook_call_motion      = $this->GetFavoritURL('motionsensor');
         $webhook_call_doorbell111 = $this->GetFavoritURL('doorbell111');
         $webhook_call_doorbell211 = $this->GetFavoritURL('doorbell211');
@@ -1486,11 +1493,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
 
     public function GetSchedule()
     {
-        $hostdoorbird   = $this->ReadPropertyString('Host');
-        $portdoorbell   = $this->ReadPropertyInteger('PortDoorbell');
-        $prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
-
-        $URL    = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/schedule.cgi';
+        $URL    = self::GET_SCHEDULE;
         $result = $this->SendDoorbird($URL);
         $this->SendDebug('Doorbird Schedule', $result, 0);
         return $result;
@@ -1498,11 +1501,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
 
     public function AddSchedule(string $schedule)
     {
-        $hostdoorbird   = $this->ReadPropertyString('Host');
-        $portdoorbell   = $this->ReadPropertyInteger('PortDoorbell');
-        $prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
-
-        $URL    = $prefixdoorbird . $hostdoorbird . ':' . $portdoorbell . '/bha-api/schedule.cgi';
+        $URL    = self::GET_SCHEDULE;
         $result = $this->SendDoorbirdPOST($URL, $schedule);
         return $result;
     }
@@ -1569,8 +1568,11 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
     {
         $doorbirduser     = $this->ReadPropertyString('User');
         $doorbirdpassword = $this->ReadPropertyString('Password');
-        $ch               = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $URL);
+        $Doorbird_URL     = $this->GetDoorbirdURL() . $URL;
+        $this->SendDebug('Doorbird URL', $Doorbird_URL, 0);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $Doorbird_URL);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Content-Length: ' . strlen($data_json)]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
@@ -1587,10 +1589,8 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
 
     public function GetInfo()
     {
-        $hostdoorbird   = $this->ReadPropertyString('Host');
-        $prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
-        $URL            = $prefixdoorbird . $hostdoorbird . '/bha-api/info.cgi';
-        $result         = $this->SendDoorbird($URL);
+        $URL    = self::GET_INFO;
+        $result = $this->SendDoorbird($URL);
         $this->SendDebug('Doorbird Info:', $result, 0);
         $result = json_decode($result);
         if (isset($result->BHA->VERSION[0]->FIRMWARE)) {
@@ -1610,13 +1610,11 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
 
     public function GetHistory()
     {
-        $hostdoorbird   = $this->ReadPropertyString('Host');
-        $prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
-        $name           = 'Doorbird Klingel';
-        $ident          = 'DoorbirdRingPic';
-        $picturename    = 'doorbirdringpic_';
+        $name        = 'Doorbird Klingel';
+        $ident       = 'DoorbirdRingPic';
+        $picturename = 'doorbirdringpic_';
         for ($i = 1; $i <= 20; $i++) {
-            $URL     = $prefixdoorbird . $hostdoorbird . '/bha-api/history.cgi?index=' . $i;
+            $URL     = self::GET_HISTORY . $i;
             $Content = $this->SendDoorbird($URL);
 
             //testen ob im Medienpool existent
@@ -1685,10 +1683,8 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
 
     private function GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid)
     {
-        $hostdoorbird   = $this->ReadPropertyString('Host');
-        $prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
-        $URL            = $prefixdoorbird . $hostdoorbird . '/bha-api/image.cgi';
-        $Content        = $this->SendDoorbird($URL);
+        $URL     = self::GET_IMAGE;
+        $Content = $this->SendDoorbird($URL);
         //lastsnapshot bestimmen
         $mediaids     = IPS_GetChildrenIDs($catid);
         $countmedia   = count($mediaids);
@@ -1814,37 +1810,29 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
 
     public function Light()
     {
-        $hostdoorbird   = $this->ReadPropertyString('Host');
-        $prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
-        $URL            = $prefixdoorbird . $hostdoorbird . '/bha-api/light-on.cgi';
-        $result         = $this->SendDoorbird($URL);
+        $URL    = self::LIGHT;
+        $result = $this->SendDoorbird($URL);
         return $result;
     }
 
     public function OpenDoor()
     {
-        $hostdoorbird   = $this->ReadPropertyString('Host');
-        $prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
-        $URL            = $prefixdoorbird . $hostdoorbird . '/bha-api/open-door.cgi';
-        $result         = $this->SendDoorbird($URL);
+        $URL    = self::OPEN_DOOR;
+        $result = $this->SendDoorbird($URL);
         return $result;
     }
 
     public function OpenDoorRelais(string $doorcontrollerID, int $relaisnumber)
     {
-        $hostdoorbird   = $this->ReadPropertyString('Host');
-        $prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
-        $URL            = $prefixdoorbird . $hostdoorbird . '/bha-api/open-door.cgi?r=' . $doorcontrollerID . '@' . $relaisnumber;
-        $result         = $this->SendDoorbird($URL);
+        $URL    = self::OPEN_DOOR . '?r=' . $doorcontrollerID . '@' . $relaisnumber;
+        $result = $this->SendDoorbird($URL);
         return $result;
     }
 
     public function OpenDoorRelaisNumber(int $relaisnumber)
     {
-        $hostdoorbird   = $this->ReadPropertyString('Host');
-        $prefixdoorbird = $this->GetURLPrefix($hostdoorbird);
-        $URL            = $prefixdoorbird . $hostdoorbird . '/bha-api/open-door.cgi?r=' . $relaisnumber;
-        $result         = $this->SendDoorbird($URL);
+        $URL    = self::OPEN_DOOR . '?r=' . $relaisnumber;
+        $result = $this->SendDoorbird($URL);
         return $result;
     }
 

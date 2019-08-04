@@ -169,7 +169,7 @@ class Doorbird extends IPSModule
     private const GET_IMAGE          = '/bha-api/image.cgi'; // Get Image
     private const OPEN_DOOR          = '/bha-api/open-door.cgi'; // Open Door
     private const LIVE_VIDEO_REQUEST = '/bha-api/video.cgi'; // Live Video Request
-
+    
     public function Create()
     {
         //Never delete this line!
@@ -959,10 +959,12 @@ class Doorbird extends IPSModule
         $current_time = time();
         if (($current_time - $last_write) > $relaxationdoorbell) {
             $this->SendDebug('Doorbird:', 'doorbell event', 0);
-            if ($doorbellid = 1) {
+            if ($doorbell_id == 1) {
+                $this->SendDebug('Doorbird:', 'Set LastRingtone ' . date('d.m.y H:i:s'), 0);
                 $this->SetValue('LastRingtone', date('d.m.y H:i:s'));
             } else {
-                $this->SetValue('LastRingtone' . $doorbellid, date('d.m.y H:i:s'));
+                $this->SendDebug('Doorbird:', 'Set LastRingtone' . $doorbell_id . ' ' . date('d.m.y H:i:s'), 0);
+                $this->SetValue('LastRingtone' . $doorbell_id, date('d.m.y H:i:s'));
             }
         }
     }

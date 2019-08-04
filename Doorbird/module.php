@@ -162,7 +162,7 @@ class Doorbird extends IPSModule
     private const GET_FAVORITES     = '/bha-api/favorites.cgi'; // Get Favorites URL
     private const SET_HTTP_FAVORITE = '/bha-api/favorites.cgi?action=save&type=http&title='; // Set Favorites URL
     private const DELETE_FAVORITE   = '/bha-api/favorites.cgi?action=remove&type='; // Delete Fovorites URL
-    
+
     public function Create()
     {
         //Never delete this line!

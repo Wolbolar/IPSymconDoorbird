@@ -959,10 +959,12 @@ class Doorbird extends IPSModule
         $current_time = time();
         if (($current_time - $last_write) > $relaxationdoorbell) {
             $this->SendDebug('Doorbird:', 'doorbell event', 0);
-            if ($doorbellid = 1) {
+            if ($doorbell_id == 1) {
+                $this->SendDebug('Doorbird:', 'Set LastRingtone ' . date('d.m.y H:i:s'), 0);
                 $this->SetValue('LastRingtone', date('d.m.y H:i:s'));
             } else {
-                $this->SetValue('LastRingtone' . $doorbellid, date('d.m.y H:i:s'));
+                $this->SendDebug('Doorbird:', 'Set LastRingtone' . $doorbell_id . ' ' . date('d.m.y H:i:s'), 0);
+                $this->SetValue('LastRingtone' . $doorbell_id, date('d.m.y H:i:s'));
             }
         }
     }

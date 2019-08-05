@@ -169,7 +169,7 @@ class Doorbird extends IPSModule
     private const GET_IMAGE          = '/bha-api/image.cgi'; // Get Image
     private const OPEN_DOOR          = '/bha-api/open-door.cgi'; // Open Door
     private const LIVE_VIDEO_REQUEST = '/bha-api/video.cgi'; // Live Video Request
-
+    
     public function Create()
     {
         //Never delete this line!
@@ -258,6 +258,10 @@ class Doorbird extends IPSModule
         $this->RegisterPropertyInteger('categoryhistory', 0);
         $this->RegisterPropertyInteger('categorysnapshot', 0);
         $this->RegisterPropertyInteger('model', 0);
+        $this->RegisterAttributeString('schedule', '[]');
+        $this->RegisterPropertyString('list_favorites', '[]');
+        $this->RegisterPropertyString('list_sip', '[]');
+        $this->RegisterPropertyString('list_schedule', '[]');
     }
 
     public function ApplyChanges()
@@ -295,8 +299,6 @@ class Doorbird extends IPSModule
         $this->RegisterVariableString('Buildnumber', $this->Translate('Doorbird Build Number'), 'Doorbird.Buildnumber', 9);
         $this->RegisterProfileStringDoorbird('Doorbird.MAC', 'Notebook');
         $this->RegisterVariableString('MACAdress', $this->Translate('Doorbird WLAN MAC'), 'Doorbird.MAC', 10);
-        $this->RegisterVariableString('DoorbirdReturn', $this->Translate('Doorbird Return'), '', 25);
-        IPS_SetHidden($this->GetIDForIdent('DoorbirdReturn'), true);
         $lightass = [
             [0, 'Licht einschalten', 'Light', -1]];
         $doorass  = [
@@ -826,7 +828,7 @@ class Doorbird extends IPSModule
     {
         IPS_LogMessage(get_class() . '::' . __FUNCTION__, 'SenderID: ' . $SenderID . ', Message: ' . $Message . ', Data:' . json_encode($Data));
         if ($SenderID == $this->GetIDForIdent('LastRingtone')) {
-            $this->GetRingPicture();
+            $this->SetRingPicture(1);
             $email = $this->ReadPropertyString('email');
             $this->EmailAlert($email);
             $this->SendDebug('Doorbird recieved LastRingtone at', date('H:i', time()), 0);
@@ -835,9 +837,9 @@ class Doorbird extends IPSModule
             );
         }
         $model = $this->ReadPropertyInteger('model');
-        if ($model == 4 || $model == 5) {
+        if ($model == self::D2102V || $model == self::D2103V) {
             if ($SenderID == $this->GetIDForIdent('LastRingtone2')) {
-                $this->GetRingPicture();
+                $this->SetRingPicture(2);
                 $email = $this->ReadPropertyString('email');
                 $this->EmailAlert($email);
                 $this->SendDebug('Doorbird recieved LastRingtone2 at', date('H:i', time()), 0);
@@ -846,9 +848,9 @@ class Doorbird extends IPSModule
                 );
             }
         }
-        if ($model == 5) {
+        if ($model == self::D2103V) {
             if ($SenderID == $this->GetIDForIdent('LastRingtone3')) {
-                $this->GetRingPicture();
+                $this->SetRingPicture(3);
                 $email = $this->ReadPropertyString('email');
                 $this->EmailAlert($email);
                 $this->SendDebug('Doorbird recieved LastRingtone3 at', date('H:i', time()), 0);
@@ -1412,7 +1414,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                     }
                 }
                 $current_schedule = $this->GetSchedule();
-                $this->SetValue('DoorbirdReturn', $current_schedule);
+                $this->WriteAttributeString('schedule', $current_schedule);
             }
         }
     }
@@ -1526,7 +1528,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                 [
                     'enabled'  => '1',
                     'event'    => 'http',
-                    'param'    => '111',
+                    'param'    => '0',
                     'schedule' => [
                         'weekdays' => [
                             [
@@ -1555,7 +1557,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                 [
                     'enabled'  => '1',
                     'event'    => 'http',
-                    'param'    => '112',
+                    'param'    => '1',
                     'schedule' => [
                         'weekdays' => [
                             [
@@ -1669,18 +1671,67 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
 
     public function GetRingPicture()
     {
+        $this->SetRingPicture(1);
+    }
+
+    private function SetRingPicture($ring_category)
+    {
         $name         = 'Doorbird Klingel';
-        $ident        = 'DoorbirdRingPic';
-        $picturename  = 'doorbirdringpic_';
         $picturelimit = $this->ReadPropertyInteger('picturelimitring');
         $catid        = $this->ReadPropertyInteger('categoryhistory');
         if ($catid > 0) {
-            $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid);
+            $model = $this->ReadPropertyInteger('model');
+            if ($model == self::D101 || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH) {
+                $ring_category_1 = $this->CreateRingCategory(1);
+            }
+            if ($model == self::D2102V) {
+                $ring_category_1 = $this->CreateRingCategory(1);
+                $ring_category_2 = $this->CreateRingCategory(2);
+            }
+            if ($model == self::D2103V) {
+                $ring_category_1 = $this->CreateRingCategory(1);
+                $ring_category_2 = $this->CreateRingCategory(2);
+                $ring_category_3 = $this->CreateRingCategory(3);
+            }
+            if($ring_category == 1)
+            {
+                $ident        = 'DoorbirdRing1Pic';
+                $picturename  = 'doorbirdring1pic_';
+                $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $ring_category_1);
+            }
+            if($ring_category == 2)
+            {
+                $ident        = 'DoorbirdRing2Pic';
+                $picturename  = 'doorbirdring2pic_';
+                $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $ring_category_2);
+            }
+            if($ring_category == 3)
+            {
+                $ident        = 'DoorbirdRing3Pic';
+                $picturename  = 'doorbirdring3pic_';
+                $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $ring_category_3);
+            }
         } else {
             $this->SendDebug('Doorbird', 'No category is set, please set category.', 0);
             IPS_LogMessage('Doorbird', 'Es wurde keine Kategorie gesetzt. Die Funktion wurde nicht ausgeführt.');
             echo 'Es wurde keine Kategorie gesetzt. Die Funktion wurde nicht ausgeführt.';
         }
+    }
+
+    protected function CreateRingCategory($ring_category)
+    {
+        $categoryhistory = $this->ReadPropertyInteger('categoryhistory');
+        //Prüfen ob Kategorie schon existiert
+        $RingPictureCategoryID = @IPS_GetObjectIDByIdent('Cat_Doorbird_Ringpicture' . $ring_category, $categoryhistory);
+        if ($RingPictureCategoryID === false) {
+            $RingPictureCategoryID = IPS_CreateCategory();
+            IPS_SetName($RingPictureCategoryID, $this->Translate('Ring Pictures ' . $ring_category));
+            IPS_SetIdent($RingPictureCategoryID, 'Cat_Doorbird_Ringpicture' . $ring_category);
+            IPS_SetInfo($RingPictureCategoryID, $this->Translate('Ring Pictures ' . $ring_category));
+            IPS_SetParent($RingPictureCategoryID, $categoryhistory);
+        }
+        $this->SendDebug('Ring Picture Category', strval($RingPictureCategoryID), 0);
+        return $RingPictureCategoryID;
     }
 
     private function GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid)
@@ -2004,8 +2055,8 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
             ]];
 
         //Check if notification setup is already done. Otherwise show a button to create it
-        $doorbirdreturn = GetValue($this->GetIDForIdent('DoorbirdReturn'));
-        if ($doorbirdreturn == '') {
+        $doorbirdreturn = $this->ReadAttributeString('schedule');
+        if ($doorbirdreturn == '[]') {
             $form = array_merge_recursive(
                 $form, [
                          [
@@ -2194,6 +2245,240 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                                  'type'    => 'PasswordTextBox',
                                  'caption' => 'Password']]]]
         );
+        $form = array_merge_recursive(
+            $form, [
+                     [
+                         'type'    => 'ExpansionPanel',
+                         'caption' => 'Doorbird Favorites',
+                         'items'   => $this->FormShowFavorites()]]
+        );
+        $form = array_merge_recursive(
+            $form, [
+                     [
+                         'type'    => 'ExpansionPanel',
+                         'caption' => 'Doorbird Schedule',
+                         'items'   => $this->FormShowSchedule()]]
+        );
+        return $form;
+    }
+
+    protected function FormShowFavorites()
+    {
+        $result = $this->GetFavorites();
+        $sip = [];
+        $http = [];
+        if($result)
+        {
+            $data = json_decode($result, true);
+            $sip = $data['sip'];
+            $http = $data['http'];
+        }
+        $rowcount_sip = count($sip);
+        $rowcount_http = count($http);
+        $form = [
+            [
+                'type'     => 'List',
+                'name'     => 'list_sip',
+                'caption'  => 'SIP Numbers',
+                'rowCount' => $rowcount_sip,
+                'add'      => false,
+                'delete'   => false,
+                'sort'     => [
+                    'column'    => 'ID',
+                    'direction' => 'ascending'
+                ],
+                'columns' => [
+                    [
+                        'name'    => 'ID',
+                        'caption' => 'ID',
+                        'width'   => '100px',
+                        'visible' => true
+                    ],
+                    [
+                        'name'    => 'Title',
+                        'caption' => 'Title',
+                        'width'   => '370px',
+                        'visible' => true
+                    ],
+                    [
+                        'name'    => 'Value',
+                        'caption' => 'Value',
+                        'width'   => 'auto',
+                        'visible' => true
+                    ]
+                ],
+                'values' => $this->Get_SIPListConfiguration($sip)
+            ],
+            [
+                'type'     => 'List',
+                'name'     => 'list_favorites',
+                'caption'  => 'HTTP(S) Calls',
+                'rowCount' => $rowcount_http,
+                'add'      => false,
+                'delete'   => false,
+                'sort'     => [
+                    'column'    => 'ID',
+                    'direction' => 'ascending'
+                ],
+                'columns' => [
+                    [
+                        'name'    => 'ID',
+                        'caption' => 'ID',
+                        'width'   => '100px',
+                        'visible' => true
+                    ],
+                    [
+                        'name'    => 'Title',
+                        'caption' => 'Title',
+                        'width'   => '370px',
+                        'visible' => true
+                    ],
+                    [
+                        'name'    => 'Value',
+                        'caption' => 'Value',
+                        'width'   => 'auto',
+                        'visible' => true
+                    ]
+                ],
+                'values' => $this->Get_HTTPListConfiguration($http)
+            ]
+        ];
+        return $form;
+    }
+
+    private function Get_SIPListConfiguration($sip)
+    {
+        $form = [];
+        foreach ($sip as $key => $sipclient) {
+            $form[] = [
+                'ID' => $key,
+                'Title' => $sipclient['title'],
+                'Value'  => $sipclient['value'], ];
+        }
+        return $form;
+    }
+
+    private function Get_HTTPListConfiguration($http)
+    {
+        $form = [];
+        foreach ($http as $key => $http_call) {
+            $form[] = [
+                'ID' => $key,
+                'Title' => $http_call['title'],
+                'Value'  => $http_call['value'], ];
+        }
+        return $form;
+    }
+
+    protected function FormShowSchedule()
+    {
+        $schedule = $this->GetSchedule();
+        $rowcount_schedule = 1;
+        $schedule_data = [];
+        if ($schedule != "") {
+            $schedule_data = json_decode($schedule);
+            if (is_null($schedule_data)) {
+                $this->SendDebug('Doorbird', 'could not get schedule', 0);
+            } else {
+                $rowcount_schedule = count($schedule_data)+5;
+            }
+        }
+        $form = [
+            [
+                'type'     => 'Tree',
+                'name'     => 'list_schedule',
+                'caption'  => 'Doorbird Schedule',
+                'rowCount' => $rowcount_schedule,
+                'add'      => false,
+                'delete'   => false,
+                'sort'     => [
+                    'column'    => 'ident',
+                    'direction' => 'ascending'
+                ],
+                'columns' => [
+                    [
+                        'name'    => 'ident',
+                        'caption' => 'Ident',
+                        'width'   => '70px',
+                        'visible' => true
+                    ],
+                    [
+                        'name'    => 'input',
+                        'caption' => 'Input',
+                        'width'   => '150px',
+                        'visible' => true
+                    ],
+                    [
+                        'name'    => 'inputparam',
+                        'caption' => 'Input Param',
+                        'width'   => '150px',
+                        'visible' => true
+                    ],
+                    [
+                        'name'    => 'outputevent',
+                        'caption' => 'Output Event',
+                        'width'   => '150px',
+                    ],
+                    [
+                        'name'    => 'outputparam',
+                        'caption' => 'Output Param',
+                        'width'   => '150px',
+                    ],
+                    [
+                        'name'    => 'schedule_type',
+                        'caption' => 'Schedule Type',
+                        'width'   => '150px',
+                    ],
+                    [
+                        'name'    => 'schedule_interval',
+                        'caption' => 'Interval',
+                        'width'   => 'auto',
+                    ]
+                ],
+                'values' => $this->Get_ScheduleListConfiguration($schedule_data)
+            ]
+        ];
+        return $form;
+    }
+
+    private function Get_ScheduleListConfiguration($schedule_data)
+    {
+        $form = [];
+        $from = 0;
+        $to = 0;
+        foreach ($schedule_data as $key => $entry) {
+            $input = $entry->input;
+            $inputparam = $entry->param;
+            $output = $entry->output;
+            foreach ($output as $outputentry) {
+                $event = $outputentry->event;
+                $param = $outputentry->param;
+                //$enabled = $outputentry->enabled;
+                $schedule = $outputentry->schedule;
+                foreach ($schedule as $schedule_type => $schedule_entry) {
+                    if($schedule_type == 'weekdays')
+                    {
+                        $from = $schedule_entry[0]->from;
+                        $to = $schedule_entry[0]->to;
+                    }
+                }
+            }
+            $form[] = [
+                'id'=> $key+1,
+                'ident' => $key,
+                'input' => $this->Translate($input),
+                 ];
+            $form[] = [
+                'id'=> $key+100,
+                "parent" => $key+1,
+                'ident' => $key,
+                'input' => $this->Translate($input),
+                'inputparam' => $inputparam,
+                'outputevent' => $event,
+                'outputparam'  => $param,
+                'schedule_type'  => $this->Translate($schedule_type),
+                'schedule_interval'  => $from . ' - ' . $to,];
+        }
         return $form;
     }
 

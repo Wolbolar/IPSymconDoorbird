@@ -169,7 +169,7 @@ class Doorbird extends IPSModule
     private const GET_IMAGE          = '/bha-api/image.cgi'; // Get Image
     private const OPEN_DOOR          = '/bha-api/open-door.cgi'; // Open Door
     private const LIVE_VIDEO_REQUEST = '/bha-api/video.cgi'; // Live Video Request
-    
+
     public function Create()
     {
         //Never delete this line!
@@ -2351,8 +2351,8 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $form = [];
         foreach ($sip as $key => $sipclient) {
             $form[] = [
-                'ID' => $key,
-                'Title' => $sipclient['title'],
+                'ID'     => $key,
+                'Title'  => $sipclient['title'],
                 'Value'  => $sipclient['value'], ];
         }
         return $form;
@@ -2363,8 +2363,8 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $form = [];
         foreach ($http as $key => $http_call) {
             $form[] = [
-                'ID' => $key,
-                'Title' => $http_call['title'],
+                'ID'     => $key,
+                'Title'  => $http_call['title'],
                 'Value'  => $http_call['value'], ];
         }
         return $form;
@@ -2375,7 +2375,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $schedule = $this->GetSchedule();
         $rowcount_schedule = 1;
         $schedule_data = [];
-        if ($schedule != "") {
+        if ($schedule != '') {
             $schedule_data = json_decode($schedule);
             if (is_null($schedule_data)) {
                 $this->SendDebug('Doorbird', 'could not get schedule', 0);
@@ -2464,20 +2464,20 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                 }
             }
             $form[] = [
-                'id'=> $key+1,
+                'id'    => $key+1,
                 'ident' => $key,
                 'input' => $this->Translate($input),
                  ];
             $form[] = [
-                'id'=> $key+100,
-                "parent" => $key+1,
-                'ident' => $key,
-                'input' => $this->Translate($input),
-                'inputparam' => $inputparam,
-                'outputevent' => $event,
-                'outputparam'  => $param,
-                'schedule_type'  => $this->Translate($schedule_type),
-                'schedule_interval'  => $from . ' - ' . $to,];
+                'id'                 => $key+100,
+                'parent'             => $key+1,
+                'ident'              => $key,
+                'input'              => $this->Translate($input),
+                'inputparam'         => $inputparam,
+                'outputevent'        => $event,
+                'outputparam'        => $param,
+                'schedule_type'      => $this->Translate($schedule_type),
+                'schedule_interval'  => $from . ' - ' . $to, ];
         }
         return $form;
     }

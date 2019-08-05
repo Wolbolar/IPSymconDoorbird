@@ -100,9 +100,27 @@
 			"field must not be empty.": "Felder dürfen nicht leer sein.",
 			"select category for import.": "Kategorie zum Import auswählen.",
 			"category must not be empty.": "Es muss eine Kategorie ausgewählt werden.",
-			"email not vaild": "Email Adresse nicht gültig"
-			
-			
+			"email not vaild": "Email Adresse nicht gültig",
+			"Ring Pictures 1": "Klingelbilder Klingel 1",
+			"Ring Pictures 2": "Klingelbilder Klingel 2",
+			"Ring Pictures 3": "Klingelbilder Klingel 3",
+			"Doorbird Favorites": "Doorbird Favoriten",
+			"HTTP(S) Calls": "HTTP(S) Aufrufe",
+			"SIP Numbers": "SIP Nummern",
+			"ID": "ID",
+			"Title": "Titel",
+			"Value": "Wert",
+			"Doorbird Schedule": "Doorbird Zeitplan für Türklingel",
+			"Input": "Input",
+			"Ident": "Ident",
+			"enabled": "aktiviert",
+			"Output Event": "Output Event",
+			"Schedule Type": "Termintyp",
+			"Interval": "Intervall",
+			"once": "einmalig",
+			"weekdays": "wochentags",
+			"from-to": "von bis",
+			"motion": "Bewegung"
 		}
 	}
 }

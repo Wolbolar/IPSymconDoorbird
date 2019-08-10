@@ -2267,14 +2267,16 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $result = $this->GetFavorites();
         $sip = [];
         $http = [];
+        $rowcount_sip = 1;
+        $rowcount_http = 1;
         if($result)
         {
             $data = json_decode($result, true);
             $sip = $data['sip'];
             $http = $data['http'];
+            $rowcount_sip = count($sip);
+            $rowcount_http = count($http);
         }
-        $rowcount_sip = count($sip);
-        $rowcount_http = count($http);
         $form = [
             [
                 'type'     => 'List',
@@ -2349,11 +2351,17 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
     private function Get_SIPListConfiguration($sip)
     {
         $form = [];
-        foreach ($sip as $key => $sipclient) {
-            $form[] = [
-                'ID'     => $key,
-                'Title'  => $sipclient['title'],
-                'Value'  => $sipclient['value'], ];
+        if(empty($sip))
+        {
+            $this->SendDebug('SIP', 'No SIP data found', 0);
+        }
+        else{
+            foreach ($sip as $key => $sipclient) {
+                $form[] = [
+                    'ID'     => $key,
+                    'Title'  => $sipclient['title'],
+                    'Value'  => $sipclient['value'], ];
+            }
         }
         return $form;
     }
@@ -2361,11 +2369,17 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
     private function Get_HTTPListConfiguration($http)
     {
         $form = [];
-        foreach ($http as $key => $http_call) {
-            $form[] = [
-                'ID'     => $key,
-                'Title'  => $http_call['title'],
-                'Value'  => $http_call['value'], ];
+        if(empty($http))
+        {
+            $this->SendDebug('HTTP', 'No HTTP Favorites found', 0);
+        }
+        else{
+            foreach ($http as $key => $http_call) {
+                $form[] = [
+                    'ID'     => $key,
+                    'Title'  => $http_call['title'],
+                    'Value'  => $http_call['value'], ];
+            }
         }
         return $form;
     }
@@ -2446,38 +2460,44 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $form = [];
         $from = 0;
         $to = 0;
-        foreach ($schedule_data as $key => $entry) {
-            $input = $entry->input;
-            $inputparam = $entry->param;
-            $output = $entry->output;
-            foreach ($output as $outputentry) {
-                $event = $outputentry->event;
-                $param = $outputentry->param;
-                //$enabled = $outputentry->enabled;
-                $schedule = $outputentry->schedule;
-                foreach ($schedule as $schedule_type => $schedule_entry) {
-                    if($schedule_type == 'weekdays')
-                    {
-                        $from = $schedule_entry[0]->from;
-                        $to = $schedule_entry[0]->to;
+        if(empty($schedule_data))
+        {
+            $this->SendDebug('Schedule', 'No Schedule found', 0);
+        }
+        else{
+            foreach ($schedule_data as $key => $entry) {
+                $input = $entry->input;
+                $inputparam = $entry->param;
+                $output = $entry->output;
+                foreach ($output as $outputentry) {
+                    $event = $outputentry->event;
+                    $param = $outputentry->param;
+                    //$enabled = $outputentry->enabled;
+                    $schedule = $outputentry->schedule;
+                    foreach ($schedule as $schedule_type => $schedule_entry) {
+                        if($schedule_type == 'weekdays')
+                        {
+                            $from = $schedule_entry[0]->from;
+                            $to = $schedule_entry[0]->to;
+                        }
                     }
                 }
+                $form[] = [
+                    'id'    => $key+1,
+                    'ident' => $key,
+                    'input' => $this->Translate($input),
+                ];
+                $form[] = [
+                    'id'                 => $key+100,
+                    'parent'             => $key+1,
+                    'ident'              => $key,
+                    'input'              => $this->Translate($input),
+                    'inputparam'         => $inputparam,
+                    'outputevent'        => $event,
+                    'outputparam'        => $param,
+                    'schedule_type'      => $this->Translate($schedule_type),
+                    'schedule_interval'  => $from . ' - ' . $to, ];
             }
-            $form[] = [
-                'id'    => $key+1,
-                'ident' => $key,
-                'input' => $this->Translate($input),
-                 ];
-            $form[] = [
-                'id'                 => $key+100,
-                'parent'             => $key+1,
-                'ident'              => $key,
-                'input'              => $this->Translate($input),
-                'inputparam'         => $inputparam,
-                'outputevent'        => $event,
-                'outputparam'        => $param,
-                'schedule_type'      => $this->Translate($schedule_type),
-                'schedule_interval'  => $from . ' - ' . $to, ];
         }
         return $form;
     }

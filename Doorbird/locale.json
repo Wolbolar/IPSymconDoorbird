@@ -100,6 +100,13 @@
 			"field must not be empty.": "Felder dürfen nicht leer sein.",
 			"select category for import.": "Kategorie zum Import auswählen.",
 			"category must not be empty.": "Es muss eine Kategorie ausgewählt werden.",
+			"email not valid.": "Email Adresse nicht gültig.",
+			"category doorbird snapshot not set.": "Es wurde kein Kategorie für Bewegungsbilder gesetzt.",
+			"category doorbird history not set.": "Es wurde keine Kategorie für Klingelbilder gesetzt.",
+			"doorbird user not set.": "Doorbird Benutzer wurde nicht eingetragen",
+			"doorbird password not set.": "Doorbird Passwort wurde nicht eingetragen.",
+			"webhook user not set.": "Webhook Benutzer wurde nicht eingetragen.",
+			"email not set.": "Email Adresse nicht gesetzt.",
 			"email not vaild": "Email Adresse nicht gültig",
 			"Ring Pictures 1": "Klingelbilder Klingel 1",
 			"Ring Pictures 2": "Klingelbilder Klingel 2",
@@ -120,7 +127,7 @@
 			"once": "einmalig",
 			"weekdays": "wochentags",
 			"from-to": "von bis",
-			"motion": "Bewegung"
+			"motion": "Bewegung",
 		}
 	}
 }

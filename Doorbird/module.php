@@ -1287,15 +1287,23 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
     //Profile zuweisen und Geräte anlegen
     public function SetupNotification()
     {
+        $sip = [];
+        $http = [];
         $favorites = $this->GetFavorites();
-        $data      = json_decode($favorites, true);
-        $sip       = $data['sip'];
-        foreach ($sip as $key => $sipclient) {
-            $this->SendDebug('Doorbird SIP Title', $sipclient['title'], 0);
-            $this->SendDebug('Doorbird SIP Value', $sipclient['value'], 0);
-            $this->SendDebug('Doorbird SIP Key', $key, 0);
+        if($favorites)
+        {
+            $data = json_decode($favorites, true);
+            $sip = $data['sip'];
+            $http = $data['http'];
         }
-        $http                     = $data['http'];
+        if(!empty($sip))
+        {
+            foreach ($sip as $key => $sipclient) {
+                $this->SendDebug('Doorbird SIP Title', $sipclient['title'], 0);
+                $this->SendDebug('Doorbird SIP Value', $sipclient['value'], 0);
+                $this->SendDebug('Doorbird SIP Key', $key, 0);
+            }
+        }
         $webhook_call_motion      = $this->GetFavoritURL('motionsensor');
         $webhook_call_doorbell111 = $this->GetFavoritURL('doorbell111');
         $webhook_call_doorbell211 = $this->GetFavoritURL('doorbell211');
@@ -1308,37 +1316,40 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $duplicate_doorbell111    = false;
         $duplicate_doorbell112    = false;
         $duplicate_doorbell113    = false;
-        foreach ($http as $key => $http_call) {
-            $this->SendDebug('Doorbird HTTP Key', $key, 0);
-            $this->SendDebug('Doorbird HTTP Title', $http_call['title'], 0);
-            $this->SendDebug('Doorbird HTTP Value', $http_call['value'], 0);
-            if (($webhook_call_motion == $http_call['value'] && $duplicate_motionsensor == true)
-                || ($webhook_call_doorbell111 == $http_call['value']
-                    && $duplicate_doorbell111 == true)
-                || ($webhook_call_doorbell211 == $http_call['value'] && $duplicate_doorbell112 == true)
-                || ($webhook_call_doorbell311 == $http_call['value'] && $duplicate_doorbell113 == true)
-                || ($webhook_call_dooropen == $http_call['value'] && $duplicate_dooropen == true)
-                || ($webhook_call_dooropen2 == $http_call['value'] && $duplicate_dooropen2 == true)) {
-                $this->SendDebug('Doorbird HTTP Delete Key', $key, 0);
-                $this->DeleteFavorites($key, 'http');
-            }
-            if ($webhook_call_motion == $http_call['value']) {
-                $duplicate_motionsensor = true;
-            }
-            if ($webhook_call_doorbell111 == $http_call['value']) {
-                $duplicate_doorbell111 = true;
-            }
-            if ($webhook_call_doorbell211 == $http_call['value']) {
-                $duplicate_doorbell112 = true;
-            }
-            if ($webhook_call_doorbell311 == $http_call['value']) {
-                $duplicate_doorbell113 = true;
-            }
-            if ($webhook_call_dooropen == $http_call['value']) {
-                $duplicate_dooropen = true;
-            }
-            if ($webhook_call_dooropen2 == $http_call['value']) {
-                $duplicate_dooropen2 = true;
+        if(!empty($http))
+        {
+            foreach ($http as $key => $http_call) {
+                $this->SendDebug('Doorbird HTTP Key', $key, 0);
+                $this->SendDebug('Doorbird HTTP Title', $http_call['title'], 0);
+                $this->SendDebug('Doorbird HTTP Value', $http_call['value'], 0);
+                if (($webhook_call_motion == $http_call['value'] && $duplicate_motionsensor == true)
+                    || ($webhook_call_doorbell111 == $http_call['value']
+                        && $duplicate_doorbell111 == true)
+                    || ($webhook_call_doorbell211 == $http_call['value'] && $duplicate_doorbell112 == true)
+                    || ($webhook_call_doorbell311 == $http_call['value'] && $duplicate_doorbell113 == true)
+                    || ($webhook_call_dooropen == $http_call['value'] && $duplicate_dooropen == true)
+                    || ($webhook_call_dooropen2 == $http_call['value'] && $duplicate_dooropen2 == true)) {
+                    $this->SendDebug('Doorbird HTTP Delete Key', $key, 0);
+                    $this->DeleteFavorites($key, 'http');
+                }
+                if ($webhook_call_motion == $http_call['value']) {
+                    $duplicate_motionsensor = true;
+                }
+                if ($webhook_call_doorbell111 == $http_call['value']) {
+                    $duplicate_doorbell111 = true;
+                }
+                if ($webhook_call_doorbell211 == $http_call['value']) {
+                    $duplicate_doorbell112 = true;
+                }
+                if ($webhook_call_doorbell311 == $http_call['value']) {
+                    $duplicate_doorbell113 = true;
+                }
+                if ($webhook_call_dooropen == $http_call['value']) {
+                    $duplicate_dooropen = true;
+                }
+                if ($webhook_call_dooropen2 == $http_call['value']) {
+                    $duplicate_dooropen2 = true;
+                }
             }
         }
         //doorbell add favorites

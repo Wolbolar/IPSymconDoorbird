@@ -826,7 +826,7 @@ class Doorbird extends IPSModule
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
-        IPS_LogMessage(get_class() . '::' . __FUNCTION__, 'SenderID: ' . $SenderID . ', Message: ' . $Message . ', Data:' . json_encode($Data));
+        $this->LogMessage('SenderID: ' . $SenderID . ', Message: ' . $Message . ', Data:' . json_encode($Data), KL_DEBUG);
         if ($SenderID == $this->GetIDForIdent('LastRingtone')) {
             $this->SetRingPicture(1);
             $email = $this->ReadPropertyString('email');
@@ -1675,7 +1675,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
             $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $catid);
         } else {
             $this->SendDebug('Doorbird', 'No category is set, please set category.', 0);
-            IPS_LogMessage('Doorbird', 'Es wurde keine Kategorie gesetzt. Die Funktion wurde nicht ausgeführt.');
+            $this->LogMessage('Es wurde keine Kategorie gesetzt. Die Funktion wurde nicht ausgeführt.', KL_DEBUG);
             echo 'Es wurde keine Kategorie gesetzt. Die Funktion wurde nicht ausgeführt.';
         }
     }
@@ -1724,7 +1724,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
             }
         } else {
             $this->SendDebug('Doorbird', 'No category is set, please set category.', 0);
-            IPS_LogMessage('Doorbird', 'Es wurde keine Kategorie gesetzt. Die Funktion wurde nicht ausgeführt.');
+            $this->LogMessage('Es wurde keine Kategorie gesetzt. Die Funktion wurde nicht ausgeführt.', KL_DEBUG);
             echo 'Es wurde keine Kategorie gesetzt. Die Funktion wurde nicht ausgeführt.';
         }
     }

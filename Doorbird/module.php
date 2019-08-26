@@ -2283,10 +2283,25 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         if($result)
         {
             $data = json_decode($result, true);
-            $sip = $data['sip'];
-            $http = $data['http'];
-            $rowcount_sip = count($sip);
-            $rowcount_http = count($http);
+            if(isset($data['sip']))
+            {
+                $sip = $data['sip'];
+                $rowcount_sip = count($sip);
+            }
+            else
+            {
+                $rowcount_sip = 1;
+            }
+            if(isset($data['http']))
+            {
+                $http = $data['http'];
+                $rowcount_http = count($http);
+
+            }
+            else
+            {
+                $rowcount_http = 1;
+            }
         }
         $form = [
             [

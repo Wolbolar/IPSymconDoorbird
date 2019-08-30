@@ -53,6 +53,10 @@
 			"Doorbird Build Number": "Doorbird Build Number",
 			"Doorbird WLAN MAC": "Doorbird WLAN MAC",
 			"Doorbird Return": "Doorbird Return",
+			"when viewing the webfront in a browser on an iOS or Android device, the Doorbird app can be optionally started from the webfront to talk to the visitor": "Bei Ansicht des Webfronts in einem Browser auf einem iOS oder Android Gerät kann optional die Doorbird App aus dem Webfront gestartet werden um mit dem Besucher zu sprechen",
+			"Enable Variable for launching the Doorbird App": "Variable zum Starten der Doorbird App anlegen",
+			"Launch Doorbird App": "Doorbird App starten",
+			"Webfront Doorbird App": "Webfront Doorbird App",
 			"Relaxation time for doorbell (seconds)": "Erholungszeit bis zum erneuten Auslösen der Türklingelbenachrichtigung (Sekunden)",
 			"Relaxation time for motionsensor (seconds)": "Erholungszeit bis zum erneuten Auslösen der Bewegungsbenachrichtigung (Sekunden)",
 			"Relaxation time for dooropen (seconds)": "Erholungszeit bis zum erneuten Auslösen der Türöffnungsbenachrichtigung (Sekunden)",
@@ -128,7 +132,12 @@
 			"weekdays": "wochentags",
 			"from-to": "von bis",
 			"motion": "Bewegung",
-			"Connection from Doorbird to IP-Symcon": "Verbindung von Doorbird zu IP-Symcon"
+			"Connection from Doorbird to IP-Symcon": "Verbindung von Doorbird zu IP-Symcon",
+			"Could not connect. Please check the Doorbird password.": "Konnte keine Verbindung herstellen. Bitte das Doorbird Passwort überprüfen.",
+			"Could not connect. Please check the Doorbird username.": "Konnte keine Verbindung herstellen. Bitte den Doorbird Nutzer überprüfen.",
+			"the user has no authority as an API operator. Please make sure that the user who has been deposited in IP-Symcon has been assigned API operator rights.": "Der Benutzer verfügt über keine Berechtigung als API Operator. Bitte stellen Sie sicher das der Nutzer, der in IP-Symcon hinterlegt wurde, diese Rechte zugewiesen bekommen hat.",
+			"No valid Doorbird IP adress or host.": "Keine gültige Doorbird IP Adresse oder Domainname.",
+			"No valid IP-Symcon IP adress or host.": "Keine gültige IP-Symcon IP Adresse oder Domainname."
 		}
 	}
 }

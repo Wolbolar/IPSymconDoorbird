@@ -1536,7 +1536,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $this->SendDebug('Doorbird URL', $Doorbird_URL, 0);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $Doorbird_URL);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30); //timeout after 30 seconds
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5); //timeout after 5 seconds
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
         curl_setopt($ch, CURLOPT_USERPWD, "$doorbirduser:$doorbirdpassword");

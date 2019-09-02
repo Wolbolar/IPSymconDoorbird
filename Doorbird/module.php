@@ -321,7 +321,11 @@ class Doorbird extends IPSModule
         {
             $this->RegisterVariableString('doorbird_app', $this->Translate('Launch Doorbird App'), '~HTMLBox', 13);
             $content = '<a href="doorbird://" title="Doorbird App"><img border="0" alt="Doorbird App" src="data:image/png;base64, ' . self::PICTURE_LOGO_DOORBIRD .'" width="15%" height="15%"></a>';
-            IPS_SetIcon($this->InstanceID, 'Mobile');
+            $icon = IPS_GetObject($this->GetIDForIdent('doorbird_app'))['ObjectIcon'];
+            if($icon == "")
+            {
+                IPS_SetIcon($this->InstanceID, 'Mobile');
+            }
             $this->SetValue('doorbird_app', $content);
         }
         $this->ValidateConfiguration();

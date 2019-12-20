@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 class DoorbirdDiscovery extends IPSModule
 {
-
     public function Create()
     {
         //Never delete this line!
@@ -61,7 +60,7 @@ class DoorbirdDiscovery extends IPSModule
 
     private function GetSymconIP()
     {
-        $ip =  gethostbyname(gethostname()); ;
+        $ip =  gethostbyname(gethostname());
         return $ip;
     }
 
@@ -95,28 +94,28 @@ class DoorbirdDiscovery extends IPSModule
                 }
 
                 $config_list[] = [
-                    'instanceID' => $instanceID,
-                    'id'         => $device_id,
-                    'name'       => $name,
+                    'instanceID'     => $instanceID,
+                    'id'             => $device_id,
+                    'name'           => $name,
                     'hostname'       => $hostname,
-                    'host'       => $host,
-                    'mac' => $mac,
-                    'create'     => [
+                    'host'           => $host,
+                    'mac'            => $mac,
+                    'create'         => [
                         [
                             'moduleID'      => '{D489FA0B-765D-451E-8B21-C6B61ECAC00E}',
                             'configuration' => [
-                                'name' => $name,
-                                'hostname' => $hostname,
+                                'name'         => $name,
+                                'hostname'     => $hostname,
                                 'PortDoorbell' => 80,
-                                'Host' => $host,],],
+                                'Host'         => $host, ], ],
                         [
                             'moduleID'      => '{82347F20-F541-41E1-AC5B-A636FD3AE2D8}',
                             'configuration' => [
-                                'Host' => $this->GetSymconIP(),
-                                'Port' => 6524,
-                                'BindIP' => $this->GetSymconIP(),
+                                'Host'     => $this->GetSymconIP(),
+                                'Port'     => 6524,
+                                'BindIP'   => $this->GetSymconIP(),
                                 'BindPort' => 6524,
-                                'Open' => true,],],],];
+                                'Open'     => true, ], ], ], ];
             }
         }
         return $config_list;
@@ -144,16 +143,16 @@ class DoorbirdDiscovery extends IPSModule
         foreach($devices as $key => $doorbird_station)
         {
             $mDNS_name = $doorbird_station['Name'];
-            if(stripos( $mDNS_name, 'Doorstation') === 0)
+            if(stripos($mDNS_name, 'Doorstation') === 0)
             {
-                $response = ZC_QueryService($mDNSInstanceID, $mDNS_name, "_axis-video._tcp", "local.");
+                $response = ZC_QueryService($mDNSInstanceID, $mDNS_name, '_axis-video._tcp', 'local.');
                 foreach($response as $data)
                 {
-                    $name = str_ireplace( '._axis-video._tcp.local.', '', $data["Name"]);
-                    $hostname = str_ireplace( '.local.', '', $data["Host"]);
-                    $port = $data["Port"];
-                    $mac = str_ireplace( 'macaddress=', '', $data["TXTRecords"][0]);
-                    $ip = $data["IPv4"][0];
+                    $name = str_ireplace('._axis-video._tcp.local.', '', $data['Name']);
+                    $hostname = str_ireplace('.local.', '', $data['Host']);
+                    $port = $data['Port'];
+                    $mac = str_ireplace('macaddress=', '', $data['TXTRecords'][0]);
+                    $ip = $data['IPv4'][0];
                 }
                 $doorbird_info[$key] = ['name' => $name, 'hostname' => $hostname, 'host' => $ip, 'port' => $port, 'mac' => $mac];
             }
@@ -206,7 +205,7 @@ class DoorbirdDiscovery extends IPSModule
             [
                 'elements' => $this->FormElements(),
                 'actions'  => $this->FormActions(),
-                'status'   => $this->FormStatus(),]
+                'status'   => $this->FormStatus(), ]
         );
         $this->SendDebug('FORM', $Form, 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
@@ -245,30 +244,30 @@ class DoorbirdDiscovery extends IPSModule
                 'delete'   => true,
                 'sort'     => [
                     'column'    => 'name',
-                    'direction' => 'ascending',],
+                    'direction' => 'ascending', ],
                 'columns'  => [
                     [
                         'label'   => 'ID',
                         'name'    => 'id',
                         'width'   => '200px',
-                        'visible' => false,],
+                        'visible' => false, ],
                     [
                         'label' => 'name',
                         'name'  => 'name',
-                        'width' => 'auto',],
+                        'width' => 'auto', ],
                     [
                         'label' => 'hostname',
                         'name'  => 'hostname',
-                        'width' => '400px',],
+                        'width' => '400px', ],
                     [
                         'label' => 'host',
                         'name'  => 'host',
-                        'width' => '400px',],
+                        'width' => '400px', ],
                     [
                         'label' => 'mac',
                         'name'  => 'mac',
-                        'width' => '400px',],],
-                'values'   => $this->Get_ListConfiguration(),],];
+                        'width' => '400px', ], ],
+                'values'   => $this->Get_ListConfiguration(), ], ];
 
         return $form;
     }
@@ -284,19 +283,19 @@ class DoorbirdDiscovery extends IPSModule
             [
                 'code'    => 101,
                 'icon'    => 'inactive',
-                'caption' => 'Creating instance.',],
+                'caption' => 'Creating instance.', ],
             [
                 'code'    => 102,
                 'icon'    => 'active',
-                'caption' => 'Doorbird Discovery created.',],
+                'caption' => 'Doorbird Discovery created.', ],
             [
                 'code'    => 104,
                 'icon'    => 'inactive',
-                'caption' => 'interface closed.',],
+                'caption' => 'interface closed.', ],
             [
                 'code'    => 201,
                 'icon'    => 'inactive',
-                'caption' => 'Please follow the instructions.',],];
+                'caption' => 'Please follow the instructions.', ], ];
 
         return $form;
     }

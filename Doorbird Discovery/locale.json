@@ -1,0 +1,20 @@
+{
+  "translations": {
+    "de": {
+      "Background Discovery of Doorbird": "Hintergrundsuche nach Doorbird",
+      "name": "Name",
+      "host": "IP Adresse",
+      "hostname": "Gerätename",
+      "mac": "MAC",
+      "UUID": "UUID",
+      "Refresh list": "Liste aktualisieren",
+      "Read configuration": "Konfiguration auslesen",
+      "Creating instance.": "Instanz erstellen.",
+      "Doorbird Discovery created.": "Doorbird Discovery erstellt.",
+      "interface closed.": "Interface geschlossen.",
+      "Please follow the instructions.": "Bitte den Anleitung folgen.",
+      "no category selected.": "keine Kategorie ausgewählt."
+
+    }
+  }
+}

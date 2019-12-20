@@ -4,6 +4,8 @@
       "Background Discovery of Doorbird": "Hintergrundsuche nach Doorbird",
       "name": "Name",
       "host": "IP Adresse",
+      "hostname": "Gerätename",
+      "mac": "MAC",
       "UUID": "UUID",
       "Refresh list": "Liste aktualisieren",
       "Read configuration": "Konfiguration auslesen",

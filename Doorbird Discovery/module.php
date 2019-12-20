@@ -155,8 +155,8 @@ class DoorbirdDiscovery extends IPSModule
                     $mac = str_ireplace( 'macaddress=', '', $data["TXTRecords"][0]);
                     $ip = $data["IPv4"][0];
                 }
+                $doorbird_info[$key] = ['name' => $name, 'hostname' => $hostname, 'host' => $ip, 'port' => $port, 'mac' => $mac];
             }
-            $doorbird_info[$key] = ['name' => $name, 'hostname' => $hostname, 'host' => $ip, 'port' => $port, 'mac' => $mac];
         }
         return $doorbird_info;
     }

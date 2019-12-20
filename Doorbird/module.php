@@ -183,7 +183,7 @@ class Doorbird extends IPSModule
         $this->RegisterPropertyString('name', '');
         $this->RegisterPropertyString('Host', '');
         $this->RegisterPropertyInteger('PortDoorbell', 80);
-        $this->RegisterPropertyString('target', '');
+        $this->RegisterPropertyString('hostname', '');
         $this->RegisterPropertyString('IPSIP', '');
         $this->RegisterPropertyInteger('PortIPS', 3777);
         $this->RegisterPropertyString('User', '');

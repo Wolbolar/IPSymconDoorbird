@@ -1,0 +1,13 @@
+{
+  "id": "{2051DE7D-E9A3-4805-7D9E-36FA8406C314}",
+  "name": "DoorbirdDiscovery",
+  "type": 5,
+  "vendor": "Doorbird",
+  "aliases": [
+    "Doorbird Discovery"
+  ],
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "DoorbirdDiscovery"
+}

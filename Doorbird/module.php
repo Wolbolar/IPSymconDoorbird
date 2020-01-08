@@ -2111,217 +2111,217 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         if ($doorbirdreturn == '[]') {
             $form = array_merge_recursive(
                 $form, [
-                         [
-                             'type'  => 'Label',
-                             'label' => 'Please fill in all fields in this form and then press the button below for the notification setup of the Doorbird for IP-Symcon'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'Setup notifications from doorbird to IP-Symcon'],
-                         [
-                             'type'    => 'Button',
-                             'label'   => 'Setup notifications from doorbird to IP-Symcon',
-                             'onClick' => 'Doorbird_SetupNotification($id);']]
+                    [
+                        'type'  => 'Label',
+                        'label' => 'Please fill in all fields in this form and then press the button below for the notification setup of the Doorbird for IP-Symcon'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'Setup notifications from doorbird to IP-Symcon'],
+                    [
+                        'type'    => 'Button',
+                        'label'   => 'Setup notifications from doorbird to IP-Symcon',
+                        'onClick' => 'Doorbird_SetupNotification($id);']]
             );
         }
         $form = array_merge_recursive(
             $form, [
-                     [
-                         'type'    => 'ExpansionPanel',
-                         'caption' => 'Doorbird Settings',
-                         'items'   => [
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'IP adress or hostname Doorbird'],
-                             [
-                                 'name'    => 'Host',
-                                 'type'    => 'ValidationTextBox',
-                                 'caption' => 'IP Doorbird'],
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'port of Doorbell'],
-                             [
-                                 'name'    => 'PortDoorbell',
-                                 'type'    => 'NumberSpinner',
-                                 'caption' => 'Port Doorbell']]],
-                     [
-                         'type'    => 'ExpansionPanel',
-                         'caption' => 'Doorbird login credentials',
-                         'items'   => [
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'Doorbird user with authorization as API-Operator'],
-                             [
-                                 'name'    => 'User',
-                                 'type'    => 'ValidationTextBox',
-                                 'caption' => 'User'],
-                             [
-                                 'name'    => 'Password',
-                                 'type'    => 'PasswordTextBox',
-                                 'caption' => 'Password']]],
-                     [
-                         'type'    => 'ExpansionPanel',
-                         'caption' => 'Doorbird Picture Settings',
-                         'items'   => [
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'category for doorbird ring pictures, please create first a category in the objekt tree of IP-Symcon and then select it in the field below'],
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'doorbird ring pictures category'],
-                             [
-                                 'name'    => 'categoryhistory',
-                                 'type'    => 'SelectCategory',
-                                 'caption' => 'ring pictures'],
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'picture limit for doorbird ring pictures'],
-                             [
-                                 'name'    => 'picturelimitring',
-                                 'type'    => 'NumberSpinner',
-                                 'caption' => 'limit ring pictures'],
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'category for doorbird snapshots pictures, please create first a category in the objekt tree of IP-Symcon and then select it in the field below'],
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'doorbird snapshot pictures category'],
-                             [
-                                 'name'    => 'categorysnapshot',
-                                 'type'    => 'SelectCategory',
-                                 'caption' => 'snapshot pictures'],
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'picture limit for doorbird snapshots pictures'],
-                             [
-                                 'name'    => 'picturelimitsnapshot',
-                                 'type'    => 'NumberSpinner',
-                                 'caption' => 'limit snapshots']]],
-                     [
-                         'type'    => 'ExpansionPanel',
-                         'caption' => 'IP Symcon Settings',
-                         'items'   => [
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'IP adress IP-Symcon Server'],
-                             [
-                                 'name'    => 'IPSIP',
-                                 'type'    => 'ValidationTextBox',
-                                 'caption' => 'IP adress'],
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'port of IP-Symcon'],
-                             [
-                                 'name'    => 'PortIPS',
-                                 'type'    => 'NumberSpinner',
-                                 'caption' => 'Port IPS']]],
-                     [
-                         'type'    => 'ExpansionPanel',
-                         'caption' => 'notification preferences',
-                         'items'   => [
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'parameter relaxation:  min 10s max 10000s'],
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'notification activ for:'],
-                             [
-                                 'name'    => 'doorbell',
-                                 'type'    => 'CheckBox',
-                                 'caption' => 'doorbell'],
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'Relaxation time for doorbell (seconds)'],
-                             [
-                                 'name'    => 'relaxationdoorbell',
-                                 'type'    => 'NumberSpinner',
-                                 'caption' => 'relaxation (s)'],
-                             [
-                                 'name'    => 'motionsensor',
-                                 'type'    => 'CheckBox',
-                                 'caption' => 'motionsensor'],
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'Relaxation time for motionsensor (seconds)'],
-                             [
-                                 'name'    => 'relaxationmotionsensor',
-                                 'type'    => 'NumberSpinner',
-                                 'caption' => 'relaxation (s)'],
-                             [
-                                 'name'    => 'dooropen',
-                                 'type'    => 'CheckBox',
-                                 'caption' => 'door open'],
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'Relaxation time for dooropen (seconds)'],
-                             [
-                                 'name'    => 'relaxationdooropen',
-                                 'type'    => 'NumberSpinner',
-                                 'caption' => 'relaxation (s)']]]]
+                [
+                    'type'    => 'ExpansionPanel',
+                    'caption' => 'Doorbird Settings',
+                    'items'   => [
+                        [
+                            'type'  => 'Label',
+                            'label' => 'IP adress or hostname Doorbird'],
+                        [
+                            'name'    => 'Host',
+                            'type'    => 'ValidationTextBox',
+                            'caption' => 'IP Doorbird'],
+                        [
+                            'type'  => 'Label',
+                            'label' => 'port of Doorbell'],
+                        [
+                            'name'    => 'PortDoorbell',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'Port Doorbell']]],
+                [
+                    'type'    => 'ExpansionPanel',
+                    'caption' => 'Doorbird login credentials',
+                    'items'   => [
+                        [
+                            'type'  => 'Label',
+                            'label' => 'Doorbird user with authorization as API-Operator'],
+                        [
+                            'name'    => 'User',
+                            'type'    => 'ValidationTextBox',
+                            'caption' => 'User'],
+                        [
+                            'name'    => 'Password',
+                            'type'    => 'PasswordTextBox',
+                            'caption' => 'Password']]],
+                [
+                    'type'    => 'ExpansionPanel',
+                    'caption' => 'Doorbird Picture Settings',
+                    'items'   => [
+                        [
+                            'type'  => 'Label',
+                            'label' => 'category for doorbird ring pictures, please create first a category in the objekt tree of IP-Symcon and then select it in the field below'],
+                        [
+                            'type'  => 'Label',
+                            'label' => 'doorbird ring pictures category'],
+                        [
+                            'name'    => 'categoryhistory',
+                            'type'    => 'SelectCategory',
+                            'caption' => 'ring pictures'],
+                        [
+                            'type'  => 'Label',
+                            'label' => 'picture limit for doorbird ring pictures'],
+                        [
+                            'name'    => 'picturelimitring',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'limit ring pictures'],
+                        [
+                            'type'  => 'Label',
+                            'label' => 'category for doorbird snapshots pictures, please create first a category in the objekt tree of IP-Symcon and then select it in the field below'],
+                        [
+                            'type'  => 'Label',
+                            'label' => 'doorbird snapshot pictures category'],
+                        [
+                            'name'    => 'categorysnapshot',
+                            'type'    => 'SelectCategory',
+                            'caption' => 'snapshot pictures'],
+                        [
+                            'type'  => 'Label',
+                            'label' => 'picture limit for doorbird snapshots pictures'],
+                        [
+                            'name'    => 'picturelimitsnapshot',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'limit snapshots']]],
+                [
+                    'type'    => 'ExpansionPanel',
+                    'caption' => 'IP Symcon Settings',
+                    'items'   => [
+                        [
+                            'type'  => 'Label',
+                            'label' => 'IP adress IP-Symcon Server'],
+                        [
+                            'name'    => 'IPSIP',
+                            'type'    => 'ValidationTextBox',
+                            'caption' => 'IP adress'],
+                        [
+                            'type'  => 'Label',
+                            'label' => 'port of IP-Symcon'],
+                        [
+                            'name'    => 'PortIPS',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'Port IPS']]],
+                [
+                    'type'    => 'ExpansionPanel',
+                    'caption' => 'notification preferences',
+                    'items'   => [
+                        [
+                            'type'  => 'Label',
+                            'label' => 'parameter relaxation:  min 10s max 10000s'],
+                        [
+                            'type'  => 'Label',
+                            'label' => 'notification activ for:'],
+                        [
+                            'name'    => 'doorbell',
+                            'type'    => 'CheckBox',
+                            'caption' => 'doorbell'],
+                        [
+                            'type'  => 'Label',
+                            'label' => 'Relaxation time for doorbell (seconds)'],
+                        [
+                            'name'    => 'relaxationdoorbell',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'relaxation (s)'],
+                        [
+                            'name'    => 'motionsensor',
+                            'type'    => 'CheckBox',
+                            'caption' => 'motionsensor'],
+                        [
+                            'type'  => 'Label',
+                            'label' => 'Relaxation time for motionsensor (seconds)'],
+                        [
+                            'name'    => 'relaxationmotionsensor',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'relaxation (s)'],
+                        [
+                            'name'    => 'dooropen',
+                            'type'    => 'CheckBox',
+                            'caption' => 'door open'],
+                        [
+                            'type'  => 'Label',
+                            'label' => 'Relaxation time for dooropen (seconds)'],
+                        [
+                            'name'    => 'relaxationdooropen',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'relaxation (s)']]]]
         );
         $form = array_merge_recursive(
             $form, [
-                     [
-                         'type'    => 'ExpansionPanel',
-                         'caption' => 'email notification settings',
-                         'items'   => $this->FormShowEmail()]]
+                [
+                    'type'    => 'ExpansionPanel',
+                    'caption' => 'email notification settings',
+                    'items'   => $this->FormShowEmail()]]
         );
         $form = array_merge_recursive(
             $form, [
-                     [
-                         'type'    => 'ExpansionPanel',
-                         'caption' => 'alternative view',
-                         'items'   => [
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'if there are problems with the live image in the webfront you can active alterative view'],
-                             [
-                                 'name'    => 'altview',
-                                 'type'    => 'CheckBox',
-                                 'caption' => 'alternative view']]],
-                     [
-                         'type'    => 'ExpansionPanel',
-                         'caption' => 'IP Symcon Webhook Settings',
-                         'items'   => [
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'Connection from Doorbird to IP-Symcon'],
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'authentication for Doorbird webhook'],
-                             [
-                                 'name'    => 'webhookusername',
-                                 'type'    => 'ValidationTextBox',
-                                 'caption' => 'username'],
-                             [
-                                 'name'    => 'webhookpassword',
-                                 'type'    => 'PasswordTextBox',
-                                 'caption' => 'Password']]]]
+                [
+                    'type'    => 'ExpansionPanel',
+                    'caption' => 'alternative view',
+                    'items'   => [
+                        [
+                            'type'  => 'Label',
+                            'label' => 'if there are problems with the live image in the webfront you can active alterative view'],
+                        [
+                            'name'    => 'altview',
+                            'type'    => 'CheckBox',
+                            'caption' => 'alternative view']]],
+                [
+                    'type'    => 'ExpansionPanel',
+                    'caption' => 'IP Symcon Webhook Settings',
+                    'items'   => [
+                        [
+                            'type'  => 'Label',
+                            'label' => 'Connection from Doorbird to IP-Symcon'],
+                        [
+                            'type'  => 'Label',
+                            'label' => 'authentication for Doorbird webhook'],
+                        [
+                            'name'    => 'webhookusername',
+                            'type'    => 'ValidationTextBox',
+                            'caption' => 'username'],
+                        [
+                            'name'    => 'webhookpassword',
+                            'type'    => 'PasswordTextBox',
+                            'caption' => 'Password']]]]
         );
         $form = array_merge_recursive(
             $form, [
-                     [
-                         'type'    => 'ExpansionPanel',
-                         'caption' => 'Doorbird Favorites',
-                         'items'   => $this->FormShowFavorites()]]
+                [
+                    'type'    => 'ExpansionPanel',
+                    'caption' => 'Doorbird Favorites',
+                    'items'   => $this->FormShowFavorites()]]
         );
         $form = array_merge_recursive(
             $form, [
-                     [
-                         'type'    => 'ExpansionPanel',
-                         'caption' => 'Doorbird Schedule',
-                         'items'   => $this->FormShowSchedule()],
-                     [
-                         'type'    => 'ExpansionPanel',
-                         'caption' => 'Webfront Doorbird App',
-                         'items'   => [
-                             [
-                                 'type'  => 'Label',
-                                 'label' => 'when viewing the webfront in a browser on an iOS or Android device, the Doorbird app can be optionally started from the webfront to talk to the visitor'],
-                             [
-                                 'name'    => 'doorbird_app',
-                                 'type'    => 'CheckBox',
-                                 'caption' => 'Enable Variable for launching the Doorbird App']
-                         ]]]
+                [
+                    'type'    => 'ExpansionPanel',
+                    'caption' => 'Doorbird Schedule',
+                    'items'   => $this->FormShowSchedule()],
+                [
+                    'type'    => 'ExpansionPanel',
+                    'caption' => 'Webfront Doorbird App',
+                    'items'   => [
+                        [
+                            'type'  => 'Label',
+                            'label' => 'when viewing the webfront in a browser on an iOS or Android device, the Doorbird app can be optionally started from the webfront to talk to the visitor'],
+                        [
+                            'name'    => 'doorbird_app',
+                            'type'    => 'CheckBox',
+                            'caption' => 'Enable Variable for launching the Doorbird App']
+                    ]]]
         );
         return $form;
     }
@@ -2636,337 +2636,337 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         if ($activeemail2) {
             $form = array_merge_recursive(
                 $form, [
-                         [
-                             'name'    => 'smtpmodule2',
-                             'type'    => 'SelectInstance',
-                             'caption' => 'SMTP module'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'notification email adress'],
-                         [
-                             'name'    => 'email2',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email subject'],
-                         [
-                             'name'    => 'subject2',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'subject'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email text'],
-                         [
-                             'name'    => 'emailtext2',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email text'],
-                         [
-                             'name'    => 'activeemail3',
-                             'type'    => 'CheckBox',
-                             'caption' => 'active email 3']]
+                    [
+                        'name'    => 'smtpmodule2',
+                        'type'    => 'SelectInstance',
+                        'caption' => 'SMTP module'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'notification email adress'],
+                    [
+                        'name'    => 'email2',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email subject'],
+                    [
+                        'name'    => 'subject2',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'subject'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email text'],
+                    [
+                        'name'    => 'emailtext2',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email text'],
+                    [
+                        'name'    => 'activeemail3',
+                        'type'    => 'CheckBox',
+                        'caption' => 'active email 3']]
             );
         }
         if ($activeemail3) {
             $form = array_merge_recursive(
                 $form, [
-                         [
-                             'name'    => 'smtpmodule3',
-                             'type'    => 'SelectInstance',
-                             'caption' => 'SMTP module'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'notification email adress'],
-                         [
-                             'name'    => 'email3',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email subject'],
-                         [
-                             'name'    => 'subject3',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'subject'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email text'],
-                         [
-                             'name'    => 'emailtext3',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email text'],
-                         [
-                             'name'    => 'activeemail4',
-                             'type'    => 'CheckBox',
-                             'caption' => 'active email 4']]
+                    [
+                        'name'    => 'smtpmodule3',
+                        'type'    => 'SelectInstance',
+                        'caption' => 'SMTP module'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'notification email adress'],
+                    [
+                        'name'    => 'email3',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email subject'],
+                    [
+                        'name'    => 'subject3',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'subject'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email text'],
+                    [
+                        'name'    => 'emailtext3',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email text'],
+                    [
+                        'name'    => 'activeemail4',
+                        'type'    => 'CheckBox',
+                        'caption' => 'active email 4']]
             );
         }
         if ($activeemail4) {
             $form = array_merge_recursive(
                 $form, [
-                         [
-                             'name'    => 'smtpmodule4',
-                             'type'    => 'SelectInstance',
-                             'caption' => 'SMTP module'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'notification email adress'],
-                         [
-                             'name'    => 'email4',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email subject'],
-                         [
-                             'name'    => 'subject4',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'subject'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email text'],
-                         [
-                             'name'    => 'emailtext4',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email text'],
-                         [
-                             'name'    => 'activeemail5',
-                             'type'    => 'CheckBox',
-                             'caption' => 'active email 5']]
+                    [
+                        'name'    => 'smtpmodule4',
+                        'type'    => 'SelectInstance',
+                        'caption' => 'SMTP module'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'notification email adress'],
+                    [
+                        'name'    => 'email4',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email subject'],
+                    [
+                        'name'    => 'subject4',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'subject'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email text'],
+                    [
+                        'name'    => 'emailtext4',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email text'],
+                    [
+                        'name'    => 'activeemail5',
+                        'type'    => 'CheckBox',
+                        'caption' => 'active email 5']]
             );
         }
         if ($activeemail5) {
             $form = array_merge_recursive(
                 $form, [
-                         [
-                             'name'    => 'smtpmodule5',
-                             'type'    => 'SelectInstance',
-                             'caption' => 'SMTP module'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'notification email adress'],
-                         [
-                             'name'    => 'email5',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email subject'],
-                         [
-                             'name'    => 'subject5',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'subject'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email text'],
-                         [
-                             'name'    => 'emailtext5',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email text'],
-                         [
-                             'name'    => 'activeemail6',
-                             'type'    => 'CheckBox',
-                             'caption' => 'active email 6']]
+                    [
+                        'name'    => 'smtpmodule5',
+                        'type'    => 'SelectInstance',
+                        'caption' => 'SMTP module'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'notification email adress'],
+                    [
+                        'name'    => 'email5',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email subject'],
+                    [
+                        'name'    => 'subject5',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'subject'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email text'],
+                    [
+                        'name'    => 'emailtext5',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email text'],
+                    [
+                        'name'    => 'activeemail6',
+                        'type'    => 'CheckBox',
+                        'caption' => 'active email 6']]
             );
         }
         if ($activeemail6) {
             $form = array_merge_recursive(
                 $form, [
-                         [
-                             'name'    => 'smtpmodule6',
-                             'type'    => 'SelectInstance',
-                             'caption' => 'SMTP module'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'notification email adress'],
-                         [
-                             'name'    => 'email6',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email subject'],
-                         [
-                             'name'    => 'subject6',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'subject'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email text'],
-                         [
-                             'name'    => 'emailtext6',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email text'],
-                         [
-                             'name'    => 'activeemail7',
-                             'type'    => 'CheckBox',
-                             'caption' => 'active email 7']]
+                    [
+                        'name'    => 'smtpmodule6',
+                        'type'    => 'SelectInstance',
+                        'caption' => 'SMTP module'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'notification email adress'],
+                    [
+                        'name'    => 'email6',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email subject'],
+                    [
+                        'name'    => 'subject6',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'subject'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email text'],
+                    [
+                        'name'    => 'emailtext6',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email text'],
+                    [
+                        'name'    => 'activeemail7',
+                        'type'    => 'CheckBox',
+                        'caption' => 'active email 7']]
             );
         }
         if ($activeemail7) {
             $form = array_merge_recursive(
                 $form, [
-                         [
-                             'name'    => 'smtpmodule7',
-                             'type'    => 'SelectInstance',
-                             'caption' => 'SMTP module'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'notification email adress'],
-                         [
-                             'name'    => 'email7',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email subject'],
-                         [
-                             'name'    => 'subject7',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'subject'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email text'],
-                         [
-                             'name'    => 'emailtext7',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email text'],
-                         [
-                             'name'    => 'activeemail8',
-                             'type'    => 'CheckBox',
-                             'caption' => 'active email 8']]
+                    [
+                        'name'    => 'smtpmodule7',
+                        'type'    => 'SelectInstance',
+                        'caption' => 'SMTP module'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'notification email adress'],
+                    [
+                        'name'    => 'email7',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email subject'],
+                    [
+                        'name'    => 'subject7',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'subject'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email text'],
+                    [
+                        'name'    => 'emailtext7',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email text'],
+                    [
+                        'name'    => 'activeemail8',
+                        'type'    => 'CheckBox',
+                        'caption' => 'active email 8']]
             );
         }
         if ($activeemail8) {
             $form = array_merge_recursive(
                 $form, [
-                         [
-                             'name'    => 'smtpmodule8',
-                             'type'    => 'SelectInstance',
-                             'caption' => 'SMTP module'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'notification email adress'],
-                         [
-                             'name'    => 'email8',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email subject'],
-                         [
-                             'name'    => 'subject8',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'subject'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email text'],
-                         [
-                             'name'    => 'emailtext8',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email text'],
-                         [
-                             'name'    => 'activeemail9',
-                             'type'    => 'CheckBox',
-                             'caption' => 'active email 9']]
+                    [
+                        'name'    => 'smtpmodule8',
+                        'type'    => 'SelectInstance',
+                        'caption' => 'SMTP module'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'notification email adress'],
+                    [
+                        'name'    => 'email8',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email subject'],
+                    [
+                        'name'    => 'subject8',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'subject'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email text'],
+                    [
+                        'name'    => 'emailtext8',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email text'],
+                    [
+                        'name'    => 'activeemail9',
+                        'type'    => 'CheckBox',
+                        'caption' => 'active email 9']]
             );
         }
         if ($activeemail9) {
             $form = array_merge_recursive(
                 $form, [
-                         [
-                             'name'    => 'smtpmodule9',
-                             'type'    => 'SelectInstance',
-                             'caption' => 'SMTP module'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'notification email adress'],
-                         [
-                             'name'    => 'email9',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email subject'],
-                         [
-                             'name'    => 'subject9',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'subject'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email text'],
-                         [
-                             'name'    => 'emailtext9',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email text'],
-                         [
-                             'name'    => 'activeemail10',
-                             'type'    => 'CheckBox',
-                             'caption' => 'active email 10']]
+                    [
+                        'name'    => 'smtpmodule9',
+                        'type'    => 'SelectInstance',
+                        'caption' => 'SMTP module'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'notification email adress'],
+                    [
+                        'name'    => 'email9',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email subject'],
+                    [
+                        'name'    => 'subject9',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'subject'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email text'],
+                    [
+                        'name'    => 'emailtext9',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email text'],
+                    [
+                        'name'    => 'activeemail10',
+                        'type'    => 'CheckBox',
+                        'caption' => 'active email 10']]
             );
         }
         if ($activeemail10) {
             $form = array_merge_recursive(
                 $form, [
-                         [
-                             'name'    => 'smtpmodule10',
-                             'type'    => 'SelectInstance',
-                             'caption' => 'SMTP module'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'notification email adress'],
-                         [
-                             'name'    => 'email10',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email subject'],
-                         [
-                             'name'    => 'subject10',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'subject'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email text'],
-                         [
-                             'name'    => 'emailtext10',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email text'],
-                         [
-                             'name'    => 'activeemail11',
-                             'type'    => 'CheckBox',
-                             'caption' => 'active email 11']]
+                    [
+                        'name'    => 'smtpmodule10',
+                        'type'    => 'SelectInstance',
+                        'caption' => 'SMTP module'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'notification email adress'],
+                    [
+                        'name'    => 'email10',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email subject'],
+                    [
+                        'name'    => 'subject10',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'subject'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email text'],
+                    [
+                        'name'    => 'emailtext10',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email text'],
+                    [
+                        'name'    => 'activeemail11',
+                        'type'    => 'CheckBox',
+                        'caption' => 'active email 11']]
             );
         }
         if ($activeemail11) {
             $form = array_merge_recursive(
                 $form, [
-                         [
-                             'name'    => 'smtpmodule11',
-                             'type'    => 'SelectInstance',
-                             'caption' => 'SMTP module'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'notification email adress'],
-                         [
-                             'name'    => 'email11',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email subject'],
-                         [
-                             'name'    => 'subject11',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'subject'],
-                         [
-                             'type'  => 'Label',
-                             'label' => 'email text'],
-                         [
-                             'name'    => 'emailtext11',
-                             'type'    => 'ValidationTextBox',
-                             'caption' => 'email text']]
+                    [
+                        'name'    => 'smtpmodule11',
+                        'type'    => 'SelectInstance',
+                        'caption' => 'SMTP module'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'notification email adress'],
+                    [
+                        'name'    => 'email11',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email subject'],
+                    [
+                        'name'    => 'subject11',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'subject'],
+                    [
+                        'type'  => 'Label',
+                        'label' => 'email text'],
+                    [
+                        'name'    => 'emailtext11',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'email text']]
             );
         }
         return $form;

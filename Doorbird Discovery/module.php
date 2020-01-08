@@ -28,8 +28,7 @@ class DoorbirdDiscovery extends IPSModule
             return;
         }
 
-        $this->WriteAttributeString('devices', json_encode($this->DiscoverDevices()));
-        $this->SetTimerInterval('Discovery', 300000);
+        $this->StartDiscovery();
 
         // Status Error Kategorie zum Import auswählen
         $this->SetStatus(102);
@@ -40,22 +39,28 @@ class DoorbirdDiscovery extends IPSModule
         switch ($Message) {
             case IM_CHANGESTATUS:
                 if ($Data[0] === IS_ACTIVE) {
-                    $this->ApplyChanges();
+                    $this->StartDiscovery();
                 }
                 break;
 
             case IPS_KERNELMESSAGE:
                 if ($Data[0] === KR_READY) {
-                    $this->ApplyChanges();
+                    $this->StartDiscovery();
                 }
                 break;
             case IPS_KERNELSTARTED:
-                $this->WriteAttributeString('devices', json_encode($this->DiscoverDevices()));
+                $this->StartDiscovery();
                 break;
 
             default:
                 break;
         }
+    }
+
+    private function StartDiscovery()
+    {
+        $this->WriteAttributeString('devices', json_encode($this->DiscoverDevices()));
+        $this->SetTimerInterval('Discovery', 300000);
     }
 
     private function GetSymconIP()

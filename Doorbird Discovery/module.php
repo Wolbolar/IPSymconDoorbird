@@ -59,7 +59,14 @@ class DoorbirdDiscovery extends IPSModule
 
     private function StartDiscovery()
     {
-        $this->WriteAttributeString('devices', json_encode($this->DiscoverDevices()));
+        if(empty($this->DiscoverDevices()))
+        {
+            $this->SendDebug('Discover:', 'could not find doorbird info', 0);
+        }
+        else
+        {
+            $this->WriteAttributeString('devices', json_encode($this->DiscoverDevices()));
+        }
         $this->SetTimerInterval('Discovery', 300000);
     }
 
@@ -131,12 +138,19 @@ class DoorbirdDiscovery extends IPSModule
         $devices = $this->scan();
         $this->SendDebug('Discover Response:', json_encode($devices), 0);
         $doorbird_info = $this->GetDoorbirdInfo($devices);
-        foreach ($doorbird_info as $device) {
-            $this->SendDebug('name:', $device['name'], 0);
-            $this->SendDebug('hostname:', $device['hostname'], 0);
-            $this->SendDebug('host:', $device['host'], 0);
-            $this->SendDebug('port:', $device['port'], 0);
-            $this->SendDebug('mac:', $device['mac'], 0);
+        if(empty($doorbird_info))
+        {
+            $this->SendDebug('Discover:', 'could not find doorbird info', 0);
+        }
+        else
+        {
+            foreach ($doorbird_info as $device) {
+                $this->SendDebug('name:', $device['name'], 0);
+                $this->SendDebug('hostname:', $device['hostname'], 0);
+                $this->SendDebug('host:', $device['host'], 0);
+                $this->SendDebug('port:', $device['port'], 0);
+                $this->SendDebug('mac:', $device['mac'], 0);
+            }
         }
         return $doorbird_info;
     }
@@ -158,6 +172,26 @@ class DoorbirdDiscovery extends IPSModule
                     $port = $data['Port'];
                     $mac = str_ireplace('macaddress=', '', $data['TXTRecords'][0]);
                     $ip = $data['IPv4'][0];
+                    if(isset($data['Name']))
+                    {
+                        $name = str_ireplace('._axis-video._tcp.local.', '', $data['Name']);
+                    }
+                    if(isset($data['Host']))
+                    {
+                        $hostname = str_ireplace('.local.', '', $data['Host']);
+                    }
+                    if(isset($data['Port']))
+                    {
+                        $port = $data['Port'];
+                    }
+                    if(isset($data['TXTRecords'][0]))
+                    {
+                        $mac = str_ireplace('macaddress=', '', $data['TXTRecords'][0]);
+                    }
+                    if(isset($data['IPv4']))
+                    {
+                        $ip = $data['IPv4'][0];
+                    }
                 }
                 $doorbird_info[$key] = ['name' => $name, 'hostname' => $hostname, 'host' => $ip, 'port' => $port, 'mac' => $mac];
             }
@@ -188,10 +222,17 @@ class DoorbirdDiscovery extends IPSModule
 
     public function Discover()
     {
-        $this->LogMessage($this->Translate('Background Discovery of Doorbird'), KL_NOTIFY);
-        $this->WriteAttributeString('devices', json_encode($this->DiscoverDevices()));
-
-        return json_encode($this->DiscoverDevices());
+        if(empty($this->DiscoverDevices()))
+        {
+            $devices = '';
+        }
+        else
+        {
+            $this->LogMessage($this->Translate('Background Discovery of Doorbird'), KL_NOTIFY);
+            $this->WriteAttributeString('devices', json_encode($this->DiscoverDevices()));
+            $devices = json_encode($this->DiscoverDevices());
+        }
+        return $devices;
     }
 
     /***********************************************************

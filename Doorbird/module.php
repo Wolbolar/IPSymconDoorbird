@@ -264,12 +264,19 @@ class Doorbird extends IPSModule
         $this->RegisterPropertyString('list_sip', '[]');
         $this->RegisterPropertyString('list_schedule', '[]');
         $this->RegisterPropertyBoolean('doorbird_app', false);
+
+        //we will wait until the kernel is ready
+        $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
 
     public function ApplyChanges()
     {
         //Never delete this line!
         parent::ApplyChanges();
+
+        if (IPS_GetKernelRunlevel() !== KR_READY) {
+            return;
+        }
 
         $this->RegisterVariableString('DoorbirdVideo', 'Doorbird Video', '~HTMLBox', 1);
         $this->RegisterProfileStringDoorbird('Doorbird.Ring', 'Alert');
@@ -868,46 +875,60 @@ class Doorbird extends IPSModule
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
         $this->LogMessage('SenderID: ' . $SenderID . ', Message: ' . $Message . ', Data:' . json_encode($Data), KL_DEBUG);
-        if ($SenderID == $this->GetIDForIdent('LastRingtone')) {
-            $this->SetRingPicture(1);
-            $email = $this->ReadPropertyString('email');
-            $this->EmailAlert($email);
-            $this->SendDebug('Doorbird recieved LastRingtone at', date('H:i', time()), 0);
-            $this->SendDebug(
-                'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
-            );
+        if($Message == IM_CHANGESTATUS)
+        {
+            if ($Data[0] === IS_ACTIVE) {
+                $this->ApplyChanges();
+            }
         }
-        $model = $this->ReadPropertyInteger('model');
-        if ($model == self::D2102V || $model == self::D2103V) {
-            if ($SenderID == $this->GetIDForIdent('LastRingtone2')) {
-                $this->SetRingPicture(2);
+        elseif($Message == IPS_KERNELMESSAGE)
+        {
+            if ($Data[0] === KR_READY) {
+            $this->ApplyChanges();
+            }
+        }
+        else
+        {
+            if ($SenderID == $this->GetIDForIdent('LastRingtone')) {
+                $this->SetRingPicture(1);
                 $email = $this->ReadPropertyString('email');
                 $this->EmailAlert($email);
-                $this->SendDebug('Doorbird recieved LastRingtone2 at', date('H:i', time()), 0);
+                $this->SendDebug('Doorbird recieved LastRingtone at', date('H:i', time()), 0);
+                $this->SendDebug(
+                    'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
+                );
+            }
+            $model = $this->ReadPropertyInteger('model');
+            if ($model == self::D2102V || $model == self::D2103V) {
+                if ($SenderID == $this->GetIDForIdent('LastRingtone2')) {
+                    $this->SetRingPicture(2);
+                    $email = $this->ReadPropertyString('email');
+                    $this->EmailAlert($email);
+                    $this->SendDebug('Doorbird recieved LastRingtone2 at', date('H:i', time()), 0);
+                    $this->SendDebug(
+                        'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
+                    );
+                }
+            }
+            if ($model == self::D2103V) {
+                if ($SenderID == $this->GetIDForIdent('LastRingtone3')) {
+                    $this->SetRingPicture(3);
+                    $email = $this->ReadPropertyString('email');
+                    $this->EmailAlert($email);
+                    $this->SendDebug('Doorbird recieved LastRingtone3 at', date('H:i', time()), 0);
+                    $this->SendDebug(
+                        'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
+                    );
+                }
+            }
+            if ($SenderID == $this->GetIDForIdent('LastMovement')) {
+                $this->GetSnapshot();
+                $this->SendDebug('Doorbird recieved LastMovement at', date('H:i', time()), 0);
                 $this->SendDebug(
                     'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
                 );
             }
         }
-        if ($model == self::D2103V) {
-            if ($SenderID == $this->GetIDForIdent('LastRingtone3')) {
-                $this->SetRingPicture(3);
-                $email = $this->ReadPropertyString('email');
-                $this->EmailAlert($email);
-                $this->SendDebug('Doorbird recieved LastRingtone3 at', date('H:i', time()), 0);
-                $this->SendDebug(
-                    'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
-                );
-            }
-        }
-        if ($SenderID == $this->GetIDForIdent('LastMovement')) {
-            $this->GetSnapshot();
-            $this->SendDebug('Doorbird recieved LastMovement at', date('H:i', time()), 0);
-            $this->SendDebug(
-                'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
-            );
-        }
-
     }
 
     public function ReceiveData($JSONString)

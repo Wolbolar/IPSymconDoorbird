@@ -1,157 +1,18 @@
 <?php
-
 declare(strict_types=1);
 
-if (@constant('IPS_BASE') == null) //Nur wenn Konstanten noch nicht bekannt sind.
-{
-    // --- BASE MESSAGE
-    define('IPS_BASE', 10000);                             //Base Message
-    define('IPS_KERNELSHUTDOWN', IPS_BASE + 1);            //Pre Shutdown Message, Runlevel UNINIT Follows
-    define('IPS_KERNELSTARTED', IPS_BASE + 2);             //Post Ready Message
-    // --- KERNEL
-    define('IPS_KERNELMESSAGE', IPS_BASE + 100);           //Kernel Message
-    define('KR_CREATE', IPS_KERNELMESSAGE + 1);            //Kernel is beeing created
-    define('KR_INIT', IPS_KERNELMESSAGE + 2);              //Kernel Components are beeing initialised, Modules loaded, Settings read
-    define('KR_READY', IPS_KERNELMESSAGE + 3);             //Kernel is ready and running
-    define('KR_UNINIT', IPS_KERNELMESSAGE + 4);            //Got Shutdown Message, unloading all stuff
-    define('KR_SHUTDOWN', IPS_KERNELMESSAGE + 5);          //Uninit Complete, Destroying Kernel Inteface
-    // --- KERNEL LOGMESSAGE
-    define('IPS_LOGMESSAGE', IPS_BASE + 200);              //Logmessage Message
-    define('KL_MESSAGE', IPS_LOGMESSAGE + 1);              //Normal Message                      | FG: Black | BG: White  | STLYE : NONE
-    define('KL_SUCCESS', IPS_LOGMESSAGE + 2);              //Success Message                     | FG: Black | BG: Green  | STYLE : NONE
-    define('KL_NOTIFY', IPS_LOGMESSAGE + 3);               //Notiy about Changes                 | FG: Black | BG: Blue   | STLYE : NONE
-    define('KL_WARNING', IPS_LOGMESSAGE + 4);              //Warnings                            | FG: Black | BG: Yellow | STLYE : NONE
-    define('KL_ERROR', IPS_LOGMESSAGE + 5);                //Error Message                       | FG: Black | BG: Red    | STLYE : BOLD
-    define('KL_DEBUG', IPS_LOGMESSAGE + 6);                //Debug Informations + Script Results | FG: Grey  | BG: White  | STLYE : NONE
-    define('KL_CUSTOM', IPS_LOGMESSAGE + 7);               //User Message                        | FG: Black | BG: White  | STLYE : NONE
-    // --- MODULE LOADER
-    define('IPS_MODULEMESSAGE', IPS_BASE + 300);           //ModuleLoader Message
-    define('ML_LOAD', IPS_MODULEMESSAGE + 1);              //Module loaded
-    define('ML_UNLOAD', IPS_MODULEMESSAGE + 2);            //Module unloaded
-    // --- OBJECT MANAGER
-    define('IPS_OBJECTMESSAGE', IPS_BASE + 400);
-    define('OM_REGISTER', IPS_OBJECTMESSAGE + 1);          //Object was registered
-    define('OM_UNREGISTER', IPS_OBJECTMESSAGE + 2);        //Object was unregistered
-    define('OM_CHANGEPARENT', IPS_OBJECTMESSAGE + 3);      //Parent was Changed
-    define('OM_CHANGENAME', IPS_OBJECTMESSAGE + 4);        //Name was Changed
-    define('OM_CHANGEINFO', IPS_OBJECTMESSAGE + 5);        //Info was Changed
-    define('OM_CHANGETYPE', IPS_OBJECTMESSAGE + 6);        //Type was Changed
-    define('OM_CHANGESUMMARY', IPS_OBJECTMESSAGE + 7);     //Summary was Changed
-    define('OM_CHANGEPOSITION', IPS_OBJECTMESSAGE + 8);    //Position was Changed
-    define('OM_CHANGEREADONLY', IPS_OBJECTMESSAGE + 9);    //ReadOnly was Changed
-    define('OM_CHANGEHIDDEN', IPS_OBJECTMESSAGE + 10);     //Hidden was Changed
-    define('OM_CHANGEICON', IPS_OBJECTMESSAGE + 11);       //Icon was Changed
-    define('OM_CHILDADDED', IPS_OBJECTMESSAGE + 12);       //Child for Object was added
-    define('OM_CHILDREMOVED', IPS_OBJECTMESSAGE + 13);     //Child for Object was removed
-    define('OM_CHANGEIDENT', IPS_OBJECTMESSAGE + 14);      //Ident was Changed
-    define('OM_CHANGEDISABLED', IPS_OBJECTMESSAGE + 15);   //Operability has changed
-    // --- INSTANCE MANAGER
-    define('IPS_INSTANCEMESSAGE', IPS_BASE + 500);         //Instance Manager Message
-    define('IM_CREATE', IPS_INSTANCEMESSAGE + 1);          //Instance created
-    define('IM_DELETE', IPS_INSTANCEMESSAGE + 2);          //Instance deleted
-    define('IM_CONNECT', IPS_INSTANCEMESSAGE + 3);         //Instance connectged
-    define('IM_DISCONNECT', IPS_INSTANCEMESSAGE + 4);      //Instance disconncted
-    define('IM_CHANGESTATUS', IPS_INSTANCEMESSAGE + 5);    //Status was Changed
-    define('IM_CHANGESETTINGS', IPS_INSTANCEMESSAGE + 6);  //Settings were Changed
-    define('IM_CHANGESEARCH', IPS_INSTANCEMESSAGE + 7);    //Searching was started/stopped
-    define('IM_SEARCHUPDATE', IPS_INSTANCEMESSAGE + 8);    //Searching found new results
-    define('IM_SEARCHPROGRESS', IPS_INSTANCEMESSAGE + 9);  //Searching progress in %
-    define('IM_SEARCHCOMPLETE', IPS_INSTANCEMESSAGE + 10); //Searching is complete
-    // --- VARIABLE MANAGER
-    define('IPS_VARIABLEMESSAGE', IPS_BASE + 600);              //Variable Manager Message
-    define('VM_CREATE', IPS_VARIABLEMESSAGE + 1);               //Variable Created
-    define('VM_DELETE', IPS_VARIABLEMESSAGE + 2);               //Variable Deleted
-    define('VM_UPDATE', IPS_VARIABLEMESSAGE + 3);               //On Variable Update
-    define('VM_CHANGEPROFILENAME', IPS_VARIABLEMESSAGE + 4);    //On Profile Name Change
-    define('VM_CHANGEPROFILEACTION', IPS_VARIABLEMESSAGE + 5);  //On Profile Action Change
-    // --- SCRIPT MANAGER
-    define('IPS_SCRIPTMESSAGE', IPS_BASE + 700);           //Script Manager Message
-    define('SM_CREATE', IPS_SCRIPTMESSAGE + 1);            //On Script Create
-    define('SM_DELETE', IPS_SCRIPTMESSAGE + 2);            //On Script Delete
-    define('SM_CHANGEFILE', IPS_SCRIPTMESSAGE + 3);        //On Script File changed
-    define('SM_BROKEN', IPS_SCRIPTMESSAGE + 4);            //Script Broken Status changed
-    // --- EVENT MANAGER
-    define('IPS_EVENTMESSAGE', IPS_BASE + 800);             //Event Scripter Message
-    define('EM_CREATE', IPS_EVENTMESSAGE + 1);             //On Event Create
-    define('EM_DELETE', IPS_EVENTMESSAGE + 2);             //On Event Delete
-    define('EM_UPDATE', IPS_EVENTMESSAGE + 3);
-    define('EM_CHANGEACTIVE', IPS_EVENTMESSAGE + 4);
-    define('EM_CHANGELIMIT', IPS_EVENTMESSAGE + 5);
-    define('EM_CHANGESCRIPT', IPS_EVENTMESSAGE + 6);
-    define('EM_CHANGETRIGGER', IPS_EVENTMESSAGE + 7);
-    define('EM_CHANGETRIGGERVALUE', IPS_EVENTMESSAGE + 8);
-    define('EM_CHANGETRIGGEREXECUTION', IPS_EVENTMESSAGE + 9);
-    define('EM_CHANGECYCLIC', IPS_EVENTMESSAGE + 10);
-    define('EM_CHANGECYCLICDATEFROM', IPS_EVENTMESSAGE + 11);
-    define('EM_CHANGECYCLICDATETO', IPS_EVENTMESSAGE + 12);
-    define('EM_CHANGECYCLICTIMEFROM', IPS_EVENTMESSAGE + 13);
-    define('EM_CHANGECYCLICTIMETO', IPS_EVENTMESSAGE + 14);
-    // --- MEDIA MANAGER
-    define('IPS_MEDIAMESSAGE', IPS_BASE + 900);           //Media Manager Message
-    define('MM_CREATE', IPS_MEDIAMESSAGE + 1);             //On Media Create
-    define('MM_DELETE', IPS_MEDIAMESSAGE + 2);             //On Media Delete
-    define('MM_CHANGEFILE', IPS_MEDIAMESSAGE + 3);         //On Media File changed
-    define('MM_AVAILABLE', IPS_MEDIAMESSAGE + 4);          //Media Available Status changed
-    define('MM_UPDATE', IPS_MEDIAMESSAGE + 5);
-    // --- LINK MANAGER
-    define('IPS_LINKMESSAGE', IPS_BASE + 1000);           //Link Manager Message
-    define('LM_CREATE', IPS_LINKMESSAGE + 1);             //On Link Create
-    define('LM_DELETE', IPS_LINKMESSAGE + 2);             //On Link Delete
-    define('LM_CHANGETARGET', IPS_LINKMESSAGE + 3);       //On Link TargetID change
-    // --- DATA HANDLER
-    define('IPS_DATAMESSAGE', IPS_BASE + 1100);             //Data Handler Message
-    define('FM_CONNECT', IPS_DATAMESSAGE + 1);             //On Instance Connect
-    define('FM_DISCONNECT', IPS_DATAMESSAGE + 2);          //On Instance Disconnect
-    // --- SCRIPT ENGINE
-    define('IPS_ENGINEMESSAGE', IPS_BASE + 1200);           //Script Engine Message
-    define('SE_UPDATE', IPS_ENGINEMESSAGE + 1);             //On Library Refresh
-    define('SE_EXECUTE', IPS_ENGINEMESSAGE + 2);            //On Script Finished execution
-    define('SE_RUNNING', IPS_ENGINEMESSAGE + 3);            //On Script Started execution
-    // --- PROFILE POOL
-    define('IPS_PROFILEMESSAGE', IPS_BASE + 1300);
-    define('PM_CREATE', IPS_PROFILEMESSAGE + 1);
-    define('PM_DELETE', IPS_PROFILEMESSAGE + 2);
-    define('PM_CHANGETEXT', IPS_PROFILEMESSAGE + 3);
-    define('PM_CHANGEVALUES', IPS_PROFILEMESSAGE + 4);
-    define('PM_CHANGEDIGITS', IPS_PROFILEMESSAGE + 5);
-    define('PM_CHANGEICON', IPS_PROFILEMESSAGE + 6);
-    define('PM_ASSOCIATIONADDED', IPS_PROFILEMESSAGE + 7);
-    define('PM_ASSOCIATIONREMOVED', IPS_PROFILEMESSAGE + 8);
-    define('PM_ASSOCIATIONCHANGED', IPS_PROFILEMESSAGE + 9);
-    // --- TIMER POOL
-    define('IPS_TIMERMESSAGE', IPS_BASE + 1400);            //Timer Pool Message
-    define('TM_REGISTER', IPS_TIMERMESSAGE + 1);
-    define('TM_UNREGISTER', IPS_TIMERMESSAGE + 2);
-    define('TM_SETINTERVAL', IPS_TIMERMESSAGE + 3);
-    define('TM_UPDATE', IPS_TIMERMESSAGE + 4);
-    define('TM_RUNNING', IPS_TIMERMESSAGE + 5);
-    // --- STATUS CODES
-    define('IS_SBASE', 100);
-    define('IS_CREATING', IS_SBASE + 1); //module is being created
-    define('IS_ACTIVE', IS_SBASE + 2); //module created and running
-    define('IS_DELETING', IS_SBASE + 3); //module us being deleted
-    define('IS_INACTIVE', IS_SBASE + 4); //module is not beeing used
-    // --- ERROR CODES
-    define('IS_EBASE', 200);          //default errorcode
-    define('IS_NOTCREATED', IS_EBASE + 1); //instance could not be created
-    // --- Search Handling
-    define('FOUND_UNKNOWN', 0);     //Undefined value
-    define('FOUND_NEW', 1);         //Device is new and not configured yet
-    define('FOUND_OLD', 2);         //Device is already configues (InstanceID should be set)
-    define('FOUND_CURRENT', 3);     //Device is already configues (InstanceID is from the current/searching Instance)
-    define('FOUND_UNSUPPORTED', 4); //Device is not supported by Module
-    define('vtBoolean', 0);
-    define('vtInteger', 1);
-    define('vtFloat', 2);
-    define('vtString', 3);
-    define('vtArray', 8);
-    define('vtObject', 9);
-}
+require_once __DIR__ . '/../libs/ProfileHelper.php';
+require_once __DIR__ . '/../libs/ConstHelper.php';
 
 // Modul für Doorbird
 
 class Doorbird extends IPSModule
 {
+    use ProfileHelper;
+
+    // helper properties
+    private $position = 0;
+
     private const D101               = 1; // D101
     private const D202               = 2; // D202
     private const D2101V             = 3; // D2101V
@@ -159,6 +20,10 @@ class Doorbird extends IPSModule
     private const D2103V             = 5; // D2103V
     private const D21DKV             = 6; // D21DKV
     private const D21DKH             = 7; // D21DKH
+    private const D101S              = 8; // D101S
+    private const D2101KV            = 9; // D2101KV
+    private const D21FPBI            = 10; // D21FPBI
+
     private const GET_FAVORITES      = '/bha-api/favorites.cgi'; // Get Favorites URL
     private const SET_HTTP_FAVORITE  = '/bha-api/favorites.cgi?action=save&type=http&title='; // Set Favorites URL
     private const DELETE_FAVORITE    = '/bha-api/favorites.cgi?action=remove&type='; // Delete Fovorites URL
@@ -264,6 +129,11 @@ class Doorbird extends IPSModule
         $this->RegisterPropertyString('list_sip', '[]');
         $this->RegisterPropertyString('list_schedule', '[]');
         $this->RegisterPropertyBoolean('doorbird_app', false);
+        $this->RegisterPropertyBoolean('slideshow_history', false);
+        $this->RegisterPropertyBoolean('slideshow_snapshot', false);
+        $this->RegisterPropertyBoolean('counter', true);
+        $this->RegisterPropertyBoolean('autoplay', false);
+        $this->RegisterPropertyBoolean('ken_burns', false);
 
         //we will wait until the kernel is ready
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
@@ -278,62 +148,83 @@ class Doorbird extends IPSModule
             return;
         }
 
-        $this->RegisterVariableString('DoorbirdVideo', 'Doorbird Video', '~HTMLBox', 1);
-        $this->RegisterProfileStringDoorbird('Doorbird.Ring', 'Alert');
+        $this->RegisterVariableString('DoorbirdVideo', 'Doorbird Video', '~HTMLBox', $this->_getPosition());
+        $this->RegisterProfile('Doorbird.Ring', 'Alert', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $model = $this->ReadPropertyInteger('model');
         if ($model == self::D101 || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH) {
-            $this->RegisterVariableString('LastRingtone', $this->Translate('Time last bell'), 'Doorbird.Ring', 2);
+            $this->RegisterVariableString('LastRingtone', $this->Translate('Time last bell'), 'Doorbird.Ring', $this->_getPosition());
         }
         if ($model == self::D2102V) {
-            $this->RegisterVariableString('LastRingtone', $this->Translate('Time last bell'), 'Doorbird.Ring', 2);
-            $this->RegisterVariableString('LastRingtone2', $this->Translate('Time last bell 2'), 'Doorbird.Ring', 3);
+            $this->RegisterVariableString('LastRingtone', $this->Translate('Time last bell'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterVariableString('LastRingtone2', $this->Translate('Time last bell 2'), 'Doorbird.Ring', $this->_getPosition());
         }
         if ($model == self::D2103V) {
-            $this->RegisterVariableString('LastRingtone', $this->Translate('Time last bell'), 'Doorbird.Ring', 2);
-            $this->RegisterVariableString('LastRingtone2', $this->Translate('Time last bell 2'), 'Doorbird.Ring', 3);
-            $this->RegisterVariableString('LastRingtone3', $this->Translate('Time last bell 3'), 'Doorbird.Ring', 4);
+            $this->RegisterVariableString('LastRingtone', $this->Translate('Time last bell'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterVariableString('LastRingtone2', $this->Translate('Time last bell 2'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterVariableString('LastRingtone3', $this->Translate('Time last bell 3'), 'Doorbird.Ring', $this->_getPosition());
         }
+        $this->RegisterProfile('Doorbird.Movement', 'Motion', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
+        $this->RegisterVariableString('LastMovement', $this->Translate('Time of last movement'), 'Doorbird.Movement', $this->_getPosition());
 
-        $this->RegisterProfileStringDoorbird('Doorbird.Movement', 'Motion');
-        $this->RegisterVariableString('LastMovement', $this->Translate('Time of last movement'), 'Doorbird.Movement', 5);
-
-        $this->RegisterProfileStringDoorbird('Doorbird.LastDoor', 'LockOpen');
-        $this->RegisterVariableString('LastDoorOpen', $this->Translate('Time last door opening'), 'Doorbird.LastDoor', 6);
+        $this->RegisterProfile('Doorbird.LastDoor', 'LockOpen', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
+        $this->RegisterVariableString('LastDoorOpen', $this->Translate('Time last door opening'), 'Doorbird.LastDoor', $this->_getPosition());
         if ($model == self::D2101V || $model == self::D2102V || $model == self::D2103V) {
-            $this->RegisterVariableString('LastDoorOpen_2', $this->Translate('Time last door opening 2'), 'Doorbird.LastDoor', 7);
+            $this->RegisterVariableString('LastDoorOpen_2', $this->Translate('Time last door opening 2'), 'Doorbird.LastDoor', $this->_getPosition());
         }
-        $this->RegisterProfileStringDoorbird('Doorbird.Firmware', 'Robot');
-        $this->RegisterVariableString('FirmwareVersion', $this->Translate('Doorbird Firmware Version'), 'Doorbird.Firmware', 8);
-        $this->RegisterProfileStringDoorbird('Doorbird.Buildnumber', 'Gear');
-        $this->RegisterVariableString('Buildnumber', $this->Translate('Doorbird Build Number'), 'Doorbird.Buildnumber', 9);
-        $this->RegisterProfileStringDoorbird('Doorbird.MAC', 'Notebook');
-        $this->RegisterVariableString('MACAdress', $this->Translate('Doorbird WLAN MAC'), 'Doorbird.MAC', 10);
+        $this->RegisterProfile('Doorbird.Firmware', 'Robot', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
+        $this->RegisterVariableString('FirmwareVersion', $this->Translate('Doorbird Firmware Version'), 'Doorbird.Firmware', $this->_getPosition());
+        $this->RegisterProfile('Doorbird.Buildnumber', 'Gear', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
+        $this->RegisterVariableString('Buildnumber', $this->Translate('Doorbird Build Number'), 'Doorbird.Buildnumber', $this->_getPosition());
+        $this->RegisterProfile('Doorbird.MAC', 'Notebook', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
+        $this->RegisterVariableString('MACAdress', $this->Translate('Doorbird WLAN MAC'), 'Doorbird.MAC', $this->_getPosition());
         $lightass = [
             [0, 'Licht einschalten', 'Light', -1]];
         $doorass  = [
             [0, 'Tür öffnen', 'LockOpen', -1]];
         $snapass  = [
             [0, 'Bild speichern', 'Image', -1]];
-        $this->RegisterProfileIntegerDoorbirdAss('Doorbird.Light', 'Light', '', '', 0, 0, 0, 0, $lightass);
-        $this->RegisterProfileIntegerDoorbirdAss('Doorbird.Door', 'LockOpen', '', '', 0, 0, 0, 0, $doorass);
-        $this->RegisterProfileIntegerDoorbirdAss('Doorbird.Snapshot', 'Image', '', '', 0, 0, 0, 0, $snapass);
+        $this->RegisterProfileAssociation("Doorbird.Light", "Light", "", "", 0, 0, 0, 0, VARIABLETYPE_INTEGER, $lightass);
+        $this->RegisterProfileAssociation("Doorbird.Door", "LockOpen", "", "", 0, 0, 0, 0, VARIABLETYPE_INTEGER, $doorass);
+        $this->RegisterProfileAssociation("Doorbird.Snapshot", "Image", "", "", 0, 0, 0, 0, VARIABLETYPE_INTEGER, $snapass);
         $this->RegisterVariableInteger('DoorbirdButtonLight', 'Doorbird IR Beleuchtung', 'Doorbird.Light', 10);
         $this->EnableAction('DoorbirdButtonLight');
-        $this->RegisterVariableInteger('DoorbirdButtonDoor', 'Doorbird Türöffner', 'Doorbird.Door', 11);
+        $this->RegisterVariableInteger('DoorbirdButtonDoor', 'Doorbird Türöffner', 'Doorbird.Door', $this->_getPosition());
         $this->EnableAction('DoorbirdButtonDoor');
-        $this->RegisterVariableInteger('DoorbirdButtonSnapshot', 'Doorbird Bild abspeichern', 'Doorbird.Snapshot', 12);
+        $this->RegisterVariableInteger('DoorbirdButtonSnapshot', 'Doorbird Bild abspeichern', 'Doorbird.Snapshot', $this->_getPosition());
         $this->EnableAction('DoorbirdButtonSnapshot');
 
         if($this->ReadPropertyBoolean('doorbird_app'))
         {
-            $this->RegisterVariableString('doorbird_app', $this->Translate('Launch Doorbird App'), '~HTMLBox', 13);
-            $content = '<a href="doorbird://" title="Doorbird App"><img border="0" alt="Doorbird App" src="data:image/png;base64, ' . self::PICTURE_LOGO_DOORBIRD . '" width="15%" height="15%"></a>';
+            $this->RegisterVariableString('doorbird_app', $this->Translate('Launch Doorbird App'), '~HTMLBox', $this->_getPosition());
+            $content = '<a href="doorbird://" title="Doorbird App"><img alt="Doorbird App" src="data:image/png;base64, ' . self::PICTURE_LOGO_DOORBIRD . '" width="15%" height="15%"></a>';
             $icon = IPS_GetObject($this->GetIDForIdent('doorbird_app'))['ObjectIcon'];
             if($icon == '')
             {
                 IPS_SetIcon($this->InstanceID, 'Mobile');
             }
             $this->SetValue('doorbird_app', $content);
+        }
+        if($this->ReadPropertyBoolean('slideshow_history'))
+        {
+            $this->RegisterVariableString('slideshow_history', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
+            $content = '<iframe src="'.$this->GetWebhookURL().'/slideshowhistory" width=640px height=480px></iframe>';
+            $icon = IPS_GetObject($this->GetIDForIdent('slideshow_history'))['ObjectIcon'];
+            if($icon == '')
+            {
+                IPS_SetIcon($this->InstanceID, 'Camera');
+            }
+            $this->SetValue('slideshow_history', $content);
+        }
+        if($this->ReadPropertyBoolean('slideshow_snapshot'))
+        {
+            $this->RegisterVariableString('slideshow_snapshot', $this->Translate('Slideshow Snapshot'), '~HTMLBox', $this->_getPosition());
+            $content = '<iframe src="'.$this->GetWebhookURL().'/slideshowsnapshot" width=640px height=480px></iframe>';
+            $icon = IPS_GetObject($this->GetIDForIdent('slideshow_snapshot'))['ObjectIcon'];
+            if($icon == '')
+            {
+                IPS_SetIcon($this->InstanceID, 'Camera');
+            }
+            $this->SetValue('slideshow_snapshot', $content);
         }
         $this->ValidateConfiguration();
     }
@@ -403,12 +294,12 @@ class Doorbird extends IPSModule
             $hostcheck = true;
         } else {
             $hostcheck = false;
-            if($domaincheckdoorbell === false || $ipcheckdoorbird === false)
+            if($domaincheckdoorbell === false && $ipcheckdoorbird === false)
             {
                 $this->SendDebug('Doorbird', 'Doorbird host not valid', 0);
                 $this->SetStatus(218); //IP Adresse oder Host ist ungültig
             }
-            elseif ($domaincheckips === false || $ipcheckips === false)
+            elseif ($domaincheckips === false && $ipcheckips === false)
             {
                 $this->SendDebug('Doorbird', 'IP-Symcon host not valid', 0);
                 $this->SetStatus(219); //IP Adresse oder Host ist ungültig
@@ -609,7 +500,7 @@ class Doorbird extends IPSModule
 
                 }
                 // Status Aktiv
-                $this->SetStatus(102);
+                $this->SetStatus(IS_ACTIVE);
             }
             else
             {
@@ -1315,7 +1206,39 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
             echo 'Authorization required';
             return;
         }
-        echo 'Webhook Doorbird IP-Symcon';
+        $request_uri = $_SERVER['REQUEST_URI'];
+        $this->SendDebug('Request URI:', $request_uri, 0);
+        $script_name = substr($_SERVER['SCRIPT_NAME'], strlen("/hook/doorbird". $this->InstanceID));
+        $this->SendDebug('Request Script Name:', $script_name, 0);
+        $request_type = strpos($script_name, 'picture');
+        if($request_type == 1) // Picture Request
+        {
+            $picture = explode(".", $script_name);
+            $picture_name = substr($picture[0], 1);
+            $this->SendDebug('Picture Name:', $picture_name, 0);
+            $picture_info = explode("_", $picture_name);
+            $picture_index = $picture_info[1];
+            $this->SendDebug('Picture Index:', $picture_index, 0);
+            $file_extension = $picture[1];
+            $picture_type = $picture_info[0];
+            $this->SendDebug('File Extension:', $file_extension, 0);
+            $this->SendDebug('Picture Type:', $picture_type, 0);
+            $this->GetPictureFromMedia($picture_type, $file_extension, $picture_index);
+        }
+        elseif($script_name == '/slideshowhistory')
+        {
+            $html = $this->GetSlideShow('slideshowhistory');
+            echo $html;
+        }
+        elseif($script_name == '/slideshowsnapshot')
+        {
+            $html = $this->GetSlideShow('slideshowsnapshot');
+            echo $html;
+        }
+        else
+        {
+            echo 'Webhook Doorbird IP-Symcon';
+        }
 
         //workaround for bug
         if (!isset($_IPS)) {
@@ -1346,6 +1269,375 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         }
     }
 
+    protected function GetSlideShow($slideshow_type)
+    {
+        $counter = $this->ReadPropertyBoolean('counter');
+        $autoplay = $this->ReadPropertyBoolean('autoplay');
+        $ken_burns = $this->ReadPropertyBoolean('ken_burns');
+        $option_slide_counter = '';
+        if($counter)
+        {
+            $option_slide_counter = 'slide-counter';
+        }
+        $option_autoplay = '';
+        if($autoplay)
+        {
+            $option_autoplay = 'autoplay';
+        }
+        $option_ken_burns = '';
+        if($ken_burns)
+        {
+            $option_ken_burns = 'ken-burns';
+        }
+        if($slideshow_type == 'slideshowhistory')
+        {
+            $category_id = $this->ReadPropertyInteger('categoryhistory');
+            $media_objects = $this->GetMediaIDs($category_id);
+        }
+        if($slideshow_type == 'slideshowsnapshot')
+        {
+            $category_id = $this->ReadPropertyInteger('categorysnapshot');
+            $media_objects = $this->GetMediaIDs($category_id);
+        }
+        $this->SendDebug('Category ID:', strval($category_id), 0);
+        $this->SendDebug('Media IDs:', json_encode($media_objects), 0);
+        // http://<IPS IP>:3777/user/cssslideshow/css/css-fadeshow.min.css
+        // /libs/css/css-fadeshow.min.css
+        $html = '<!DOCTYPE html>
+<html lang="de">
+<head>
+
+  <title>Slideshow</title>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimal-ui">
+
+  <link rel="stylesheet" href="http://' . $this->GetHostIP() . ':3777/user/cssslideshow/css/css-fadeshow.min.css">
+
+  <style>
+    html,
+    body {
+      height: 100%;
+    }
+
+    html {
+      font-size: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: \'Helvetica Neue\', sans-serif;
+      color: #666;
+      font-size: 1rem;
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .slide-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      color: white;
+      text-align: center;
+      text-shadow: 0 0 20px rgba(0,0,0,0.5);
+      z-index: 1;
+      -webkit-transform: translate(-50%, -50%);
+          -ms-transform: translate(-50%, -50%);
+              transform: translate(-50%, -50%);
+    }
+
+    .slide-content p {
+      font-size: calc(1rem + 10 * (100vw - 375px)/ (1199 - 375));
+      font-weight: 100;
+      margin-top: 0;
+      margin-bottom: 0.5em;
+    }
+
+    h1,
+    h2 {
+      margin-top: 0;
+      font-size: calc(2rem + 28 * (100vw - 375px)/ (1199 - 375));
+      margin-bottom: 0.2em;
+      font-weight: bold;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a:hover {
+      color: black;
+    }
+
+    @media (min-width: 1200px) {
+      h1,
+      h2 {
+        font-size: 60px;
+      }
+
+      .slide-content p {
+        font-size: 26px;
+      }
+    }
+  </style>
+
+</head>
+<body>
+
+  <div class="container">';
+
+
+        $html .= '<div data-fadeshow="quick-nav prev-next-nav '.$option_slide_counter.$option_autoplay.$option_ken_burns.'">';
+        $html .= '
+      <!-- Radio -->';
+        $html .= $this->WriteRadioSection($media_objects);
+        $html .= '
+      <!-- Slides -->
+      <div class="fs-slides">
+      ';
+        $html .= $this->WriteSlidesSection($media_objects, $slideshow_type);
+        $html .= '
+      </div>
+
+      <!-- Quick Navigation -->
+      <div class="fs-quick-nav">';
+        $html .= $this->WriteQuickNavigationSection($media_objects);
+        $html .= '
+      </div>
+
+      <!-- Prev Navigation -->
+      <div class="fs-prev-nav">';
+        $html .= $this->WritePrevNavigationSection($media_objects);
+        $html .= '
+      </div>
+
+      <!-- Next Navigation -->
+      <div class="fs-next-nav">';
+        $html .= $this->WriteNextNavigationSection($media_objects);
+        $html .= '
+      </div>';
+
+        if($counter)
+        {
+            $html .= '<!-- Slide Counter -->
+      <div class="fs-slide-counter">
+        <span class="fs-slide-counter-current"></span>/<span class="fs-slide-counter-total"></span>
+      </div>';
+        }
+        $html .= '    </div>
+
+  </div>
+
+</body>
+</html>';
+        return $html;
+    }
+
+    protected function GetMediaIDs($category_id)
+    {
+        $objects = IPS_GetChildrenIDs($category_id);
+        $media_objects = [];
+        foreach($objects as $key => $object)
+        {
+            $object_type = IPS_GetObject($object)['ObjectType'];
+            $position = IPS_GetObject($object)['ObjectPosition'];
+            if($object_type == 5)
+            {
+                if($position > 0)
+                {
+                    $media_objects[$position] = $object;
+                }
+                else{
+                    $media_objects[$key] = $object;
+                }
+            }
+            ksort($media_objects);
+        }
+        return $media_objects;
+    }
+    
+    protected function GetNumberMediaPictures($category_id)
+    {
+        $media_ids = $this->GetMediaIDs($category_id);
+        $number = count($media_ids);
+        return $number;
+    }
+
+    protected function WriteRadioSection($media_objects)
+    {
+        $html = '';
+        foreach($media_objects as $key => $media_object)
+        {
+            $html .= '<input type="radio" name="css-fadeshow" id="fs-slide-'.$key.'" />'.PHP_EOL;
+        }
+        return $html;
+    }
+
+
+
+    protected function WriteSlidesSection($media_objects, $slideshow_type)
+    {
+        $html = '';
+        if($slideshow_type == 'slideshowhistory')
+        {
+            $picture_name = 'picturehistory_';
+        }
+        if($slideshow_type == 'slideshowsnapshot')
+        {
+            $picture_name = 'picturesnapshot_';
+        }
+        foreach($media_objects as $key => $media_object)
+        {
+            $html .= '<div class="fs-slide">'.PHP_EOL;
+            $html .= '<div class="fs-slide-bg" style="background-image: url('.$this->GetWebhookURL().'/'.$picture_name.$key.'.jpg);"></div>'.PHP_EOL;
+            $html .= '<!-- Other content goes here... -->'.PHP_EOL;
+            $html .= '</div>'.PHP_EOL;
+        }
+        return $html;
+    }
+
+    protected function WriteQuickNavigationSection($media_objects)
+    {
+        $html = '';
+        foreach($media_objects as $key => $media_object)
+        {
+            $html .= '<label class="fs-quick-btn" for="fs-slide-'.$key.'"></label>'.PHP_EOL;
+        }
+        return $html;
+    }
+
+    protected function WritePrevNavigationSection($media_objects)
+    {
+        $html = '';
+        foreach($media_objects as $key => $media_object)
+        {
+            $html .= '<label class="fs-prev-btn" for="fs-slide-'.$key.'"></label>'.PHP_EOL;
+        }
+        return $html;
+    }
+
+    protected function WriteNextNavigationSection($media_objects)
+    {
+        $html = '';
+        foreach($media_objects as $key => $media_object)
+        {
+            $html .= '<label class="fs-next-btn" for="fs-slide-'.$key.'"></label>'.PHP_EOL;
+        }
+        return $html;
+    }
+
+    protected function GetPictureFromMedia($picture_type, $file_extension, $picture_index)
+    {
+        if($file_extension == "jpg" || $file_extension == "jpeg" )
+        {
+            if($picture_type == 'picturesnapshot')
+            {
+                $category_id        = $this->ReadPropertyInteger('categorysnapshot');
+            }
+            elseif($picture_type == 'picturehistory')
+            {
+                $category_id        = $this->ReadPropertyInteger('categoryhistory');
+            }
+            else{
+                $category_id        = 0;
+                $this->SendDebug('Wrong Picture Type:', $picture_type, 0);
+            }
+            if($category_id > 0)
+            {
+                $media_objects = $this->GetMediaIDs($category_id);
+
+                foreach($media_objects as $key => $media_object)
+                {
+                    if($key == $picture_index)
+                    {
+                        $media_id = $media_object;
+                        $mediaimage = $this->MediaImage($media_id);
+                        $headhtml = $mediaimage["headhtml"];
+                        $imgdata = $mediaimage["imgdata"];
+                        header($headhtml);
+                        echo $imgdata;
+                    }
+                }
+            }
+        }
+    }
+    
+    protected function MediaImage($imageid)
+    {
+        if (!IPS_MediaExists($imageid)) {
+            $this->SendDebug("Picture Request", "No Media Image for ID " . $imageid . " found", 0);
+            die("Media Image with ID (" . $imageid . ") does not exists");
+        }
+
+
+        $media = IPS_GetMedia($imageid);
+
+        if ($media['MediaType'] != 1) {
+            $this->SendDebug("Picture Request", "No Media Image for ID " . $imageid . " found", 0);
+            die("ID #" . $imageid . " is not an image");
+        }
+
+
+        $imgbase64 = IPS_GetMediaContent($imageid); //liefert den Base64 kodierten Inhalt für das Medienobjekt
+        $imgdata = base64_decode($imgbase64);
+        $mimetype = $this->getImageMimeType($imgdata);
+        $headhtml = $this->getimgheader($mimetype);
+        $mediaimage = array("headhtml" => $headhtml, "imgdata" => $imgdata, "mimetype" => $mimetype);
+        return $mediaimage;
+    }
+
+    protected function getimgheader($mimetype)
+    {
+        if ($mimetype == "jpeg") {
+            $header = 'Content-Type: image/jpeg';
+        } elseif ($mimetype == "png") {
+            $header = 'Content-Type: image/png';
+        } elseif ($mimetype == "gif") {
+            $header = 'Content-Type: image/gif';
+        } elseif ($mimetype == "bmp") {
+            $header = 'Content-Type: image/bmp';
+        } elseif ($mimetype == "tiff") {
+            $header = 'Content-Type: image/tiff';
+        }
+        return $header;
+    }
+
+    protected function getBytesFromHexString($hexdata)
+    {
+        for ($count = 0; $count < strlen($hexdata); $count += 2)
+            $bytes[] = chr(hexdec(substr($hexdata, $count, 2)));
+
+        return implode($bytes);
+    }
+
+    protected function getImageMimeType($imagedata)
+    {
+        $imagemimetypes = array(
+            "jpeg" => "FFD8",
+            "png" => "89504E470D0A1A0A",
+            "gif" => "474946",
+            "bmp" => "424D",
+            "tiff" => "4949"
+            // "tiff" => "4D4D"
+        );
+
+        foreach ($imagemimetypes as $mime => $hexbytes) {
+            $bytes = $this->getBytesFromHexString($hexbytes);
+            if (substr($imagedata, 0, strlen($bytes)) == $bytes)
+                return $mime;
+        }
+
+        return NULL;
+    }
+
     //Profile zuweisen und Geräte anlegen
     public function SetupNotification()
     {
@@ -1355,8 +1647,16 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         if($favorites)
         {
             $data = json_decode($favorites, true);
-            $sip = $data['sip'];
-            $http = $data['http'];
+            $sip = "";
+            if(isset($data['sip']))
+            {
+                $sip = $data['sip'];
+            }
+            $http = "";
+            if(isset($data['http']))
+            {
+                $http = $data['http'];
+            }
         }
         if(!empty($sip))
         {
@@ -1517,17 +1817,17 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
 
     private function GetEventValue()
     {
-        $event_value = '&value=' . $this->GetEventValueURL();
+        $event_value = '&value=' . $this->GetWebhookURL() . '?doorbirdevent=';
         return $event_value;
     }
 
     private function GetFavoritURL($event)
     {
-        $url = $this->GetEventValueURL() . $event;
+        $url = $this->GetWebhookURL() . $event;
         return $url;
     }
 
-    private function GetEventValueURL()
+    private function GetWebhookURL()
     {
         $hostips         = $this->ReadPropertyString('IPSIP');
         $portips         = $this->ReadPropertyInteger('PortIPS');
@@ -1535,8 +1835,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $webhookpassword = $this->ReadPropertyString('webhookpassword');
         $prefixips       = $this->GetURLPrefix($hostips);
         $url             =
-            $prefixips . $webhookusername . ':' . $webhookpassword . '@' . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID
-            . '?doorbirdevent=';
+            $prefixips . $webhookusername . ':' . $webhookpassword . '@' . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID;
         return $url;
     }
 
@@ -1986,58 +2285,6 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         }
     }
 
-    //Profile
-    protected function RegisterProfileIntegerDoorbird($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize, $Digits)
-    {
-
-        if (!IPS_VariableProfileExists($Name)) {
-            IPS_CreateVariableProfile($Name, 1);
-        } else {
-            $profile = IPS_GetVariableProfile($Name);
-            if ($profile['ProfileType'] != 1) {
-                $this->SendDebug('Doorbird', 'Variable profile type does not match for profile ' . $Name, 0);
-            }
-        }
-
-        IPS_SetVariableProfileIcon($Name, $Icon);
-        IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
-        IPS_SetVariableProfileDigits($Name, $Digits); //  Nachkommastellen
-        IPS_SetVariableProfileValues(
-            $Name, $MinValue, $MaxValue, $StepSize
-        ); // string $ProfilName, float $Minimalwert, float $Maximalwert, float $Schrittweite
-    }
-
-    protected function RegisterProfileIntegerDoorbirdAss($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $Stepsize, $Digits, $Associations)
-    {
-        if (count($Associations) === 0) {
-            $MinValue = 0;
-            $MaxValue = 0;
-        }
-        $this->RegisterProfileIntegerDoorbird($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $Stepsize, $Digits);
-
-        //boolean IPS_SetVariableProfileAssociation ( string $ProfilName, float $Wert, string $Name, string $Icon, integer $Farbe )
-        foreach ($Associations as $Association) {
-            IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
-        }
-    }
-
-    protected function RegisterProfileStringDoorbird($Name, $Icon)
-    {
-
-        if (!IPS_VariableProfileExists($Name)) {
-            IPS_CreateVariableProfile($Name, 3);
-        } else {
-            $profile = IPS_GetVariableProfile($Name);
-            if ($profile['ProfileType'] != 3) {
-                $this->SendDebug('Doorbird', 'Variable profile type does not match for profile ' . $Name, 0);
-            }
-        }
-
-        IPS_SetVariableProfileIcon($Name, $Icon);
-        //IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
-        //IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize);
-    }
-
     protected function GetIPSVersion()
     {
         $ipsversion = floatval(IPS_GetKernelVersion());
@@ -2101,29 +2348,38 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                 'caption' => 'Type',
                 'options' => [
                     [
-                        'label' => 'Please select a device type',
+                        'caption' => 'Please select a device type',
                         'value' => 0],
                     [
-                        'label' => 'D101',
+                        'caption' => 'D101',
                         'value' => self::D101],
                     [
-                        'label' => 'D202',
+                        'caption' => 'D101',
+                        'value' => self::D101S],
+                    [
+                        'caption' => 'D202',
                         'value' => self::D202],
                     [
-                        'label' => 'D2101V',
+                        'caption' => 'D2101V',
                         'value' => self::D2101V],
                     [
-                        'label' => 'D2102V',
+                        'caption' => 'D2102V',
                         'value' => self::D2102V],
                     [
-                        'label' => 'D2103V',
+                        'caption' => 'D2103V',
                         'value' => self::D2103V],
                     [
-                        'label' => 'D21DKV',
+                        'caption' => 'D21DKV',
                         'value' => self::D21DKV],
                     [
-                        'label' => 'D21DKH',
-                        'value' => self::D21DKH]]
+                        'caption' => 'D21DKH',
+                        'value' => self::D21DKH],
+                    [
+                        'caption' => 'D21DKH',
+                        'value' => self::D2101KV],
+                    [
+                        'caption' => 'D21DKH',
+                        'value' => self::D21FPBI]]
 
             ]];
 
@@ -2134,13 +2390,13 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                 $form, [
                     [
                         'type'  => 'Label',
-                        'label' => 'Please fill in all fields in this form and then press the button below for the notification setup of the Doorbird for IP-Symcon'],
+                        'caption' => 'Please fill in all fields in this form and then press the button below for the notification setup of the Doorbird for IP-Symcon'],
                     [
                         'type'  => 'Label',
-                        'label' => 'Setup notifications from doorbird to IP-Symcon'],
+                        'caption' => 'Setup notifications from doorbird to IP-Symcon'],
                     [
                         'type'    => 'Button',
-                        'label'   => 'Setup notifications from doorbird to IP-Symcon',
+                        'caption'   => 'Setup notifications from doorbird to IP-Symcon',
                         'onClick' => 'Doorbird_SetupNotification($id);']]
             );
         }
@@ -2152,14 +2408,14 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                     'items'   => [
                         [
                             'type'  => 'Label',
-                            'label' => 'IP adress or hostname Doorbird'],
+                            'caption' => 'IP adress or hostname Doorbird'],
                         [
                             'name'    => 'Host',
                             'type'    => 'ValidationTextBox',
                             'caption' => 'IP Doorbird'],
                         [
                             'type'  => 'Label',
-                            'label' => 'port of Doorbell'],
+                            'caption' => 'port of Doorbell'],
                         [
                             'name'    => 'PortDoorbell',
                             'type'    => 'NumberSpinner',
@@ -2170,7 +2426,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                     'items'   => [
                         [
                             'type'  => 'Label',
-                            'label' => 'Doorbird user with authorization as API-Operator'],
+                            'caption' => 'Doorbird user with authorization as API-Operator'],
                         [
                             'name'    => 'User',
                             'type'    => 'ValidationTextBox',
@@ -2185,52 +2441,71 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                     'items'   => [
                         [
                             'type'  => 'Label',
-                            'label' => 'category for doorbird ring pictures, please create first a category in the objekt tree of IP-Symcon and then select it in the field below'],
+                            'caption' => 'category for doorbird ring pictures, please create first a category in the objekt tree of IP-Symcon and then select it in the field below'],
                         [
                             'type'  => 'Label',
-                            'label' => 'doorbird ring pictures category'],
+                            'caption' => 'doorbird ring pictures category'],
                         [
                             'name'    => 'categoryhistory',
                             'type'    => 'SelectCategory',
                             'caption' => 'ring pictures'],
                         [
                             'type'  => 'Label',
-                            'label' => 'picture limit for doorbird ring pictures'],
+                            'caption' => 'picture limit for doorbird ring pictures'],
                         [
                             'name'    => 'picturelimitring',
                             'type'    => 'NumberSpinner',
                             'caption' => 'limit ring pictures'],
                         [
                             'type'  => 'Label',
-                            'label' => 'category for doorbird snapshots pictures, please create first a category in the objekt tree of IP-Symcon and then select it in the field below'],
+                            'caption' => 'category for doorbird snapshots pictures, please create first a category in the objekt tree of IP-Symcon and then select it in the field below'],
                         [
                             'type'  => 'Label',
-                            'label' => 'doorbird snapshot pictures category'],
+                            'caption' => 'doorbird snapshot pictures category'],
                         [
                             'name'    => 'categorysnapshot',
                             'type'    => 'SelectCategory',
                             'caption' => 'snapshot pictures'],
                         [
                             'type'  => 'Label',
-                            'label' => 'picture limit for doorbird snapshots pictures'],
+                            'caption' => 'picture limit for doorbird snapshots pictures'],
                         [
                             'name'    => 'picturelimitsnapshot',
                             'type'    => 'NumberSpinner',
                             'caption' => 'limit snapshots']]],
                 [
                     'type'    => 'ExpansionPanel',
+                    'caption' => 'Doorbird Slideview Settings',
+                    'items'   => [
+                        [
+                            'type'  => 'Label',
+                            'caption' => 'show a slide show of the pictures of motion detection on the web front'],
+                        [
+                            'name'    => 'slideshow_snapshot',
+                            'type'    => 'CheckBox',
+                            'caption' => 'Enable variable for slide show motion detection'],
+                        [
+                            'type'  => 'Label',
+                            'caption' => 'Show a slide show of visitors on the web front'],
+                        [
+                            'name'    => 'slideshow_history',
+                            'type'    => 'CheckBox',
+                            'caption' => 'Enable variable for slide show history']
+                    ]],
+                [
+                    'type'    => 'ExpansionPanel',
                     'caption' => 'IP Symcon Settings',
                     'items'   => [
                         [
                             'type'  => 'Label',
-                            'label' => 'IP adress IP-Symcon Server'],
+                            'caption' => 'IP adress IP-Symcon Server'],
                         [
                             'name'    => 'IPSIP',
                             'type'    => 'ValidationTextBox',
                             'caption' => 'IP adress'],
                         [
                             'type'  => 'Label',
-                            'label' => 'port of IP-Symcon'],
+                            'caption' => 'port of IP-Symcon'],
                         [
                             'name'    => 'PortIPS',
                             'type'    => 'NumberSpinner',
@@ -2241,17 +2516,17 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                     'items'   => [
                         [
                             'type'  => 'Label',
-                            'label' => 'parameter relaxation:  min 10s max 10000s'],
+                            'caption' => 'parameter relaxation:  min 10s max 10000s'],
                         [
                             'type'  => 'Label',
-                            'label' => 'notification activ for:'],
+                            'caption' => 'notification activ for:'],
                         [
                             'name'    => 'doorbell',
                             'type'    => 'CheckBox',
                             'caption' => 'doorbell'],
                         [
                             'type'  => 'Label',
-                            'label' => 'Relaxation time for doorbell (seconds)'],
+                            'caption' => 'Relaxation time for doorbell (seconds)'],
                         [
                             'name'    => 'relaxationdoorbell',
                             'type'    => 'NumberSpinner',
@@ -2262,7 +2537,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                             'caption' => 'motionsensor'],
                         [
                             'type'  => 'Label',
-                            'label' => 'Relaxation time for motionsensor (seconds)'],
+                            'caption' => 'Relaxation time for motionsensor (seconds)'],
                         [
                             'name'    => 'relaxationmotionsensor',
                             'type'    => 'NumberSpinner',
@@ -2273,7 +2548,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                             'caption' => 'door open'],
                         [
                             'type'  => 'Label',
-                            'label' => 'Relaxation time for dooropen (seconds)'],
+                            'caption' => 'Relaxation time for dooropen (seconds)'],
                         [
                             'name'    => 'relaxationdooropen',
                             'type'    => 'NumberSpinner',
@@ -2294,7 +2569,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                     'items'   => [
                         [
                             'type'  => 'Label',
-                            'label' => 'if there are problems with the live image in the webfront you can active alterative view'],
+                            'caption' => 'if there are problems with the live image in the webfront you can active alterative view'],
                         [
                             'name'    => 'altview',
                             'type'    => 'CheckBox',
@@ -2305,10 +2580,10 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                     'items'   => [
                         [
                             'type'  => 'Label',
-                            'label' => 'Connection from Doorbird to IP-Symcon'],
+                            'caption' => 'Connection from Doorbird to IP-Symcon'],
                         [
                             'type'  => 'Label',
-                            'label' => 'authentication for Doorbird webhook'],
+                            'caption' => 'authentication for Doorbird webhook'],
                         [
                             'name'    => 'webhookusername',
                             'type'    => 'ValidationTextBox',
@@ -2337,7 +2612,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                     'items'   => [
                         [
                             'type'  => 'Label',
-                            'label' => 'when viewing the webfront in a browser on an iOS or Android device, the Doorbird app can be optionally started from the webfront to talk to the visitor'],
+                            'caption' => 'when viewing the webfront in a browser on an iOS or Android device, the Doorbird app can be optionally started from the webfront to talk to the visitor'],
                         [
                             'name'    => 'doorbird_app',
                             'type'    => 'CheckBox',
@@ -2617,10 +2892,10 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $form          = [
             [
                 'type'  => 'Label',
-                'label' => 'optionally notification via email (configurated SMTP module required)'],
+                'caption' => 'optionally notification via email (configurated SMTP module required)'],
             [
                 'type'  => 'Label',
-                'label' => 'active email notification'],
+                'caption' => 'active email notification'],
             [
                 'name'    => 'activeemail',
                 'type'    => 'CheckBox',
@@ -2631,21 +2906,21 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                 'caption' => 'SMTP module'],
             [
                 'type'  => 'Label',
-                'label' => 'notification email adress'],
+                'caption' => 'notification email adress'],
             [
                 'name'    => 'email',
                 'type'    => 'ValidationTextBox',
                 'caption' => 'email'],
             [
                 'type'  => 'Label',
-                'label' => 'email subject'],
+                'caption' => 'email subject'],
             [
                 'name'    => 'subject',
                 'type'    => 'ValidationTextBox',
                 'caption' => 'subject'],
             [
                 'type'  => 'Label',
-                'label' => 'email text'],
+                'caption' => 'email text'],
             [
                 'name'    => 'emailtext',
                 'type'    => 'ValidationTextBox',
@@ -2663,21 +2938,21 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                         'caption' => 'SMTP module'],
                     [
                         'type'  => 'Label',
-                        'label' => 'notification email adress'],
+                        'caption' => 'notification email adress'],
                     [
                         'name'    => 'email2',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'email'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email subject'],
+                        'caption' => 'email subject'],
                     [
                         'name'    => 'subject2',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'subject'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email text'],
+                        'caption' => 'email text'],
                     [
                         'name'    => 'emailtext2',
                         'type'    => 'ValidationTextBox',
@@ -2697,21 +2972,21 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                         'caption' => 'SMTP module'],
                     [
                         'type'  => 'Label',
-                        'label' => 'notification email adress'],
+                        'caption' => 'notification email adress'],
                     [
                         'name'    => 'email3',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'email'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email subject'],
+                        'caption' => 'email subject'],
                     [
                         'name'    => 'subject3',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'subject'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email text'],
+                        'caption' => 'email text'],
                     [
                         'name'    => 'emailtext3',
                         'type'    => 'ValidationTextBox',
@@ -2731,21 +3006,21 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                         'caption' => 'SMTP module'],
                     [
                         'type'  => 'Label',
-                        'label' => 'notification email adress'],
+                        'caption' => 'notification email adress'],
                     [
                         'name'    => 'email4',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'email'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email subject'],
+                        'caption' => 'email subject'],
                     [
                         'name'    => 'subject4',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'subject'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email text'],
+                        'caption' => 'email text'],
                     [
                         'name'    => 'emailtext4',
                         'type'    => 'ValidationTextBox',
@@ -2765,21 +3040,21 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                         'caption' => 'SMTP module'],
                     [
                         'type'  => 'Label',
-                        'label' => 'notification email adress'],
+                        'caption' => 'notification email adress'],
                     [
                         'name'    => 'email5',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'email'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email subject'],
+                        'caption' => 'email subject'],
                     [
                         'name'    => 'subject5',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'subject'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email text'],
+                        'caption' => 'email text'],
                     [
                         'name'    => 'emailtext5',
                         'type'    => 'ValidationTextBox',
@@ -2799,21 +3074,21 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                         'caption' => 'SMTP module'],
                     [
                         'type'  => 'Label',
-                        'label' => 'notification email adress'],
+                        'caption' => 'notification email adress'],
                     [
                         'name'    => 'email6',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'email'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email subject'],
+                        'caption' => 'email subject'],
                     [
                         'name'    => 'subject6',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'subject'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email text'],
+                        'caption' => 'email text'],
                     [
                         'name'    => 'emailtext6',
                         'type'    => 'ValidationTextBox',
@@ -2833,21 +3108,21 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                         'caption' => 'SMTP module'],
                     [
                         'type'  => 'Label',
-                        'label' => 'notification email adress'],
+                        'caption' => 'notification email adress'],
                     [
                         'name'    => 'email7',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'email'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email subject'],
+                        'caption' => 'email subject'],
                     [
                         'name'    => 'subject7',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'subject'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email text'],
+                        'caption' => 'email text'],
                     [
                         'name'    => 'emailtext7',
                         'type'    => 'ValidationTextBox',
@@ -2867,21 +3142,21 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                         'caption' => 'SMTP module'],
                     [
                         'type'  => 'Label',
-                        'label' => 'notification email adress'],
+                        'caption' => 'notification email adress'],
                     [
                         'name'    => 'email8',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'email'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email subject'],
+                        'caption' => 'email subject'],
                     [
                         'name'    => 'subject8',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'subject'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email text'],
+                        'caption' => 'email text'],
                     [
                         'name'    => 'emailtext8',
                         'type'    => 'ValidationTextBox',
@@ -2901,21 +3176,21 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                         'caption' => 'SMTP module'],
                     [
                         'type'  => 'Label',
-                        'label' => 'notification email adress'],
+                        'caption' => 'notification email adress'],
                     [
                         'name'    => 'email9',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'email'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email subject'],
+                        'caption' => 'email subject'],
                     [
                         'name'    => 'subject9',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'subject'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email text'],
+                        'caption' => 'email text'],
                     [
                         'name'    => 'emailtext9',
                         'type'    => 'ValidationTextBox',
@@ -2935,21 +3210,21 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                         'caption' => 'SMTP module'],
                     [
                         'type'  => 'Label',
-                        'label' => 'notification email adress'],
+                        'caption' => 'notification email adress'],
                     [
                         'name'    => 'email10',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'email'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email subject'],
+                        'caption' => 'email subject'],
                     [
                         'name'    => 'subject10',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'subject'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email text'],
+                        'caption' => 'email text'],
                     [
                         'name'    => 'emailtext10',
                         'type'    => 'ValidationTextBox',
@@ -2969,21 +3244,21 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                         'caption' => 'SMTP module'],
                     [
                         'type'  => 'Label',
-                        'label' => 'notification email adress'],
+                        'caption' => 'notification email adress'],
                     [
                         'name'    => 'email11',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'email'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email subject'],
+                        'caption' => 'email subject'],
                     [
                         'name'    => 'subject11',
                         'type'    => 'ValidationTextBox',
                         'caption' => 'subject'],
                     [
                         'type'  => 'Label',
-                        'label' => 'email text'],
+                        'caption' => 'email text'],
                     [
                         'name'    => 'emailtext11',
                         'type'    => 'ValidationTextBox',
@@ -3003,35 +3278,35 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $form = [
             [
                 'type'  => 'Label',
-                'label' => 'Setup notifications from doorbird to IP-Symcon'],
+                'caption' => 'Setup notifications from doorbird to IP-Symcon'],
             [
                 'type'    => 'Button',
-                'label'   => 'Setup Notification',
+                'caption'   => 'Setup Notification',
                 'onClick' => 'Doorbird_SetupNotification($id);'],
             [
                 'type'  => 'Label',
-                'label' => 'Get buildnumber, WLAN MAC and firmwareversion of Doorbird'],
+                'caption' => 'Get buildnumber, WLAN MAC and firmwareversion of Doorbird'],
             [
                 'type'    => 'Button',
-                'label'   => 'get info',
+                'caption'   => 'get info',
                 'onClick' => 'Doorbird_GetInfo($id);'],
             [
                 'type'  => 'Label',
-                'label' => 'Get snapshot from the doorbird camera'],
+                'caption' => 'Get snapshot from the doorbird camera'],
             [
                 'type'    => 'Button',
-                'label'   => 'get snapshoot',
+                'caption'   => 'get snapshoot',
                 'onClick' => 'Doorbird_GetSnapshot($id);'],
             [
                 'type'    => 'Button',
-                'label'   => 'open door',
+                'caption'   => 'open door',
                 'onClick' => 'Doorbird_OpenDoor($id);'],
             [
                 'type'  => 'Label',
-                'label' => 'turn on ir light of doorbird'],
+                'caption' => 'turn on ir light of doorbird'],
             [
                 'type'    => 'Button',
-                'label'   => 'ir light',
+                'caption'   => 'ir light',
                 'onClick' => 'Doorbird_Light($id);']];
 
         return $form;
@@ -3147,4 +3422,5 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
             SetValue($this->GetIDForIdent($Ident), $Value);
         }
     }
+
 }

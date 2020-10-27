@@ -1,6 +1,6 @@
 {
 	"translations": {
-		"de": { 
+		"de": {
 			"Type": "Gerätetyp",
 			"IP adress or hostname Doorbird": "IP Adresse oder Hostname Doorbird",
 			"Port Doorbell": "Port Doorbell",
@@ -34,7 +34,14 @@
 			"doorbird snapshot pictures category": "Doorbird Besucherhistorie Kategorie",
 			"picture limit for doorbird snapshots pictures": "Anzahl der zu speichernden Bilder bei Bewegung",
 			"limit snapshots": "Limit Snapshots",
+			"Doorbird Slideview Settings": "Doorbird Diaansicht Einstellungen",
+			"show a slide show of the pictures of motion detection on the web front": "Zeige eine Diashow der Bilder der Bewegungunserkennung im Webfront",
+			"Enable variable for slide show motion detection": "Variable für Diashow Bewegungserkennung anlegen",
+			"Show a slide show of visitors on the web front": "Zeigen einer Diashow der Besucher im Webfront",
+			"Enable variable for slide show history": "Variable für Diashow Besucherhistorie anlegen",
 			"IP adress IP-Symcon Server": "IP Adresse des IP-Symcon Servers",
+			"Slideshow History": "Besucherhistorie Diashow",
+			"Slideshow Snapshot": "Schnappschuss Diashow",
 			"IP adress": "IP Adresse",
 			"notification preferences": "Benachrichtigungs Einstellungen:",
 			"parameter relaxation:  min 10s max 10000s": "Parameter Einstellungen für Erholungszeit von min 10s bis 10000s",

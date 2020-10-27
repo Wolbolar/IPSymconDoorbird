@@ -293,24 +293,24 @@ class DoorbirdDiscovery extends IPSModule
                     'direction' => 'ascending', ],
                 'columns'  => [
                     [
-                        'label'   => 'ID',
+                        'caption'   => 'ID',
                         'name'    => 'id',
                         'width'   => '200px',
                         'visible' => false, ],
                     [
-                        'label' => 'name',
+                        'caption' => 'name',
                         'name'  => 'name',
                         'width' => 'auto', ],
                     [
-                        'label' => 'hostname',
+                        'caption' => 'hostname',
                         'name'  => 'hostname',
                         'width' => '400px', ],
                     [
-                        'label' => 'host',
+                        'caption' => 'host',
                         'name'  => 'host',
                         'width' => '400px', ],
                     [
-                        'label' => 'mac',
+                        'caption' => 'mac',
                         'name'  => 'mac',
                         'width' => '400px', ], ],
                 'values'   => $this->Get_ListConfiguration(), ], ];

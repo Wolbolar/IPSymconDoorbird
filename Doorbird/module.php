@@ -134,6 +134,12 @@ class Doorbird extends IPSModule
         $this->RegisterPropertyBoolean('counter', true);
         $this->RegisterPropertyBoolean('autoplay', false);
         $this->RegisterPropertyBoolean('ken_burns', false);
+        $this->RegisterPropertyInteger('iframe_width_video', 960);
+        $this->RegisterPropertyInteger('iframe_height_video', 540);
+        $this->RegisterPropertyInteger('iframe_width_snapshot', 640);
+        $this->RegisterPropertyInteger('iframe_height_snapshot', 480);
+        $this->RegisterPropertyInteger('iframe_width_history', 640);
+        $this->RegisterPropertyInteger('iframe_height_history', 480);
 
         //we will wait until the kernel is ready
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
@@ -207,7 +213,7 @@ class Doorbird extends IPSModule
         if($this->ReadPropertyBoolean('slideshow_history'))
         {
             $this->RegisterVariableString('slideshow_history', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
-            $content = '<iframe src="'.$this->GetWebhookURL().'/slideshowhistory" width=640px height=480px></iframe>';
+            $content = '<iframe src="'.$this->GetWebhookURL().'/slideshowhistory" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
             $icon = IPS_GetObject($this->GetIDForIdent('slideshow_history'))['ObjectIcon'];
             if($icon == '')
             {
@@ -218,7 +224,7 @@ class Doorbird extends IPSModule
         if($this->ReadPropertyBoolean('slideshow_snapshot'))
         {
             $this->RegisterVariableString('slideshow_snapshot', $this->Translate('Slideshow Snapshot'), '~HTMLBox', $this->_getPosition());
-            $content = '<iframe src="'.$this->GetWebhookURL().'/slideshowsnapshot" width=640px height=480px></iframe>';
+            $content = '<iframe src="'.$this->GetWebhookURL().'/slideshowsnapshot" width=' . $this->ReadPropertyInteger('iframe_width_snapshot') . 'px height=' . $this->ReadPropertyInteger('iframe_height_snapshot') . 'px></iframe>';
             $icon = IPS_GetObject($this->GetIDForIdent('slideshow_snapshot'))['ObjectIcon'];
             if($icon == '')
             {
@@ -329,10 +335,10 @@ class Doorbird extends IPSModule
             if ($selectionaltview) {
                 $DoorbirdVideoHTML =
                     '<img src=' . $prefix . $hostdoorbell . ':' . $portdoorbell . self::LIVE_VIDEO_REQUEST . '?http-user=' . $doorbirduser . '&http-password='
-                    . $password . ' style=width: 960px; height:540px; >';
+                    . $password . ' style=width:' . $this->ReadPropertyInteger('iframe_width_video') . 'px; height:' . $this->ReadPropertyInteger('iframe_height_video') . 'px; >';
             } else {
                 $DoorbirdVideoHTML = '<iframe src=' . $prefix . $hostdoorbell . ':' . $portdoorbell . self::LIVE_VIDEO_REQUEST . '?http-user=' . $doorbirduser
-                                     . '&http-password=' . $password . '  width= 960px; height= 540px; ></iframe>';
+                                     . '&http-password=' . $password . '  width= ' . $this->ReadPropertyInteger('iframe_width_video') . 'px; height= ' . $this->ReadPropertyInteger('iframe_height_video') . 'px; ></iframe>';
             }
             $this->SetValue('DoorbirdVideo', $DoorbirdVideoHTML);
 
@@ -2475,6 +2481,19 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                             'caption' => 'limit snapshots']]],
                 [
                     'type'    => 'ExpansionPanel',
+                    'caption' => 'Doorbird Video Settings',
+                    'items'   => [
+                        [
+                            'name'    => 'iframe_width_video',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'iframe width (px)'],
+                        [
+                            'name'    => 'iframe_height_video',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'iframe height (px)']
+                    ]],
+                [
+                    'type'    => 'ExpansionPanel',
                     'caption' => 'Doorbird Slideview Settings',
                     'items'   => [
                         [
@@ -2485,12 +2504,28 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                             'type'    => 'CheckBox',
                             'caption' => 'Enable variable for slide show motion detection'],
                         [
+                            'name'    => 'iframe_width_snapshot',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'iframe width (px)'],
+                        [
+                            'name'    => 'iframe_height_snapshot',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'iframe height (px)'],
+                        [
                             'type'  => 'Label',
                             'caption' => 'Show a slide show of visitors on the web front'],
                         [
                             'name'    => 'slideshow_history',
                             'type'    => 'CheckBox',
-                            'caption' => 'Enable variable for slide show history']
+                            'caption' => 'Enable variable for slide show history'],
+                        [
+                            'name'    => 'iframe_width_history',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'iframe width (px)'],
+                        [
+                            'name'    => 'iframe_height_history',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'iframe height (px)']
                     ]],
                 [
                     'type'    => 'ExpansionPanel',

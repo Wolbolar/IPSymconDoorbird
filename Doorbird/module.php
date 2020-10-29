@@ -2360,7 +2360,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                         'caption' => 'D101',
                         'value' => self::D101],
                     [
-                        'caption' => 'D101',
+                        'caption' => 'D101S',
                         'value' => self::D101S],
                     [
                         'caption' => 'D202',
@@ -2381,10 +2381,10 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                         'caption' => 'D21DKH',
                         'value' => self::D21DKH],
                     [
-                        'caption' => 'D21DKH',
+                        'caption' => 'D2101KV',
                         'value' => self::D2101KV],
                     [
-                        'caption' => 'D21DKH',
+                        'caption' => 'D21FPBI',
                         'value' => self::D21FPBI]]
 
             ]];

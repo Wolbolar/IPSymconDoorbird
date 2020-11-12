@@ -1,0 +1,88 @@
+// ===== MIXINS =====
+
+// States
+
+@mixin fs-mixin-slide-active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+@mixin fs-mixin-slide-inactive {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@mixin fs-mixin-prev-next-nav-btn-active {
+  opacity: 1;
+  visibility: visible;
+  z-index: 1;
+}
+
+@mixin fs-mixin-prev-next-nav-btn-inactive {
+  opacity: 0;
+  visibility: hidden;
+  z-index: 0;
+}
+
+@mixin fs-mixin-quick-nav-btn-active {
+  @if mixin-exists(fs-mixin-quick-nav-btn-active-theme) {
+    @include fs-mixin-quick-nav-btn-active-theme;
+  }
+}
+
+@mixin fs-mixin-quick-nav-btn-inactive {
+  @if mixin-exists(fs-mixin-quick-nav-btn-inactive-theme) {
+    @include fs-mixin-quick-nav-btn-inactive-theme;
+  }
+}
+
+// Prefixes
+
+@mixin fs-mixin-transform($value...) {
+  // sass-lint:disable indentation
+  @if $fs-prefix {
+    -webkit-transform: $value;
+        -ms-transform: $value;
+  }
+            transform: $value;
+}
+
+@mixin fs-mixin-animation($value...) {
+  // sass-lint:disable indentation
+  @if $fs-prefix {
+    -webkit-animation: $value;
+  }
+            animation: $value;
+}
+
+@mixin fs-mixin-animation-delay($value) {
+  // sass-lint:disable indentation
+  @if $fs-prefix {
+    -webkit-animation-delay: $value;
+  }
+            animation-delay: $value;
+}
+
+@mixin fs-mixin-unselectable {
+  // sass-lint:disable indentation
+  @if $fs-prefix {
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+  }
+            user-select: none;
+}
+
+// Keyframes
+
+@mixin fs-mixin-keyframes($animation-name) {
+  @if $fs-prefix {
+    @-webkit-keyframes #{$animation-name} {
+      @content;
+    }
+  }
+
+  @keyframes #{$animation-name} {
+    @content;
+  }
+}

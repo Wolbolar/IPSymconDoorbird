@@ -2,9 +2,10 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)](https://www.symcon.de/forum/threads/38222-IP-Symcon-5-0-verf%C3%BCgbar)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
-[![StyleCI](https://github.styleci.io/repos/69290093/shield?branch=master)](https://github.styleci.io/repos/69290093)
 
 Module for IP-Symcon from version 5.x. Allows communication with a Doorbird doorphone.
+
+![Doorbird](img/doorbird_logo_dark_small.png?raw=true "Doorbird")
 
 ## Documentation
 
@@ -70,39 +71,7 @@ Then select the module and click _Install_
 
 #### Install alternative via Modules instance (IP-Symcon < 5.1)
 
-Open the IP Console's web console with _http://{IP-Symcon IP}:3777/console/_.
-
-_Open_ the object tree .
-
-![Objektbaum](img/object_tree.png?raw=true "Objektbaum")	
-
-Open the instance _'Modules'_ below core instances in the object tree of IP-Symcon (>= Ver 5.x) with a double-click and press the _Plus_ button.
-
-![Modules](img/Modules.png?raw=true "Modules")	
-
-![Plus](img/plus.png?raw=true "Plus")	
-
-![ModulURL](img/add_module.png?raw=true "Add Module")
- 
-Enter the following URL in the field and confirm with _OK_:
-
-```
-https://github.com/Wolbolar/IPSymconDoorbird 
-```  
-	         
-Then an entry for the module appears in the list of the instance _Modules_
-
-By default, the branch _master_ is loaded, which contains current changes and adjustments.
-Only the _master_ branch is kept current.
-
-![Master](img/master.png?raw=true "master") 
-
-If an older version of IP-Symcon smaller than version 4.1 is used, click on the gear on the right side of the list.
-It opens another window,
-
-![SelectBranch](img/select_branch_en.png?raw=true "select branch") 
-
-here you can switch to another branch, for older versions smaller than 4.1 select _Old-Version_ .
+[Install alternative via Modules instance](moduleinstall.md "Install alternative via Modules instance")
 
 ### b. Configuration in IP-Symcon
 
@@ -117,7 +86,7 @@ and select _Doorbird_.
 	 
 In the configuration form, the appropriate device type of the Doorbird must first be selected.
 	 
-![Type](img/select_type_en.png?raw=true "Type") 
+![Type](img/doorbird_menu_en_1.png?raw=true "Type") 
 
 Enter the IP address of the Doorbird under Doorbird Settings.
 
@@ -235,3 +204,9 @@ Reads favorites from the Doorbird
 #### Doorbird:
 
 GUID: `{D489FA0B-765D-451E-8B21-C6B61ECAC00E}` 
+
+### c. Sources
+
+[CSS Fadeshow](https://github.com/alexerlandsson/css-fadeshow "CSSFadeshow") _Alexander Erlandsson_ ([MIT License](https://github.com/alexerlandsson/css-fadeshow/blob/master/LICENSE "MIT"))
+
+[SCSSPHP](https://github.com/scssphp/scssphp "SCSSPHP") _Leaf Corcoran_ ([MIT License](https://github.com/scssphp/scssphp/blob/master/LICENSE.md "MIT"))

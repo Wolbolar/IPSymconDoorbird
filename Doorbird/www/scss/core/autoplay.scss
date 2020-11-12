@@ -1,0 +1,195 @@
+// ===== AUTOPLAY =====
+
+@mixin fs-autoplay {
+  [data-fadeshow~='autoplay'] {
+    @for $i from 2 through $fs-max-slides {
+      $total-duration: ($fs-autoplay-duration * $i);
+
+      // Slide Autoplay
+      @include fs-mixin-keyframes(slidesAutoplay-#{$i}) {
+        // sass-lint:disable-block empty-line-between-blocks, brace-style
+        0% { @include fs-mixin-slide-inactive; }
+        #{100% * $fs-fade-time / $total-duration},
+        #{100% * $fs-autoplay-duration / $total-duration} { @include fs-mixin-slide-active; }
+        #{100% * ($fs-autoplay-duration + $fs-fade-time) / $total-duration},
+        100% { @include fs-mixin-slide-inactive; }
+      }
+
+      // Prev/Next Navigation Autoplay
+      @include fs-mixin-keyframes(prevNextNavAutoplay-#{$i}) {
+        // sass-lint:disable-block empty-line-between-blocks, brace-style
+        0% { @include fs-mixin-prev-next-nav-btn-inactive; }
+        #{100% * $fs-fade-time / $total-duration},
+        #{100% * $fs-autoplay-duration / $total-duration} { @include fs-mixin-prev-next-nav-btn-active; }
+        #{100% * ($fs-autoplay-duration + $fs-fade-time) / $total-duration},
+        100% { @include fs-mixin-prev-next-nav-btn-inactive; }
+      }
+
+      // Quick Navigation Autoplay
+      @if $fs-include-quicknav and $fs-autoplay-quicknav {
+        @include fs-mixin-keyframes(quickNavAutoplay-#{$i}) {
+          // sass-lint:disable-block empty-line-between-blocks, brace-style
+          0% { @include fs-mixin-quick-nav-btn-inactive;  }
+          #{100% * $fs-quicknav-duration / $total-duration},
+          #{100% * $fs-autoplay-duration / $total-duration} { @include fs-mixin-quick-nav-btn-active; }
+          #{100% * ($fs-autoplay-duration + $fs-quicknav-duration) / $total-duration},
+          100% { @include fs-mixin-quick-nav-btn-inactive; }
+        }
+      }
+
+      // Slide Counter Autoplay
+      @if $fs-include-slidecounter and $fs-autoplay-slidecounter {
+        @include fs-mixin-keyframes(slideCounterAutoplay-#{$i}) {
+          @for $j from 1 through $i {
+            #{(100% * ($j - 1)) / $i},
+            #{((100% * $j) / $i) - 1} {
+              content: '#{$j}';
+            }
+          }
+        }
+      }
+
+      // Ken Burns Autoplay
+      @if $fs-include-kenburns and $fs-autoplay-kenburns {
+        @include fs-mixin-keyframes(kenBurnsAutoplay-#{$i}) {
+          // sass-lint:disable-block empty-line-between-blocks
+          0% {
+            @include fs-mixin-transform(none);
+          }
+          #{100% * ($fs-autoplay-duration + $fs-fade-time) / $total-duration},
+          100% {
+            @include fs-mixin-transform(scale(#{$fs-kenburns-scale}));
+          }
+        }
+      }
+
+      input[type='radio']:nth-of-type(#{$i}):last-of-type {
+        // Slide Animation
+        ~ .fs-slides {
+          .fs-slide {
+            @include fs-mixin-animation(slidesAutoplay-#{$i} #{$total-duration}s linear infinite);
+          }
+        }
+
+        // Animation Delay Loop
+        @for $j from 1 through $i {
+          $animation-delay: #{($j - 1) * $fs-autoplay-duration - $fs-fade-time}s;
+
+          ~ .fs-slides .fs-slide:nth-child(#{$j}) {
+            @include fs-mixin-animation-delay(#{$animation-delay});
+          }
+
+          @if $fs-include-quicknav and $fs-autoplay-quicknav {
+            ~ .fs-quick-nav .fs-quick-btn:nth-child(#{$j}) {
+              @include fs-mixin-animation-delay(#{$animation-delay});
+            }
+          }
+
+          @if $fs-include-prevnextnav and $fs-autoplay-prevnextnav {
+            $prev: if($j == 1, $i, $j - 1);
+            $next: if($j == $i, 1, $j + 1);
+
+            ~ .fs-prev-nav {
+              .fs-prev-btn:nth-child(#{$prev}) {
+                @include fs-mixin-animation-delay(#{$animation-delay});
+              }
+            }
+
+            ~ .fs-next-nav {
+              .fs-next-btn:nth-child(#{$next}) {
+                @include fs-mixin-animation-delay(#{$animation-delay});
+              }
+            }
+          }
+        }
+
+        // Prev/Next Navigation Autoplay
+        @if $fs-include-prevnextnav and $fs-autoplay-prevnextnav {
+          ~ .fs-prev-nav {
+            .fs-prev-btn {
+              @include fs-mixin-animation(prevNextNavAutoplay-#{$i} #{$total-duration}s linear infinite);
+            }
+          }
+
+          ~ .fs-next-nav {
+            .fs-next-btn {
+              @include fs-mixin-animation(prevNextNavAutoplay-#{$i} #{$total-duration}s linear infinite);
+            }
+          }
+        }
+
+        // Quick Navigation Animation
+        @if $fs-include-quicknav and $fs-autoplay-quicknav {
+          ~ .fs-quick-nav {
+            .fs-quick-btn {
+              @include fs-mixin-animation(quickNavAutoplay-#{$i} #{$total-duration}s linear infinite);
+            }
+          }
+        }
+
+        // Slide Counter Animation
+        @if $fs-include-slidecounter and $fs-autoplay-slidecounter {
+          ~ .fs-slide-counter {
+            .fs-slide-counter-current {
+              &:before {
+                // Add negative delay to switch number in the middle of the fade
+                $animation-delay: #{($fs-fade-time / 2) * -1}s;
+
+                @include fs-mixin-animation(slideCounterAutoplay-#{$i} #{$total-duration}s linear infinite #{$animation-delay});
+              }
+            }
+          }
+        }
+
+        // Ken Burns Animation
+        @if $fs-include-kenburns and $fs-autoplay-kenburns {
+          @at-root {
+            #{selector-append('[data-fadeshow~="ken-burns"]', &)} {
+              ~ .fs-slides {
+                .fs-slide {
+                  .fs-slide-bg {
+                    @include fs-mixin-animation(kenBurnsAutoplay-#{$i} #{$total-duration}s linear infinite);
+                  }
+                }
+              }
+
+              @for $j from 1 through $i {
+                $animation-delay: #{($j - 1) * $fs-autoplay-duration - $fs-fade-time}s;
+
+                ~ .fs-slides .fs-slide:nth-child(#{$j}) .fs-slide-bg {
+                  @include fs-mixin-animation-delay(#{$animation-delay});
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Hide Prev/Next Navigation if it should be hidden during autoplay
+    @if $fs-include-prevnextnav and not $fs-autoplay-prevnextnav {
+      .fs-prev-btn:last-child,
+      .fs-next-btn:nth-child(2) {
+        display: none;
+      }
+    }
+
+    // Hide Quick Navigation if it should be hidden during autoplay
+    @if $fs-include-quicknav and not $fs-autoplay-quicknav {
+      .fs-quick-nav {
+        display: none;
+      }
+    }
+
+    // Hide Slide Counter if it should be hidden during autoplay
+    @if $fs-include-slidecounter and not $fs-autoplay-slidecounter {
+      .fs-slide-counter {
+        display: none;
+      }
+    }
+  }
+}
+
+@if $fs-include-autoplay {
+  @include fs-autoplay;
+}

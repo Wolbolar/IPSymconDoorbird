@@ -1,0 +1,169 @@
+// ===== BASE =====
+
+// This file handles the base functionality to switch slides.
+// It also include the main loop which is used by some of the modifiers as well.
+
+[data-fadeshow] {
+  position: relative;
+  overflow: hidden;
+  background-color: $fs-fade-color;
+
+  // Slides
+  .fs-slide,
+  .fs-slide-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .fs-slide {
+    @include fs-mixin-slide-inactive;
+
+    // Display first child on load
+    &:first-child {
+      @include fs-mixin-slide-active;
+    }
+  }
+
+  // Slide functionality
+  input[type='radio'] {
+    position: fixed;
+    left: -9999px;
+    opacity: 0;
+
+    &:checked {
+      // Main loop (Only selectors including $i are allowed)
+      @for $i from 1 through $fs-max-slides {
+        &:nth-of-type(#{$i}) {
+          // Show slide
+          ~ .fs-slides {
+            .fs-slide:nth-child(#{$i}) {
+              @include fs-mixin-slide-active;
+            }
+          }
+
+          // Prev/Next Navigation
+          @if $fs-include-prevnextnav {
+            $prev: $i - 1;
+            $next: $i + 1;
+
+            @if $i > 1 {
+              ~ .fs-prev-nav {
+                .fs-prev-btn:nth-child(#{$prev}) {
+                  @include fs-mixin-prev-next-nav-btn-active;
+                }
+              }
+            }
+
+            @if $i < $fs-max-slides {
+              ~ .fs-next-nav {
+                .fs-next-btn:nth-child(#{$next}) {
+                  @include fs-mixin-prev-next-nav-btn-active;
+                }
+              }
+            }
+          }
+
+          // Quick Navigation
+          @if $fs-include-quicknav {
+            ~ .fs-quick-nav {
+              .fs-quick-btn:nth-child(#{$i}) {
+                @include fs-mixin-quick-nav-btn-active;
+              }
+            }
+          }
+
+          // Slide Counter
+          @if $fs-include-slidecounter {
+            ~ .fs-slide-counter {
+              .fs-slide-counter-current {
+                &:before {
+                  content: '#{$i}';
+                }
+              }
+            }
+          }
+        }
+      }
+
+      ~ .fs-slides {
+        .fs-slide {
+          @include fs-mixin-slide-inactive;
+          transition: opacity #{$fs-fade-time}s linear;
+
+          @if $fs-include-autoplay {
+            // Cancel autoplay
+            @include fs-mixin-animation(none !important);
+
+            // Cancel Ken Burns autoplay (Running as transition when a radio button is checked)
+            @if $fs-include-kenburns and $fs-autoplay-kenburns {
+              .fs-slide-bg {
+                @include fs-mixin-animation(none !important);
+              }
+            }
+          }
+        }
+      }
+
+      @if $fs-include-quicknav {
+        ~ .fs-quick-nav {
+          // Display Quick Navigation if it has been hidden during autoplay
+          @if $fs-include-autoplay and not $fs-autoplay-quicknav {
+            display: block;
+          }
+
+          .fs-quick-btn {
+            @include fs-mixin-quick-nav-btn-inactive;
+
+            @if $fs-include-autoplay and $fs-autoplay-quicknav {
+              // Cancel Quick Navigation autoplay
+              @include fs-mixin-animation(none !important);
+            }
+          }
+        }
+      }
+
+      // Display Slide Counter if it has been hidden during autoplay
+      @if $fs-include-autoplay and $fs-include-slidecounter and not $fs-autoplay-slidecounter {
+        ~ .fs-slide-counter {
+          display: block;
+        }
+      }
+
+      // Cancel slide couter autoplay
+      @if $fs-include-autoplay and $fs-include-slidecounter and $fs-autoplay-slidecounter {
+        ~ .fs-slide-counter {
+          .fs-slide-counter-current {
+            &:before {
+              @include fs-mixin-animation(none !important);
+            }
+          }
+        }
+      }
+
+      // Hide navigation if only one slide
+      &:first-of-type:last-of-type {
+        @if not $fs-include-prevnextnav {
+          ~ .fs-prev-nav,
+          ~ .fs-next-nav {
+            display: none !important;
+          }
+        }
+
+        @if not $fs-include-quicknav {
+          ~ .fs-quick-nav {
+            display: none !important;
+          }
+        }
+
+        @if not $fs-include-slidecounter {
+          ~ .fs-slide-counter {
+            display: none !important;
+          }
+        }
+      }
+    }
+  }
+}

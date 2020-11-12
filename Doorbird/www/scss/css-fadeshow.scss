@@ -1,0 +1,38 @@
+// ===== CSS Fadeshow by @alexerlandsson =====
+
+// This is a fadeshow built with SCSS and with customization in focus.
+// Supports Quick Navigation, Prev/Next Navigation, Slide Counter Autoplay and Ken Burns effect.
+
+// For better documentation and implementation guide, check out the GitHub repository:
+// https://github.com/alexerlandsson/css-fadeshow
+
+
+// ===== IMPORTS =====
+
+// This project consists of three parts: Global, Theme and Core.
+// Global contains files used by all components, Theme contains files used only for appearance
+// and Core contains the core functionality of the fadeshow.
+
+// All files must be imported in the following order: Global, Theme, Core.
+// Do not change anything in Global and Core components.
+
+// Global
+@import
+'global/settings',
+'global/mixins'
+;
+
+// Theme
+@import
+'theme/theme'
+;
+
+// Core
+@import
+'core/base',
+'core/kenburns',
+'core/prevnextnav',
+'core/quicknav',
+'core/slidecounter',
+'core/autoplay'
+;

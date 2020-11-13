@@ -981,13 +981,17 @@ class Doorbird extends IPSModule
             if (!isset($urlparts['scheme'])) {
                 $urlparts['scheme'] = 'http';
             }
-            /*Validation*/
-            if (checkdnsrr($urlparts['host'], 'A') && in_array($urlparts['scheme'], ['http', 'https']) && ip2long($urlparts['host']) === false) {
-                $urlparts['host'] = preg_replace('/^www\./', '', $urlparts['host']);
-                $url = $urlparts['scheme'] . '://' . $urlparts['host'] . '/';
+            $exist = function_exists('checkdnsrr');
+            if($exist)
+            {
+                /*Validation*/
+                if (checkdnsrr($urlparts['host'], 'A') && in_array($urlparts['scheme'], ['http', 'https']) && ip2long($urlparts['host']) === false) {
+                    $urlparts['host'] = preg_replace('/^www\./', '', $urlparts['host']);
+                    $url = $urlparts['scheme'] . '://' . $urlparts['host'] . '/';
 
-                if (filter_var($url, FILTER_VALIDATE_URL) !== false && @get_headers($url)) {
-                    $validation = true;
+                    if (filter_var($url, FILTER_VALIDATE_URL) !== false && @get_headers($url)) {
+                        $validation = true;
+                    }
                 }
             }
         }
@@ -1018,13 +1022,17 @@ class Doorbird extends IPSModule
             if (!isset($urlparts['scheme'])) {
                 $urlparts['scheme'] = 'http';
             }
-            /*Validation*/
-            if (checkdnsrr($urlparts['host'], 'A') && in_array($urlparts['scheme'], ['http', 'https']) && ip2long($urlparts['host']) === false) {
-                $urlparts['host'] = preg_replace('/^www\./', '', $urlparts['host']);
-                $url = $urlparts['scheme'] . '://' . $urlparts['host'] . '/';
+            $exist = function_exists('checkdnsrr');
+            if($exist)
+            {
+                /*Validation*/
+                if (checkdnsrr($urlparts['host'], 'A') && in_array($urlparts['scheme'], ['http', 'https']) && ip2long($urlparts['host']) === false) {
+                    $urlparts['host'] = preg_replace('/^www\./', '', $urlparts['host']);
+                    $url = $urlparts['scheme'] . '://' . $urlparts['host'] . '/';
 
-                if (filter_var($url, FILTER_VALIDATE_URL) !== false && @get_headers($url)) {
-                    $validation = true;
+                    if (filter_var($url, FILTER_VALIDATE_URL) !== false && @get_headers($url)) {
+                        $validation = true;
+                    }
                 }
             }
         }

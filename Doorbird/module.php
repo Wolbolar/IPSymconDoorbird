@@ -841,35 +841,40 @@ class Doorbird extends IPSModule
         $this->EnableAction('DoorbirdButtonSnapshot');
 
         if ($this->ReadPropertyBoolean('doorbird_app')) {
+            $exist_app = $this->CheckExistence('doorbird_app');
             $this->RegisterVariableString('doorbird_app', $this->Translate('Launch Doorbird App'), '~HTMLBox', $this->_getPosition());
             $content = '<a href="doorbird://" title="Doorbird App"><img alt="Doorbird App" src="data:image/png;base64, ' . self::PICTURE_LOGO_DOORBIRD . '" width="15%" height="15%"></a>';
-            $this->SetIcon('doorbird_app', 'Mobile');
+            $this->SetIcon('doorbird_app', 'Mobile', $exist_app);
             $this->SetValue('doorbird_app', $content);
         }
         if ($this->ReadPropertyBoolean('slideshow_history')) {
             if ($model == self::D101 || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D2102V || $model == self::D2103V) {
+                $exist_slideshow_history_1 = $this->CheckExistence('slideshow_history_1');
                 $this->RegisterVariableString('slideshow_history_1', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
                 $content = '<iframe src="' . $this->GetWebhookURL() . '/slideshowhistory" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
-                $this->SetIcon('slideshow_history_1', 'Camera');
+                $this->SetIcon('slideshow_history_1', 'Camera', $exist_slideshow_history_1);
                 $this->SetValue('slideshow_history_1', $content);
             }
             if ($model == self::D2102V || $model == self::D2103V) {
+                $exist_slideshow_history_2 = $this->CheckExistence('slideshow_history_2');
                 $this->RegisterVariableString('slideshow_history_2', $this->Translate('Slideshow History 2'), '~HTMLBox', $this->_getPosition());
                 $content = '<iframe src="' . $this->GetWebhookURL() . '/slideshowhistory2" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
-                $this->SetIcon('slideshow_history_2', 'Camera');
+                $this->SetIcon('slideshow_history_2', 'Camera', $exist_slideshow_history_2);
                 $this->SetValue('slideshow_history_2', $content);
             }
             if ($model == self::D2103V) {
+                $exist_slideshow_history_3 = $this->CheckExistence('slideshow_history_3');
                 $this->RegisterVariableString('slideshow_history_3', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
                 $content = '<iframe src="' . $this->GetWebhookURL() . '/slideshowhistory3" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
-                $this->SetIcon('slideshow_history_3', 'Camera');
+                $this->SetIcon('slideshow_history_3', 'Camera', $exist_slideshow_history_3);
                 $this->SetValue('slideshow_history_3', $content);
             }
         }
         if ($this->ReadPropertyBoolean('slideshow_snapshot')) {
+            $exist_slideshow_snapshot = $this->CheckExistence('slideshow_snapshot');
             $this->RegisterVariableString('slideshow_snapshot', $this->Translate('Slideshow Snapshot'), '~HTMLBox', $this->_getPosition());
             $content = '<iframe src="' . $this->GetWebhookURL() . '/slideshowsnapshot" width=' . $this->ReadPropertyInteger('iframe_width_snapshot') . 'px height=' . $this->ReadPropertyInteger('iframe_height_snapshot') . 'px></iframe>';
-            $this->SetIcon('slideshow_snapshot', 'Camera');
+            $this->SetIcon('slideshow_snapshot', 'Camera', $exist_slideshow_snapshot);
             $this->SetValue('slideshow_snapshot', $content);
         }
         $this->ValidateConfiguration();
@@ -2869,13 +2874,12 @@ class Doorbird extends IPSModule
         return $exist;
     }
 
-    private function SetIcon($ident, $icon)
+    private function SetIcon($ident, $icon, $exist)
     {
-        $exist = $this->CheckExistence($ident);
-        if ($exist) {
-            IPS_SetIcon($this->InstanceID, $icon);
+        if ($exist == false) {
+            $icon_exist = IPS_SetIcon($this->GetIDForIdent($ident), $icon);
         }
-        return $exist;
+        return $icon_exist;
     }
 
     /**

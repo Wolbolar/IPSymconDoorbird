@@ -18,7 +18,6 @@ trait ProfileHelper
      */
     protected function RegisterProfile($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize, $Digits, $Vartype)
     {
-
         if (!IPS_VariableProfileExists($Name)) {
             IPS_CreateVariableProfile($Name, $Vartype); // 0 boolean, 1 int, 2 float, 3 string,
         } else {
@@ -29,8 +28,7 @@ trait ProfileHelper
         }
 
         IPS_SetVariableProfileIcon($Name, $Icon);
-        if($Vartype != VARIABLETYPE_STRING)
-        {
+        if ($Vartype != VARIABLETYPE_STRING) {
             IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
             IPS_SetVariableProfileDigits($Name, $Digits); //  Nachkommastellen
             IPS_SetVariableProfileValues(
@@ -55,28 +53,27 @@ trait ProfileHelper
      */
     protected function RegisterProfileAssociation($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $Stepsize, $Digits, $Vartype, $Associations)
     {
-        if (is_array($Associations) && sizeof($Associations) === 0) {
+        if (is_array($Associations) && count($Associations) === 0) {
             $MinValue = 0;
             $MaxValue = 0;
         }
         $this->RegisterProfile($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $Stepsize, $Digits, $Vartype);
 
         if (is_array($Associations)) {
-            foreach ($Associations AS $Association) {
+            foreach ($Associations as $Association) {
                 IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
             }
         } else {
             $Associations = $this->$Associations;
-            foreach ($Associations AS $code => $association) {
+            foreach ($Associations as $code => $association) {
                 IPS_SetVariableProfileAssociation($Name, $code, $this->Translate($association), $Icon, -1);
             }
         }
-
     }
 
-    /***********************************************************
+    /*
      * Helper methods
-     ***********************************************************/
+     */
 
     /**
      * send debug log

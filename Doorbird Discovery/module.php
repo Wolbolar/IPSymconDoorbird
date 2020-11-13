@@ -59,14 +59,184 @@ class DoorbirdDiscovery extends IPSModule
         }
     }
 
+    public function scan()
+    {
+        $mDNSInstanceID = $this->GetDNSSD();
+        $doorbird_stations = ZC_QueryServiceType($mDNSInstanceID, '_axis-video._tcp', '');
+        return $doorbird_stations;
+    }
+
+    public function GetDevices()
+    {
+        $devices = $this->ReadPropertyString('devices');
+
+        return $devices;
+    }
+
+    public function Discover()
+    {
+        if (empty($this->DiscoverDevices())) {
+            $devices = '';
+        } else {
+            $this->LogMessage($this->Translate('Background Discovery of Doorbird'), KL_NOTIFY);
+            $this->WriteAttributeString('devices', json_encode($this->DiscoverDevices()));
+            $devices = json_encode($this->DiscoverDevices());
+        }
+        return $devices;
+    }
+
+    /*
+     * Configuration Form
+     */
+
+    /**
+     * build configuration form.
+     *
+     * @return string
+     */
+    public function GetConfigurationForm()
+    {
+        // return current form
+        $Form = json_encode(
+            [
+                'elements' => $this->FormElements(),
+                'actions'  => $this->FormActions(),
+                'status'   => $this->FormStatus(), ]
+        );
+        $this->SendDebug('FORM', $Form, 0);
+        $this->SendDebug('FORM', json_last_error_msg(), 0);
+
+        return $Form;
+    }
+
+    protected function GetDoorbirdInfo($devices)
+    {
+        $mDNSInstanceID = $this->GetDNSSD();
+        $doorbird_info = [];
+        foreach ($devices as $key => $doorbird_station) {
+            $mDNS_name = $doorbird_station['Name'];
+            if (stripos($mDNS_name, 'Doorstation') === 0) {
+                $response = ZC_QueryService($mDNSInstanceID, $mDNS_name, '_axis-video._tcp', 'local.');
+                foreach ($response as $data) {
+                    $name = str_ireplace('._axis-video._tcp.local.', '', $data['Name']);
+                    $hostname = str_ireplace('.local.', '', $data['Host']);
+                    $port = $data['Port'];
+                    $mac = str_ireplace('macaddress=', '', $data['TXTRecords'][0]);
+                    $ip = $data['IPv4'][0];
+                    if (isset($data['Name'])) {
+                        $name = str_ireplace('._axis-video._tcp.local.', '', $data['Name']);
+                    }
+                    if (isset($data['Host'])) {
+                        $hostname = str_ireplace('.local.', '', $data['Host']);
+                    }
+                    if (isset($data['Port'])) {
+                        $port = $data['Port'];
+                    }
+                    if (isset($data['TXTRecords'][0])) {
+                        $mac = str_ireplace('macaddress=', '', $data['TXTRecords'][0]);
+                    }
+                    if (isset($data['IPv4'])) {
+                        $ip = $data['IPv4'][0];
+                    }
+                }
+                $doorbird_info[$key] = ['name' => $name, 'hostname' => $hostname, 'host' => $ip, 'port' => $port, 'mac' => $mac];
+            }
+        }
+        return $doorbird_info;
+    }
+
+    /**
+     * return form configurations on configuration step.
+     *
+     * @return array
+     */
+    protected function FormElements()
+    {
+        $form = [
+            [
+                'type'  => 'Image',
+                'image' => 'data:image/png;base64, ' . self::PICTURE_LOGO_DOORBIRD]];
+
+        return $form;
+    }
+
+    /**
+     * return form actions by token.
+     *
+     * @return array
+     */
+    protected function FormActions()
+    {
+        $form = [
+            [
+                'name'     => 'DoorbirdDiscovery',
+                'type'     => 'Configurator',
+                'rowCount' => 20,
+                'add'      => false,
+                'delete'   => true,
+                'sort'     => [
+                    'column'    => 'name',
+                    'direction' => 'ascending', ],
+                'columns'  => [
+                    [
+                        'caption'   => 'ID',
+                        'name'      => 'id',
+                        'width'     => '200px',
+                        'visible'   => false, ],
+                    [
+                        'caption' => 'name',
+                        'name'    => 'name',
+                        'width'   => 'auto', ],
+                    [
+                        'caption' => 'hostname',
+                        'name'    => 'hostname',
+                        'width'   => '400px', ],
+                    [
+                        'caption' => 'host',
+                        'name'    => 'host',
+                        'width'   => '400px', ],
+                    [
+                        'caption' => 'mac',
+                        'name'    => 'mac',
+                        'width'   => '400px', ], ],
+                'values'   => $this->Get_ListConfiguration(), ], ];
+
+        return $form;
+    }
+
+    /**
+     * return from status.
+     *
+     * @return array
+     */
+    protected function FormStatus()
+    {
+        $form = [
+            [
+                'code'    => 101,
+                'icon'    => 'inactive',
+                'caption' => 'Creating instance.', ],
+            [
+                'code'    => 102,
+                'icon'    => 'active',
+                'caption' => 'Doorbird Discovery created.', ],
+            [
+                'code'    => 104,
+                'icon'    => 'inactive',
+                'caption' => 'interface closed.', ],
+            [
+                'code'    => 201,
+                'icon'    => 'inactive',
+                'caption' => 'Please follow the instructions.', ], ];
+
+        return $form;
+    }
+
     private function StartDiscovery()
     {
-        if(empty($this->DiscoverDevices()))
-        {
+        if (empty($this->DiscoverDevices())) {
             $this->SendDebug('Discover:', 'could not find doorbird info', 0);
-        }
-        else
-        {
+        } else {
             $this->WriteAttributeString('devices', json_encode($this->DiscoverDevices()));
         }
         $this->SetTimerInterval('Discovery', 300000);
@@ -74,7 +244,7 @@ class DoorbirdDiscovery extends IPSModule
 
     private function GetSymconIP()
     {
-        $ip =  gethostbyname(gethostname());
+        $ip = gethostbyname(gethostname());
         return $ip;
     }
 
@@ -85,18 +255,18 @@ class DoorbirdDiscovery extends IPSModule
      */
     private function Get_ListConfiguration()
     {
-        $config_list        = [];
+        $config_list = [];
         $DoorbirdIDList = IPS_GetInstanceListByModuleID('{D489FA0B-765D-451E-8B21-C6B61ECAC00E}'); // Doorbird Devices
-        $devices            = $this->DiscoverDevices();
+        $devices = $this->DiscoverDevices();
         $this->SendDebug('Discovered Doorbird Stations', json_encode($devices), 0);
         if (!empty($devices)) {
             foreach ($devices as $device) {
                 $instanceID = 0;
-                $name       = $device['name'];
-                $hostname     = $device['hostname'];
-                $host       = $device['host'];
-                $mac       = $device['mac'];
-                $device_id  = 0;
+                $name = $device['name'];
+                $hostname = $device['hostname'];
+                $host = $device['host'];
+                $mac = $device['mac'];
+                $device_id = 0;
                 foreach ($DoorbirdIDList as $DoorbirdID) {
                     if ($host == IPS_GetProperty($DoorbirdID, 'Host')) {
                         $Doorbird_name = IPS_GetName($DoorbirdID);
@@ -140,12 +310,9 @@ class DoorbirdDiscovery extends IPSModule
         $devices = $this->scan();
         $this->SendDebug('Discover Response:', json_encode($devices), 0);
         $doorbird_info = $this->GetDoorbirdInfo($devices);
-        if(empty($doorbird_info))
-        {
+        if (empty($doorbird_info)) {
             $this->SendDebug('Discover:', 'could not find doorbird info', 0);
-        }
-        else
-        {
+        } else {
             foreach ($doorbird_info as $device) {
                 $this->SendDebug('name:', $device['name'], 0);
                 $this->SendDebug('hostname:', $device['hostname'], 0);
@@ -157,194 +324,10 @@ class DoorbirdDiscovery extends IPSModule
         return $doorbird_info;
     }
 
-    protected function GetDoorbirdInfo($devices)
-    {
-        $mDNSInstanceID = $this->GetDNSSD();
-        $doorbird_info = [];
-        foreach($devices as $key => $doorbird_station)
-        {
-            $mDNS_name = $doorbird_station['Name'];
-            if(stripos($mDNS_name, 'Doorstation') === 0)
-            {
-                $response = ZC_QueryService($mDNSInstanceID, $mDNS_name, '_axis-video._tcp', 'local.');
-                foreach($response as $data)
-                {
-                    $name = str_ireplace('._axis-video._tcp.local.', '', $data['Name']);
-                    $hostname = str_ireplace('.local.', '', $data['Host']);
-                    $port = $data['Port'];
-                    $mac = str_ireplace('macaddress=', '', $data['TXTRecords'][0]);
-                    $ip = $data['IPv4'][0];
-                    if(isset($data['Name']))
-                    {
-                        $name = str_ireplace('._axis-video._tcp.local.', '', $data['Name']);
-                    }
-                    if(isset($data['Host']))
-                    {
-                        $hostname = str_ireplace('.local.', '', $data['Host']);
-                    }
-                    if(isset($data['Port']))
-                    {
-                        $port = $data['Port'];
-                    }
-                    if(isset($data['TXTRecords'][0]))
-                    {
-                        $mac = str_ireplace('macaddress=', '', $data['TXTRecords'][0]);
-                    }
-                    if(isset($data['IPv4']))
-                    {
-                        $ip = $data['IPv4'][0];
-                    }
-                }
-                $doorbird_info[$key] = ['name' => $name, 'hostname' => $hostname, 'host' => $ip, 'port' => $port, 'mac' => $mac];
-            }
-        }
-        return $doorbird_info;
-    }
-
-    public function scan()
-    {
-        $mDNSInstanceID = $this->GetDNSSD();
-        $doorbird_stations = ZC_QueryServiceType($mDNSInstanceID, '_axis-video._tcp', '');
-        return $doorbird_stations;
-    }
-
     private function GetDNSSD()
     {
         $mDNSInstanceIDs = IPS_GetInstanceListByModuleID('{780B2D48-916C-4D59-AD35-5A429B2355A5}');
         $mDNSInstanceID = $mDNSInstanceIDs[0];
         return $mDNSInstanceID;
-    }
-
-    public function GetDevices()
-    {
-        $devices = $this->ReadPropertyString('devices');
-
-        return $devices;
-    }
-
-    public function Discover()
-    {
-        if(empty($this->DiscoverDevices()))
-        {
-            $devices = '';
-        }
-        else
-        {
-            $this->LogMessage($this->Translate('Background Discovery of Doorbird'), KL_NOTIFY);
-            $this->WriteAttributeString('devices', json_encode($this->DiscoverDevices()));
-            $devices = json_encode($this->DiscoverDevices());
-        }
-        return $devices;
-    }
-
-    /***********************************************************
-     * Configuration Form
-     ***********************************************************/
-
-    /**
-     * build configuration form.
-     *
-     * @return string
-     */
-    public function GetConfigurationForm()
-    {
-        // return current form
-        $Form = json_encode(
-            [
-                'elements' => $this->FormElements(),
-                'actions'  => $this->FormActions(),
-                'status'   => $this->FormStatus(), ]
-        );
-        $this->SendDebug('FORM', $Form, 0);
-        $this->SendDebug('FORM', json_last_error_msg(), 0);
-
-        return $Form;
-    }
-
-    /**
-     * return form configurations on configuration step.
-     *
-     * @return array
-     */
-    protected function FormElements()
-    {
-        $form = [
-            [
-                'type'  => 'Image',
-                'image' => 'data:image/png;base64, ' . self::PICTURE_LOGO_DOORBIRD]];
-
-        return $form;
-    }
-
-    /**
-     * return form actions by token.
-     *
-     * @return array
-     */
-    protected function FormActions()
-    {
-        $form = [
-            [
-                'name'     => 'DoorbirdDiscovery',
-                'type'     => 'Configurator',
-                'rowCount' => 20,
-                'add'      => false,
-                'delete'   => true,
-                'sort'     => [
-                    'column'    => 'name',
-                    'direction' => 'ascending', ],
-                'columns'  => [
-                    [
-                        'caption'   => 'ID',
-                        'name'    => 'id',
-                        'width'   => '200px',
-                        'visible' => false, ],
-                    [
-                        'caption' => 'name',
-                        'name'  => 'name',
-                        'width' => 'auto', ],
-                    [
-                        'caption' => 'hostname',
-                        'name'  => 'hostname',
-                        'width' => '400px', ],
-                    [
-                        'caption' => 'host',
-                        'name'  => 'host',
-                        'width' => '400px', ],
-                    [
-                        'caption' => 'mac',
-                        'name'  => 'mac',
-                        'width' => '400px', ], ],
-                'values'   => $this->Get_ListConfiguration(), ], ];
-
-        return $form;
-    }
-
-    /**
-     * return from status.
-     *
-     * @return array
-     */
-    protected function FormStatus()
-    {
-        $form = [
-            [
-                'code'    => 101,
-                'icon'    => 'inactive',
-                'caption' => 'Creating instance.', ],
-            [
-                'code'    => 102,
-                'icon'    => 'active',
-                'caption' => 'Doorbird Discovery created.', ],
-            [
-                'code'    => 104,
-                'icon'    => 'inactive',
-                'caption' => 'interface closed.', ],
-            [
-                'code'    => 201,
-                'icon'    => 'inactive',
-                'caption' => 'Please follow the instructions.', ], ];
-
-        return $form;
     }
 }

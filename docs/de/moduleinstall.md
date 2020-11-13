@@ -1,4 +1,4 @@
-[Zurück zum Hausptmenü](README.md "Zurück zum Hauptmenü")
+[Zurück zum Hauptmenü](README.md "Zurück zum Hauptmenü")
 
 #### Alternatives Installieren über Modules Instanz (IP-Symcon < 5.1)
 

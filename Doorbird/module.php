@@ -2876,9 +2876,11 @@ class Doorbird extends IPSModule
 
     private function SetIcon($ident, $icon, $exist)
     {
+        $icon_exist = false;
         if ($exist == false) {
             $icon_exist = IPS_SetIcon($this->GetIDForIdent($ident), $icon);
         }
+
         return $icon_exist;
     }
 

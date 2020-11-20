@@ -1,0 +1,40 @@
+// ===== SLIDE COUNTER =====
+
+@mixin fs-slidecounter {
+  [data-fadeshow~='slide-counter'] {
+    counter-reset: slideCounter;
+
+    input[type='radio'] {
+      counter-increment: slideCounter;
+    }
+
+    .fs-slide-counter {
+      z-index: 1;
+    }
+
+    .fs-slide-counter-current {
+      &:before {
+        // Set default current slide value to be displayed on load
+        // The current slide value is updated in base.scss
+        content: '1';
+      }
+    }
+
+    .fs-slide-counter-total {
+      &:before {
+        content: counter(slideCounter);
+      }
+    }
+  }
+}
+
+@if $fs-include-slidecounter {
+  @include fs-slidecounter;
+} @else {
+  [data-fadeshow] {
+    // Hide if set to false but added to html
+    .fs-slide-counter {
+      display: none !important;
+    }
+  }
+}

@@ -1,0 +1,34 @@
+// ===== SETTINGS =====
+
+// Change these variables to match your preferences. For a more detailed
+// description of what each variable do, visit https://github.com/alexerlandsson/css-fadeshow
+
+// Modifiers to include
+$fs-include-autoplay:       true;
+$fs-include-prevnextnav:    true;
+$fs-include-quicknav:       true;
+$fs-include-slidecounter:   true;
+$fs-include-kenburns:       true;
+
+// Base Settings
+$fs-max-slides:             20;
+$fs-fade-time:              1;
+$fs-fade-color:             #fff;
+$fs-prefix:                 true;
+
+// Prev/Next Navigation
+$fs-prevnextnav-loop:       true;
+
+// Quick Navigation
+$fs-quicknav-duration:      0.2;
+
+// Autoplay
+$fs-autoplay-duration:      5;
+$fs-autoplay-prevnextnav:   true;
+$fs-autoplay-quicknav:      true;
+$fs-autoplay-slidecounter:  false;
+$fs-autoplay-kenburns:      true;
+
+// Ken Burns
+$fs-kenburns-duration:      5;
+$fs-kenburns-scale:         1.05;

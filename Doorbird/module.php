@@ -133,6 +133,7 @@ class Doorbird extends IPSModule
         $this->RegisterPropertyBoolean('doorbird_app', false);
         $this->RegisterPropertyBoolean('slideshow_history', false);
         $this->RegisterPropertyBoolean('slideshow_snapshot', false);
+        $this->RegisterPropertyBoolean('webadmin', false);
         $this->RegisterPropertyBoolean('counter', true);
         $this->RegisterPropertyBoolean('autoplay', false);
         $this->RegisterPropertyBoolean('ken_burns', false);
@@ -142,6 +143,8 @@ class Doorbird extends IPSModule
         $this->RegisterPropertyInteger('iframe_height_snapshot', 480);
         $this->RegisterPropertyInteger('iframe_width_history', 640);
         $this->RegisterPropertyInteger('iframe_height_history', 480);
+        $this->RegisterPropertyInteger('iframe_width_webadmin', 960);
+        $this->RegisterPropertyInteger('iframe_height_webadmin', 540);
         $this->RegisterAttributeInteger('pictures_history', 0);
         $this->RegisterAttributeInteger('pictures_history2', 0);
         $this->RegisterAttributeInteger('pictures_history3', 0);
@@ -900,6 +903,13 @@ class Doorbird extends IPSModule
             $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowsnapshot" width=' . $this->ReadPropertyInteger('iframe_width_snapshot') . 'px height=' . $this->ReadPropertyInteger('iframe_height_snapshot') . 'px></iframe>';
             $this->SetIcon('slideshow_snapshot', 'Camera', $exist_slideshow_snapshot);
             $this->SetValue('slideshow_snapshot', $content);
+        }
+        if ($this->ReadPropertyBoolean('webadmin')) {
+            $exist_webadmin = $this->CheckExistence('webadmin');
+            $this->RegisterVariableString('webadmin', $this->Translate('Web Admin'), '~HTMLBox', $this->_getPosition());
+            $content = '<iframe src="https://webadmin.doorbird.com" width=' . $this->ReadPropertyInteger('iframe_width_webadmin') . 'px height=' . $this->ReadPropertyInteger('iframe_height_webadmin') . 'px></iframe>';
+            $this->SetIcon('webadmin', 'Database', $exist_webadmin);
+            $this->SetValue('webadmin', $content);
         }
         $this->ValidateConfiguration();
     }
@@ -2184,6 +2194,29 @@ class Doorbird extends IPSModule
                             'type'    => 'CheckBox',
                             'caption' => 'Enable Variable for launching the Doorbird App']
                     ]]]
+        );
+        $form = array_merge_recursive(
+            $form, [
+                     [
+                         'type'    => 'ExpansionPanel',
+                         'caption' => 'Doorbird Web Admin',
+                         'items'   => [
+                             [
+                                 'type'    => 'Label',
+                                 'caption' => 'show Doorbird Webadmin on the WebFront'],
+                             [
+                                 'name'    => 'webadmin',
+                                 'type'    => 'CheckBox',
+                                 'caption' => 'Enable variable for Webadmin'],
+                             [
+                                 'name'    => 'iframe_width_webadmin',
+                                 'type'    => 'NumberSpinner',
+                                 'caption' => 'iframe width (px)'],
+                             [
+                                 'name'    => 'iframe_height_webadmin',
+                                 'type'    => 'NumberSpinner',
+                                 'caption' => 'iframe height (px)']
+                         ]]]
         );
         return $form;
     }

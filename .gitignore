@@ -2,5 +2,6 @@
 *.db
 .DS_Store
 style.bat
+php-cs-fixer.bat
 .php_cs.cache
 .phpunit.result.cache

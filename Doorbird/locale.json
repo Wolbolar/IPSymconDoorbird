@@ -149,7 +149,10 @@
 			"Could not connect. Please check the Doorbird username.": "Konnte keine Verbindung herstellen. Bitte den Doorbird Nutzer überprüfen.",
 			"the user has no authority as an API operator. Please make sure that the user who has been deposited in IP-Symcon has been assigned API operator rights.": "Der Benutzer verfügt über keine Berechtigung als API Operator. Bitte stellen Sie sicher das der Nutzer, der in IP-Symcon hinterlegt wurde, diese Rechte zugewiesen bekommen hat.",
 			"No valid Doorbird IP adress or host.": "Keine gültige Doorbird IP Adresse oder Domainname.",
-			"No valid IP-Symcon IP adress or host.": "Keine gültige IP-Symcon IP Adresse oder Domainname."
+			"No valid IP-Symcon IP adress or host.": "Keine gültige IP-Symcon IP Adresse oder Domainname.",
+			"Web Admin": "Web Admin",
+			"show Doorbird Webadmin on the WebFront": "Doorbird Webadmin im WebFront anzeigen",
+			"Enable variable for Webadmin": "Variable für Webadmin anlegen"
 		}
 	}
 }

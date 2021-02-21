@@ -152,7 +152,8 @@
 			"No valid IP-Symcon IP adress or host.": "Keine gültige IP-Symcon IP Adresse oder Domainname.",
 			"Web Admin": "Web Admin",
 			"show Doorbird Webadmin on the WebFront": "Doorbird Webadmin im WebFront anzeigen",
-			"Enable variable for Webadmin": "Variable für Webadmin anlegen"
+			"Enable variable for Webadmin": "Variable für Webadmin anlegen",
+			"open Doorbird Webadmin": "Doorbird Webadmin öffnen"
 		}
 	}
 }

@@ -118,25 +118,40 @@ class DoorbirdDiscovery extends IPSModule
             if (stripos($mDNS_name, 'Doorstation') === 0) {
                 $response = ZC_QueryService($mDNSInstanceID, $mDNS_name, '_axis-video._tcp', 'local.');
                 foreach ($response as $data) {
-                    $name = str_ireplace('._axis-video._tcp.local.', '', $data['Name']);
-                    $hostname = str_ireplace('.local.', '', $data['Host']);
-                    $port = $data['Port'];
-                    $mac = str_ireplace('macaddress=', '', $data['TXTRecords'][0]);
-                    $ip = $data['IPv4'][0];
+                    $name = '';
                     if (isset($data['Name'])) {
                         $name = str_ireplace('._axis-video._tcp.local.', '', $data['Name']);
                     }
+                    if (isset($data[0]['Name'])) {
+                        $name = str_ireplace('._axis-video._tcp.local.', '', $data[0]['Name']);
+                    }
+                    $hostname = '';
                     if (isset($data['Host'])) {
                         $hostname = str_ireplace('.local.', '', $data['Host']);
                     }
+                    if (isset($data[0]['Host'])) {
+                        $hostname = str_ireplace('.local.', '', $data[0]['Host']);
+                    }
+                    $port = '';
                     if (isset($data['Port'])) {
                         $port = $data['Port'];
                     }
+                    if (isset($data[0]['Port'])) {
+                        $port = $data[0]['Port'];
+                    }
+                    $mac = '';
                     if (isset($data['TXTRecords'][0])) {
                         $mac = str_ireplace('macaddress=', '', $data['TXTRecords'][0]);
                     }
+                    if (isset($data[0]['TXTRecords'][0])) {
+                        $mac = str_ireplace('macaddress=', '', $data[0]['TXTRecords'][0]);
+                    }
+                    $ip = '';
                     if (isset($data['IPv4'])) {
-                        $ip = $data['IPv4'][0];
+                        $ip = $data['IPv4'][0]; // Get IP
+                    }
+                    if (isset($data[0]['IPv4'])) {
+                        $ip = $data[0]['IPv4'][0]; // Get IP
                     }
                 }
                 $doorbird_info[$key] = ['name' => $name, 'hostname' => $hostname, 'host' => $ip, 'port' => $port, 'mac' => $mac];
@@ -213,15 +228,15 @@ class DoorbirdDiscovery extends IPSModule
     {
         $form = [
             [
-                'code'    => 101,
+                'code'    => IS_CREATING,
                 'icon'    => 'inactive',
                 'caption' => 'Creating instance.', ],
             [
-                'code'    => 102,
+                'code'    => IS_ACTIVE,
                 'icon'    => 'active',
                 'caption' => 'Doorbird Discovery created.', ],
             [
-                'code'    => 104,
+                'code'    => IS_INACTIVE,
                 'icon'    => 'inactive',
                 'caption' => 'interface closed.', ],
             [

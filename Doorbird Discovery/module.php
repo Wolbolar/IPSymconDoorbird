@@ -36,6 +36,107 @@ class DoorbirdDiscovery extends IPSModule
         $this->SetStatus(102);
     }
 
+    private function StartDiscovery()
+    {
+        if (empty($this->DiscoverDevices())) {
+            $this->SendDebug('Discover:', 'could not find doorbird info', 0);
+        } else {
+            $this->WriteAttributeString('devices', json_encode($this->DiscoverDevices()));
+        }
+        $this->SetTimerInterval('Discovery', 300000);
+    }
+
+    private function DiscoverDevices(): array
+    {
+        $devices = $this->scan();
+        $this->SendDebug('Discover Response:', json_encode($devices), 0);
+        $doorbird_info = $this->GetDoorbirdInfo($devices);
+        if (empty($doorbird_info)) {
+            $this->SendDebug('Discover:', 'could not find doorbird info', 0);
+        } else {
+            foreach ($doorbird_info as $device) {
+                $this->SendDebug('name:', $device['name'], 0);
+                $this->SendDebug('hostname:', $device['hostname'], 0);
+                $this->SendDebug('host:', $device['host'], 0);
+                $this->SendDebug('port:', $device['port'], 0);
+                $this->SendDebug('mac:', $device['mac'], 0);
+            }
+        }
+        return $doorbird_info;
+    }
+
+    public function scan()
+    {
+        $mDNSInstanceID    = $this->GetDNSSD();
+        $doorbird_stations = ZC_QueryServiceType($mDNSInstanceID, '_axis-video._tcp', '');
+        return $doorbird_stations;
+    }
+
+    private function GetDNSSD()
+    {
+        $mDNSInstanceIDs = IPS_GetInstanceListByModuleID('{780B2D48-916C-4D59-AD35-5A429B2355A5}');
+        $mDNSInstanceID  = $mDNSInstanceIDs[0];
+        return $mDNSInstanceID;
+    }
+
+    /*
+     * Configuration Form
+     */
+
+    protected function GetDoorbirdInfo($devices)
+    {
+        $mDNSInstanceID = $this->GetDNSSD();
+        $doorbird_info  = [];
+        foreach ($devices as $key => $doorbird_station) {
+            $mDNS_name = $doorbird_station['Name'];
+            if (stripos($mDNS_name, 'Doorstation') === 0) {
+                $response = ZC_QueryService($mDNSInstanceID, $mDNS_name, '_axis-video._tcp', 'local.');
+                foreach ($response as $data) {
+                    $name = '';
+                    if (isset($data['Name'])) {
+                        $name     = str_ireplace('._axis-video._tcp.local.', '', $data['Name']);
+                        $hostname = str_ireplace('.local.', '', $data['Host']);
+                        $port     = $data['Port'];
+                        $mac      = str_ireplace('macaddress=', '', $data['TXTRecords'][0]);
+                        if (isset($data['IPv4'])) {
+                            if (!empty($data['IPv4'][0])) {
+                                $ip = $data['IPv4'][0]; // Get IP
+                            }
+                        }
+                        if (isset($data['IPv6'])) {
+                            if (!empty($data['IPv6'][0])) {
+                                $ipv6 = $data['IPv6'][0]; // Get IP
+                                if (strpos($ipv6, '192.168.') === 0) {
+                                    $ip = $ipv6;
+                                }
+                            }
+                        }
+                    } elseif ((isset($data[0]['Name']))) {
+                        $name     = str_ireplace('._axis-video._tcp.local.', '', $data[0]['Name']);
+                        $hostname = str_ireplace('.local.', '', $data[0]['Host']);
+                        $port     = $data[0]['Port'];
+                        $mac      = str_ireplace('macaddress=', '', $data[0]['TXTRecords'][0]);
+                        if (isset($data[0]['IPv4'])) {
+                            if (!empty($data[0]['IPv4'][0])) {
+                                $ip = $data[0]['IPv4'][0]; // Get IP
+                            }
+                        }
+                        if (isset($data[0]['IPv6'])) {
+                            if (!empty($data[0]['IPv6'][0])) {
+                                $ipv6 = $data[0]['IPv6'][0]; // Get IP
+                                if (strpos($ipv6, '192.168.') === 0) {
+                                    $ip = $ipv6;
+                                }
+                            }
+                        }
+                    }
+                    $doorbird_info[$key] = ['name' => $name, 'hostname' => $hostname, 'host' => $ip, 'port' => $port, 'mac' => $mac];
+                }
+            }
+        }
+        return $doorbird_info;
+    }
+
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
         switch ($Message) {
@@ -59,13 +160,6 @@ class DoorbirdDiscovery extends IPSModule
         }
     }
 
-    public function scan()
-    {
-        $mDNSInstanceID = $this->GetDNSSD();
-        $doorbird_stations = ZC_QueryServiceType($mDNSInstanceID, '_axis-video._tcp', '');
-        return $doorbird_stations;
-    }
-
     public function GetDevices()
     {
         $devices = $this->ReadPropertyString('devices');
@@ -85,10 +179,6 @@ class DoorbirdDiscovery extends IPSModule
         return $devices;
     }
 
-    /*
-     * Configuration Form
-     */
-
     /**
      * build configuration form.
      *
@@ -101,63 +191,12 @@ class DoorbirdDiscovery extends IPSModule
             [
                 'elements' => $this->FormElements(),
                 'actions'  => $this->FormActions(),
-                'status'   => $this->FormStatus(), ]
+                'status'   => $this->FormStatus(),]
         );
         $this->SendDebug('FORM', $Form, 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
 
         return $Form;
-    }
-
-    protected function GetDoorbirdInfo($devices)
-    {
-        $mDNSInstanceID = $this->GetDNSSD();
-        $doorbird_info = [];
-        foreach ($devices as $key => $doorbird_station) {
-            $mDNS_name = $doorbird_station['Name'];
-            if (stripos($mDNS_name, 'Doorstation') === 0) {
-                $response = ZC_QueryService($mDNSInstanceID, $mDNS_name, '_axis-video._tcp', 'local.');
-                foreach ($response as $data) {
-                    $name = '';
-                    if (isset($data['Name'])) {
-                        $name = str_ireplace('._axis-video._tcp.local.', '', $data['Name']);
-                    }
-                    if (isset($data[0]['Name'])) {
-                        $name = str_ireplace('._axis-video._tcp.local.', '', $data[0]['Name']);
-                    }
-                    $hostname = '';
-                    if (isset($data['Host'])) {
-                        $hostname = str_ireplace('.local.', '', $data['Host']);
-                    }
-                    if (isset($data[0]['Host'])) {
-                        $hostname = str_ireplace('.local.', '', $data[0]['Host']);
-                    }
-                    $port = '';
-                    if (isset($data['Port'])) {
-                        $port = $data['Port'];
-                    }
-                    if (isset($data[0]['Port'])) {
-                        $port = $data[0]['Port'];
-                    }
-                    $mac = '';
-                    if (isset($data['TXTRecords'][0])) {
-                        $mac = str_ireplace('macaddress=', '', $data['TXTRecords'][0]);
-                    }
-                    if (isset($data[0]['TXTRecords'][0])) {
-                        $mac = str_ireplace('macaddress=', '', $data[0]['TXTRecords'][0]);
-                    }
-                    $ip = '';
-                    if (isset($data['IPv4'])) {
-                        $ip = $data['IPv4'][0]; // Get IP
-                    }
-                    if (isset($data[0]['IPv4'])) {
-                        $ip = $data[0]['IPv4'][0]; // Get IP
-                    }
-                }
-                $doorbird_info[$key] = ['name' => $name, 'hostname' => $hostname, 'host' => $ip, 'port' => $port, 'mac' => $mac];
-            }
-        }
-        return $doorbird_info;
     }
 
     /**
@@ -191,32 +230,95 @@ class DoorbirdDiscovery extends IPSModule
                 'delete'   => true,
                 'sort'     => [
                     'column'    => 'name',
-                    'direction' => 'ascending', ],
+                    'direction' => 'ascending',],
                 'columns'  => [
                     [
-                        'caption'   => 'ID',
-                        'name'      => 'id',
-                        'width'     => '200px',
-                        'visible'   => false, ],
+                        'caption' => 'ID',
+                        'name'    => 'id',
+                        'width'   => '200px',
+                        'visible' => false,],
                     [
                         'caption' => 'name',
                         'name'    => 'name',
-                        'width'   => 'auto', ],
+                        'width'   => 'auto',],
                     [
                         'caption' => 'hostname',
                         'name'    => 'hostname',
-                        'width'   => '400px', ],
+                        'width'   => '400px',],
                     [
                         'caption' => 'host',
                         'name'    => 'host',
-                        'width'   => '400px', ],
+                        'width'   => '400px',],
                     [
                         'caption' => 'mac',
                         'name'    => 'mac',
-                        'width'   => '400px', ], ],
-                'values'   => $this->Get_ListConfiguration(), ], ];
+                        'width'   => '400px',],],
+                'values'   => $this->Get_ListConfiguration(),],];
 
         return $form;
+    }
+
+    /**
+     * Liefert alle Geräte.
+     *
+     * @return array configlist all devices
+     */
+    private function Get_ListConfiguration()
+    {
+        $config_list    = [];
+        $DoorbirdIDList = IPS_GetInstanceListByModuleID('{D489FA0B-765D-451E-8B21-C6B61ECAC00E}'); // Doorbird Devices
+        $devices        = $this->DiscoverDevices();
+        $this->SendDebug('Discovered Doorbird Stations', json_encode($devices), 0);
+        if (!empty($devices)) {
+            foreach ($devices as $device) {
+                $instanceID = 0;
+                $name       = $device['name'];
+                $hostname   = $device['hostname'];
+                $host       = $device['host'];
+                $mac        = $device['mac'];
+                $device_id  = 0;
+                foreach ($DoorbirdIDList as $DoorbirdID) {
+                    if ($host == IPS_GetProperty($DoorbirdID, 'Host')) {
+                        $Doorbird_name = IPS_GetName($DoorbirdID);
+                        $this->SendDebug(
+                            'Doorbird Discovery', 'Doorbird found: ' . utf8_decode($Doorbird_name) . ' (' . $DoorbirdID . ')', 0
+                        );
+                        $instanceID = $DoorbirdID;
+                    }
+                }
+
+                $config_list[] = [
+                    'instanceID' => $instanceID,
+                    'id'         => $device_id,
+                    'name'       => $name,
+                    'hostname'   => $hostname,
+                    'host'       => $host,
+                    'mac'        => $mac,
+                    'create'     => [
+                        [
+                            'moduleID'      => '{D489FA0B-765D-451E-8B21-C6B61ECAC00E}',
+                            'configuration' => [
+                                'name'         => $name,
+                                'hostname'     => $hostname,
+                                'PortDoorbell' => 80,
+                                'Host'         => $host,],],
+                        [
+                            'moduleID'      => '{82347F20-F541-41E1-AC5B-A636FD3AE2D8}',
+                            'configuration' => [
+                                'Host'     => $this->GetSymconIP(),
+                                'Port'     => 6524,
+                                'BindIP'   => $this->GetSymconIP(),
+                                'BindPort' => 6524,
+                                'Open'     => true,],],],];
+            }
+        }
+        return $config_list;
+    }
+
+    private function GetSymconIP()
+    {
+        $ip = gethostbyname(gethostname());
+        return $ip;
     }
 
     /**
@@ -230,119 +332,20 @@ class DoorbirdDiscovery extends IPSModule
             [
                 'code'    => IS_CREATING,
                 'icon'    => 'inactive',
-                'caption' => 'Creating instance.', ],
+                'caption' => 'Creating instance.',],
             [
                 'code'    => IS_ACTIVE,
                 'icon'    => 'active',
-                'caption' => 'Doorbird Discovery created.', ],
+                'caption' => 'Doorbird Discovery created.',],
             [
                 'code'    => IS_INACTIVE,
                 'icon'    => 'inactive',
-                'caption' => 'interface closed.', ],
+                'caption' => 'interface closed.',],
             [
                 'code'    => 201,
                 'icon'    => 'inactive',
-                'caption' => 'Please follow the instructions.', ], ];
+                'caption' => 'Please follow the instructions.',],];
 
         return $form;
-    }
-
-    private function StartDiscovery()
-    {
-        if (empty($this->DiscoverDevices())) {
-            $this->SendDebug('Discover:', 'could not find doorbird info', 0);
-        } else {
-            $this->WriteAttributeString('devices', json_encode($this->DiscoverDevices()));
-        }
-        $this->SetTimerInterval('Discovery', 300000);
-    }
-
-    private function GetSymconIP()
-    {
-        $ip = gethostbyname(gethostname());
-        return $ip;
-    }
-
-    /**
-     * Liefert alle Geräte.
-     *
-     * @return array configlist all devices
-     */
-    private function Get_ListConfiguration()
-    {
-        $config_list = [];
-        $DoorbirdIDList = IPS_GetInstanceListByModuleID('{D489FA0B-765D-451E-8B21-C6B61ECAC00E}'); // Doorbird Devices
-        $devices = $this->DiscoverDevices();
-        $this->SendDebug('Discovered Doorbird Stations', json_encode($devices), 0);
-        if (!empty($devices)) {
-            foreach ($devices as $device) {
-                $instanceID = 0;
-                $name = $device['name'];
-                $hostname = $device['hostname'];
-                $host = $device['host'];
-                $mac = $device['mac'];
-                $device_id = 0;
-                foreach ($DoorbirdIDList as $DoorbirdID) {
-                    if ($host == IPS_GetProperty($DoorbirdID, 'Host')) {
-                        $Doorbird_name = IPS_GetName($DoorbirdID);
-                        $this->SendDebug(
-                            'Doorbird Discovery', 'Doorbird found: ' . utf8_decode($Doorbird_name) . ' (' . $DoorbirdID . ')', 0
-                        );
-                        $instanceID = $DoorbirdID;
-                    }
-                }
-
-                $config_list[] = [
-                    'instanceID'     => $instanceID,
-                    'id'             => $device_id,
-                    'name'           => $name,
-                    'hostname'       => $hostname,
-                    'host'           => $host,
-                    'mac'            => $mac,
-                    'create'         => [
-                        [
-                            'moduleID'      => '{D489FA0B-765D-451E-8B21-C6B61ECAC00E}',
-                            'configuration' => [
-                                'name'         => $name,
-                                'hostname'     => $hostname,
-                                'PortDoorbell' => 80,
-                                'Host'         => $host, ], ],
-                        [
-                            'moduleID'      => '{82347F20-F541-41E1-AC5B-A636FD3AE2D8}',
-                            'configuration' => [
-                                'Host'     => $this->GetSymconIP(),
-                                'Port'     => 6524,
-                                'BindIP'   => $this->GetSymconIP(),
-                                'BindPort' => 6524,
-                                'Open'     => true, ], ], ], ];
-            }
-        }
-        return $config_list;
-    }
-
-    private function DiscoverDevices(): array
-    {
-        $devices = $this->scan();
-        $this->SendDebug('Discover Response:', json_encode($devices), 0);
-        $doorbird_info = $this->GetDoorbirdInfo($devices);
-        if (empty($doorbird_info)) {
-            $this->SendDebug('Discover:', 'could not find doorbird info', 0);
-        } else {
-            foreach ($doorbird_info as $device) {
-                $this->SendDebug('name:', $device['name'], 0);
-                $this->SendDebug('hostname:', $device['hostname'], 0);
-                $this->SendDebug('host:', $device['host'], 0);
-                $this->SendDebug('port:', $device['port'], 0);
-                $this->SendDebug('mac:', $device['mac'], 0);
-            }
-        }
-        return $doorbird_info;
-    }
-
-    private function GetDNSSD()
-    {
-        $mDNSInstanceIDs = IPS_GetInstanceListByModuleID('{780B2D48-916C-4D59-AD35-5A429B2355A5}');
-        $mDNSInstanceID = $mDNSInstanceIDs[0];
-        return $mDNSInstanceID;
     }
 }

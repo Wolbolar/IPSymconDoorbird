@@ -819,7 +819,7 @@ class Doorbird extends IPSModule
         $this->RegisterVariableString('DoorbirdVideo', 'Doorbird Video', '~HTMLBox', $this->_getPosition());
         $this->RegisterProfile('Doorbird.Ring', 'Alert', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $model = $this->ReadPropertyInteger('model');
-        if ($model == self::D101 || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D1101UV) {
+        if ($model == self::D101 || $model == self::D101S || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D1101UV) {
             $this->RegisterVariableString('LastRingtone', $this->Translate('Time last bell'), 'Doorbird.Ring', $this->_getPosition());
         }
         if ($model == self::D2102V) {
@@ -869,7 +869,7 @@ class Doorbird extends IPSModule
             $this->SetValue('doorbird_app', $content);
         }
         if ($this->ReadPropertyBoolean('slideshow_history')) {
-            if ($model == self::D101 || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D2102V || $model == self::D2103V || $model == self::D1101UV) {
+            if ($model == self::D101 || $model == self::D101S || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D2102V || $model == self::D2103V || $model == self::D1101UV) {
                 $exist_slideshow_history_1 = $this->CheckExistence('slideshow_history_1');
                 $this->RegisterVariableString('slideshow_history_1', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
                 $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowhistory" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
@@ -3037,11 +3037,11 @@ class Doorbird extends IPSModule
             $prefix = $this->GetURLPrefix($hostdoorbell);
             if ($selectionaltview) {
                 $DoorbirdVideoHTML =
-                    '<img src=' . $prefix . $hostdoorbell . ':' . $portdoorbell . self::LIVE_VIDEO_REQUEST . '?http-user=' . $doorbirduser . '&http-password='
-                    . $password . ' style=width:' . $this->ReadPropertyInteger('iframe_width_video') . 'px; height:' . $this->ReadPropertyInteger('iframe_height_video') . 'px; >';
+                    '<img src="' . $prefix . $hostdoorbell . ':' . $portdoorbell . self::LIVE_VIDEO_REQUEST . '?http-user=' . $doorbirduser . '&http-password='
+                    . $password . '" style=width:' . $this->ReadPropertyInteger('iframe_width_video') . 'px; height:' . $this->ReadPropertyInteger('iframe_height_video') . 'px; >';
             } else {
-                $DoorbirdVideoHTML = '<iframe src=' . $prefix . $hostdoorbell . ':' . $portdoorbell . self::LIVE_VIDEO_REQUEST . '?http-user=' . $doorbirduser
-                                     . '&http-password=' . $password . '  width= ' . $this->ReadPropertyInteger('iframe_width_video') . 'px; height= ' . $this->ReadPropertyInteger('iframe_height_video') . 'px; ></iframe>';
+                $DoorbirdVideoHTML = '<iframe src="' . $prefix . $hostdoorbell . ':' . $portdoorbell . self::LIVE_VIDEO_REQUEST . '?http-user=' . $doorbirduser
+                                     . '&http-password=' . $password . '"  width=' . $this->ReadPropertyInteger('iframe_width_video') . 'px; height=' . $this->ReadPropertyInteger('iframe_height_video') . 'px; ></iframe>';
             }
             $this->SetValue('DoorbirdVideo', $DoorbirdVideoHTML);
 
@@ -3425,7 +3425,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $catid = $this->ReadPropertyInteger('categoryhistory');
         if ($catid > 0) {
             $model = $this->ReadPropertyInteger('model');
-            if ($model == self::D101 || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D1101UV) {
+            if ($model == self::D101 || $model == self::D101S || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D1101UV) {
                 $ring_category_1 = $this->CreateRingCategory(1);
                 $this->WriteAttributeInteger('pictures_history', $ring_category_1);
             }

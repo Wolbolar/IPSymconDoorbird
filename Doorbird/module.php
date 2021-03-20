@@ -819,7 +819,7 @@ class Doorbird extends IPSModule
         $this->RegisterVariableString('DoorbirdVideo', 'Doorbird Video', '~HTMLBox', $this->_getPosition());
         $this->RegisterProfile('Doorbird.Ring', 'Alert', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $model = $this->ReadPropertyInteger('model');
-        if ($model == self::D101 || $model == self::D101S || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D1101UV) {
+        if ($model == self::D101 || $model == self::D101S || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D1101UV || $model == self::D2101KV) {
             $this->RegisterVariableString('LastRingtone', $this->Translate('Time last bell'), 'Doorbird.Ring', $this->_getPosition());
         }
         if ($model == self::D2102V) {

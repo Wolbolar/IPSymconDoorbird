@@ -3425,7 +3425,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $catid = $this->ReadPropertyInteger('categoryhistory');
         if ($catid > 0) {
             $model = $this->ReadPropertyInteger('model');
-            if ($model == self::D101 || $model == self::D101S || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D1101UV) {
+            if ($model == self::D101 || $model == self::D101S || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D1101UV || $model == self::D2101KV) {
                 $ring_category_1 = $this->CreateRingCategory(1);
                 $this->WriteAttributeInteger('pictures_history', $ring_category_1);
             }

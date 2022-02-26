@@ -41,7 +41,7 @@ Mit dem Modul lassen sich Befehle an eine Doorbird Türsprechanlage senden und d
 
 ## 2. Voraussetzungen
 
- - IP-Symcon 5.x
+ - IP-Symcon 6.x
  - Doorbird Türsprechanlage, Hardware Version 1.00 und höher. Firmware Version 000098 und höher.
  - der Master Branch ist für die aktuelle IP-Symcon Version ausgelegt.
  - bei IP-Symcon Versionen kleiner 4.1 ist der Branch _Old-Version_ zu wählen
@@ -150,6 +150,16 @@ _Benachrichtigung einrichten_ gedrückt werden um die Benachrichtigungen der Doo
 In der Testumgebung stehen dann noch weitere Funktionen zur Verfügung.
 
 ![Buttons](img/doorbird_buttons.png?raw=true "Buttons")
+
+### c. Einrichtung in der Doorbird App
+
+Nachdem das Modul in IP-Symcon eingerichtet worden ist, müssen noch Einstellungen in der Doorbird App bzw. über den Webadmin aus IP-Symcon vorgenommen werden.
+In der Doorbird App unter _Einstellungen -> Administration_ sich als Admin der Klingel anmelden.
+
+Zunächst in der Doorbird App bzw. im Web Admin prüfen ob die HTTP Aufrufe von IP-Symcon ergänzt worden sind unter _Favoriten -> HTTP(S) Aufrufe_.
+Dann unter _Experteneinstellungen -> Relais_ bei dem Relais das eine Benachrichtigung bei Türöffnung an IP-Symcon absetzten soll auf _Zeitplan für Folgeaktionen_ klicken.
+Hier wählt man _HTTP(S) Aufrufe_ aus und als Aktion _IPSDooropen_. Anschließend noch den Zeitplan aktiv setzten, wann IP-Symcon von der Doorbird benachrichtigt werden soll. In der Regel setzt man hier den Zeitplan auf immer aktiv damit man auch stets eine Benachrichtigung erhält.
+
 
 ## 4. Funktionsreferenz
 

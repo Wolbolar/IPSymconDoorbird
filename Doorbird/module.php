@@ -580,6 +580,7 @@ class Doorbird extends IPSModule
                 IPS_Sleep(300);
             }
         }
+        /*
         $schedule = $this->GetSchedule();
         if ($schedule) {
             $data = json_decode($schedule);
@@ -622,6 +623,7 @@ class Doorbird extends IPSModule
                 $this->WriteAttributeString('schedule', $current_schedule);
             }
         }
+        */
     }
 
     public function GetFavorites()
@@ -2282,10 +2284,12 @@ class Doorbird extends IPSModule
         );
         $form = array_merge_recursive(
             $form, [
+                /*
                 [
                     'type'    => 'ExpansionPanel',
                     'caption' => 'Doorbird Schedule',
                     'items'   => $this->FormShowSchedule()],
+                */
                 [
                     'type'    => 'ExpansionPanel',
                     'caption' => 'WebFront Doorbird App',
@@ -3245,16 +3249,34 @@ class Doorbird extends IPSModule
                     $this->RegisterMessage($this->GetIDForIdent('LastRingtone'), VM_UPDATE);
                     $this->SendDebug('Doorbird', 'Register Message LastRingtone', 0);
                 }
-                if ($model == self::D2102V || $model == self::D2103V) {
+                if ($model == self::D2102V || $model == self::D1102V || $model == self::D2102FV_EKEY || $model == self::D2102FV || $model == self::D2102KV || $model == self::D2103V) {
                     if ($this->GetIDForIdent('LastRingtone2') > 0) {
                         $this->RegisterMessage($this->GetIDForIdent('LastRingtone2'), VM_UPDATE);
                         $this->SendDebug('Doorbird', 'Register Message LastRingtone2', 0);
                     }
                 }
-                if ($model == self::D2103V) {
+                if ($model == self::D2103V || $model == self::D2104V || $model == self::D2105V || $model == self::D2106V ) {
                     if ($this->GetIDForIdent('LastRingtone3') > 0) {
                         $this->RegisterMessage($this->GetIDForIdent('LastRingtone3'), VM_UPDATE);
                         $this->SendDebug('Doorbird', 'Register Message LastRingtone3', 0);
+                    }
+                }
+                if ($model == self::D2104V || $model == self::D2105V || $model == self::D2106V) {
+                    if ($this->GetIDForIdent('LastRingtone4') > 0) {
+                        $this->RegisterMessage($this->GetIDForIdent('LastRingtone4'), VM_UPDATE);
+                        $this->SendDebug('Doorbird', 'Register Message LastRingtone4', 0);
+                    }
+                }
+                if ($model == self::D2105V || $model == self::D2106V) {
+                    if ($this->GetIDForIdent('LastRingtone5') > 0) {
+                        $this->RegisterMessage($this->GetIDForIdent('LastRingtone5'), VM_UPDATE);
+                        $this->SendDebug('Doorbird', 'Register Message LastRingtone5', 0);
+                    }
+                }
+                if ($model == self::D2106V) {
+                    if ($this->GetIDForIdent('LastRingtone6') > 0) {
+                        $this->RegisterMessage($this->GetIDForIdent('LastRingtone6'), VM_UPDATE);
+                        $this->SendDebug('Doorbird', 'Register Message LastRingtone6', 0);
                     }
                 }
             }

@@ -22,6 +22,27 @@ class Doorbird extends IPSModule
     private const D2101KV = 9; // D2101KV
     private const D21FPBI = 10; // D21FPBI
     private const D1101UV = 11; // D1101UV
+    private const D2101FV = 12; // D2101FV
+    private const D1101V = 13; // D1101V
+    private const D1102V = 14; // D1102V
+    private const D1101KH = 15; // D1101KH
+    private const D2104V = 17; // D2104V
+    private const D2105V = 18; // D2105V
+    private const D2106V = 19; // D2106V
+    private const D2102KV = 20; // D2102KV
+    private const D2102FV = 21; // D2102FV
+    private const D2101KH = 22; // D2101KH
+    private const D2101IKH = 23; // D2101IKH
+    private const D2101FPBI = 24; // D21D1FPBI
+    private const D2101FPBK = 25; // D2101FPBK
+    private const D2101FV_EKEY = 26; // D2101FV EKEY
+    private const D2102FV_EKEY = 27; // D2102FV EKEY
+
+    private const D2100E = 28; // D2100E
+    private const D1100E = 29; // D1100E
+
+
+
 
     private const GET_FAVORITES = '/bha-api/favorites.cgi'; // Get Favorites URL
     private const SET_HTTP_FAVORITE = '/bha-api/favorites.cgi?action=save&type=http&title='; // Set Favorites URL
@@ -677,7 +698,7 @@ class Doorbird extends IPSModule
         return $result;
     }
 
-    public function GetHistory($ring_id)
+    public function GetHistory(int $ring_id)
     {
         $name = 'Doorbird Klingel';
         $ident = 'DoorbirdRingPic';
@@ -819,10 +840,12 @@ class Doorbird extends IPSModule
         $this->RegisterVariableString('DoorbirdVideo', 'Doorbird Video', '~HTMLBox', $this->_getPosition());
         $this->RegisterProfile('Doorbird.Ring', 'Alert', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $model = $this->ReadPropertyInteger('model');
-        if ($model == self::D101 || $model == self::D101S || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D1101UV || $model == self::D2101KV) {
+        if ($model == self::D101 || $model == self::D101S || $model == self::D202 || $model == self::D1101V || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D1101UV
+            || $model == self::D2101FPBK || $model == self::D2101FPBI || $model == self::D2101IKH || $model == self::D2101IKH || $model == self::D2101KH || $model == self::D2101KH || $model == self::D1101KH
+            || $model == self::D2101KV || $model == self::D2101FV || $model == self::D2101FV_EKEY || $model == self::D2100E || $model == self::D1100E) {
             $this->RegisterVariableString('LastRingtone', $this->Translate('Time last bell'), 'Doorbird.Ring', $this->_getPosition());
         }
-        if ($model == self::D2102V) {
+        if ($model == self::D2102V || $model == self::D1102V || $model == self::D2102FV_EKEY || $model == self::D2102FV || $model == self::D2102KV) {
             $this->RegisterVariableString('LastRingtone', $this->Translate('Time last bell'), 'Doorbird.Ring', $this->_getPosition());
             $this->RegisterVariableString('LastRingtone2', $this->Translate('Time last bell 2'), 'Doorbird.Ring', $this->_getPosition());
         }
@@ -831,14 +854,32 @@ class Doorbird extends IPSModule
             $this->RegisterVariableString('LastRingtone2', $this->Translate('Time last bell 2'), 'Doorbird.Ring', $this->_getPosition());
             $this->RegisterVariableString('LastRingtone3', $this->Translate('Time last bell 3'), 'Doorbird.Ring', $this->_getPosition());
         }
+        if ($model == self::D2104V) {
+            $this->RegisterVariableString('LastRingtone', $this->Translate('Time last bell'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterVariableString('LastRingtone2', $this->Translate('Time last bell 2'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterVariableString('LastRingtone3', $this->Translate('Time last bell 3'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterVariableString('LastRingtone4', $this->Translate('Time last bell 4'), 'Doorbird.Ring', $this->_getPosition());
+        }
+        if ($model == self::D2105V) {
+            $this->RegisterVariableString('LastRingtone', $this->Translate('Time last bell'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterVariableString('LastRingtone2', $this->Translate('Time last bell 2'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterVariableString('LastRingtone3', $this->Translate('Time last bell 3'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterVariableString('LastRingtone4', $this->Translate('Time last bell 4'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterVariableString('LastRingtone5', $this->Translate('Time last bell 5'), 'Doorbird.Ring', $this->_getPosition());
+        }
+        if ($model == self::D2106V) {
+            $this->RegisterVariableString('LastRingtone', $this->Translate('Time last bell'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterVariableString('LastRingtone2', $this->Translate('Time last bell 2'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterVariableString('LastRingtone3', $this->Translate('Time last bell 3'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterVariableString('LastRingtone4', $this->Translate('Time last bell 4'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterVariableString('LastRingtone5', $this->Translate('Time last bell 5'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterVariableString('LastRingtone6', $this->Translate('Time last bell 6'), 'Doorbird.Ring', $this->_getPosition());
+        }
         $this->RegisterProfile('Doorbird.Movement', 'Motion', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $this->RegisterVariableString('LastMovement', $this->Translate('Time of last movement'), 'Doorbird.Movement', $this->_getPosition());
 
         $this->RegisterProfile('Doorbird.LastDoor', 'LockOpen', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $this->RegisterVariableString('LastDoorOpen', $this->Translate('Time last door opening'), 'Doorbird.LastDoor', $this->_getPosition());
-        if ($model == self::D2101V || $model == self::D2102V || $model == self::D2103V) {
-            $this->RegisterVariableString('LastDoorOpen_2', $this->Translate('Time last door opening 2'), 'Doorbird.LastDoor', $this->_getPosition());
-        }
         $this->RegisterProfile('Doorbird.Firmware', 'Robot', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $this->RegisterVariableString('FirmwareVersion', $this->Translate('Doorbird Firmware Version'), 'Doorbird.Firmware', $this->_getPosition());
         $this->RegisterProfile('Doorbird.Buildnumber', 'Gear', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
@@ -869,26 +910,51 @@ class Doorbird extends IPSModule
             $this->SetValue('doorbird_app', $content);
         }
         if ($this->ReadPropertyBoolean('slideshow_history')) {
-            if ($model == self::D101 || $model == self::D101S || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D2102V || $model == self::D2103V || $model == self::D1101UV) {
+            if ($model == self::D101 || $model == self::D101S || $model == self::D202 || $model == self::D1101V || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D1101UV
+                || $model == self::D2101FPBK || $model == self::D2101FPBI || $model == self::D2101IKH || $model == self::D2101IKH || $model == self::D2101KH || $model == self::D2101KH || $model == self::D1101KH
+                || $model == self::D2101KV || $model == self::D2101FV || $model == self::D2101FV_EKEY || $model == self::D2100E || $model == self::D1100E
+                || $model == self::D2102V || $model == self::D1102V || $model == self::D2102FV_EKEY || $model == self::D2102FV || $model == self::D2102KV
+                || $model == self::D2103V || $model == self::D2104V || $model == self::D2105V || $model == self::D2106V) {
                 $exist_slideshow_history_1 = $this->CheckExistence('slideshow_history_1');
                 $this->RegisterVariableString('slideshow_history_1', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
                 $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowhistory" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
                 $this->SetIcon('slideshow_history_1', 'Camera', $exist_slideshow_history_1);
                 $this->SetValue('slideshow_history_1', $content);
             }
-            if ($model == self::D2102V || $model == self::D2103V) {
+            if ($model == self::D2102V || $model == self::D1102V || $model == self::D2102FV_EKEY || $model == self::D2102FV || $model == self::D2102KV || $model == self::D2103V || $model == self::D2104V || $model == self::D2105V || $model == self::D2106V) {
                 $exist_slideshow_history_2 = $this->CheckExistence('slideshow_history_2');
                 $this->RegisterVariableString('slideshow_history_2', $this->Translate('Slideshow History 2'), '~HTMLBox', $this->_getPosition());
                 $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowhistory2" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
                 $this->SetIcon('slideshow_history_2', 'Camera', $exist_slideshow_history_2);
                 $this->SetValue('slideshow_history_2', $content);
             }
-            if ($model == self::D2103V) {
+            if ($model == self::D2103V || $model == self::D2104V || $model == self::D2105V || $model == self::D2106V) {
                 $exist_slideshow_history_3 = $this->CheckExistence('slideshow_history_3');
                 $this->RegisterVariableString('slideshow_history_3', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
                 $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowhistory3" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
                 $this->SetIcon('slideshow_history_3', 'Camera', $exist_slideshow_history_3);
                 $this->SetValue('slideshow_history_3', $content);
+            }
+            if ($$model == self::D2104V || $model == self::D2105V || $model == self::D2106V) {
+                $exist_slideshow_history_4 = $this->CheckExistence('slideshow_history_4');
+                $this->RegisterVariableString('slideshow_history_4', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
+                $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowhistory4" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
+                $this->SetIcon('slideshow_history_4', 'Camera', $exist_slideshow_history_4);
+                $this->SetValue('slideshow_history_4', $content);
+            }
+            if ($model == self::D2105V || $model == self::D2106V) {
+                $exist_slideshow_history_5 = $this->CheckExistence('slideshow_history_5');
+                $this->RegisterVariableString('slideshow_history_5', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
+                $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowhistory5" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
+                $this->SetIcon('slideshow_history_5', 'Camera', $exist_slideshow_history_5);
+                $this->SetValue('slideshow_history_5', $content);
+            }
+            if ($model == self::D2106V) {
+                $exist_slideshow_history_6 = $this->CheckExistence('slideshow_history_6');
+                $this->RegisterVariableString('slideshow_history_6', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
+                $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowhistory6" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
+                $this->SetIcon('slideshow_history_6', 'Camera', $exist_slideshow_history_6);
+                $this->SetValue('slideshow_history_6', $content);
             }
         }
         if ($this->ReadPropertyBoolean('slideshow_snapshot')) {
@@ -1299,7 +1365,7 @@ class Doorbird extends IPSModule
         }
     }
 
-    protected function GetSlideShowCSS($script_name)
+    protected function GetSlideShowCSS($script_name): void
     {
         $root = realpath(__DIR__ . '/www');
         // $this->SendDebug('Root Path:', $root, 0);
@@ -1902,6 +1968,15 @@ class Doorbird extends IPSModule
                         'caption' => 'D2103V',
                         'value'   => self::D2103V],
                     [
+                        'caption' => 'D2104V',
+                        'value'   => self::D2104V],
+                    [
+                        'caption' => 'D2105V',
+                        'value'   => self::D2105V],
+                    [
+                        'caption' => 'D2106V',
+                        'value'   => self::D2106V],
+                    [
                         'caption' => 'D21DKV',
                         'value'   => self::D21DKV],
                     [
@@ -1911,10 +1986,53 @@ class Doorbird extends IPSModule
                         'caption' => 'D2101KV',
                         'value'   => self::D2101KV],
                     [
+                        'caption' => 'D2102KV',
+                        'value'   => self::D2102KV],
+                    [
                         'caption' => 'D21FPBI',
-                        'value'   => self::D21FPBI]]
+                        'value'   => self::D21FPBI],
+                    [
+                        'caption' => 'D2101FV',
+                        'value'   => self::D2101FV],
+                    [
+                        'caption' => 'D2102FV',
+                        'value'   => self::D2102FV],
+                    [
+                        'caption' => 'D2101FV EKEY',
+                        'value'   => self::D2101FV_EKEY],
+                    [
+                        'caption' => 'D2102FV EKEY',
+                        'value'   => self::D2102FV_EKEY],
+                    [
+                        'caption' => 'D1101V',
+                        'value'   => self::D1101V],
+                    [
+                        'caption' => 'D1102V',
+                        'value'   => self::D1102V],
+                    [
+                        'caption' => 'D1101KH',
+                        'value'   => self::D1101KH],
+                    [
+                        'caption' => 'D2101KH',
+                        'value'   => self::D2101KH],
+                    [
+                        'caption' => 'D2101IKH',
+                        'value'   => self::D2101IKH],
+                    [
+                        'caption' => 'D2101FPBI',
+                        'value'   => self::D2101FPBI],
+                    [
+                        'caption' => 'D2101FPBK',
+                        'value'   => self::D2101FPBK],
+                    [
+                        'caption' => 'D2100E',
+                        'value'   => self::D2100E],
+                    [
+                        'caption' => 'D1100E',
+                        'value'   => self::D1100E]]
 
             ]];
+
 
         //Check if notification setup is already done. Otherwise show a button to create it
         $doorbirdreturn = $this->ReadAttributeString('schedule');
@@ -3425,23 +3543,33 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $catid = $this->ReadPropertyInteger('categoryhistory');
         if ($catid > 0) {
             $model = $this->ReadPropertyInteger('model');
-            if ($model == self::D101 || $model == self::D101S || $model == self::D202 || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D1101UV || $model == self::D2101KV) {
+            if ($model == self::D101 || $model == self::D101S || $model == self::D202 || $model == self::D1101V || $model == self::D2101V || $model == self::D21DKV || $model == self::D21DKH || $model == self::D1101UV
+                || $model == self::D2101FPBK || $model == self::D2101FPBI || $model == self::D2101IKH || $model == self::D2101IKH || $model == self::D2101KH || $model == self::D2101KH || $model == self::D1101KH
+                || $model == self::D2101KV || $model == self::D2101FV || $model == self::D2101FV_EKEY || $model == self::D2100E || $model == self::D1100E) {
                 $ring_category_1 = $this->CreateRingCategory(1);
                 $this->WriteAttributeInteger('pictures_history', $ring_category_1);
             }
-            if ($model == self::D2102V) {
+            if ($model == self::D2102V || $model == self::D1102V || $model == self::D2102FV_EKEY || $model == self::D2102FV || $model == self::D2102KV || $model == self::D2103V || $model == self::D2104V || $model == self::D2105V || $model == self::D2106V) {
                 $ring_category_1 = $this->CreateRingCategory(1);
                 $this->WriteAttributeInteger('pictures_history', $ring_category_1);
                 $ring_category_2 = $this->CreateRingCategory(2);
                 $this->WriteAttributeInteger('pictures_history2', $ring_category_2);
             }
-            if ($model == self::D2103V) {
-                $ring_category_1 = $this->CreateRingCategory(1);
-                $this->WriteAttributeInteger('pictures_history', $ring_category_1);
-                $ring_category_2 = $this->CreateRingCategory(2);
-                $this->WriteAttributeInteger('pictures_history2', $ring_category_2);
+            if ($model == self::D2103V || $model == self::D2104V || $model == self::D2105V || $model == self::D2106V) {
                 $ring_category_3 = $this->CreateRingCategory(3);
                 $this->WriteAttributeInteger('pictures_history3', $ring_category_3);
+            }
+            if ($model == self::D2104V || $model == self::D2105V || $model == self::D2106V) {
+                $ring_category_4 = $this->CreateRingCategory(4);
+                $this->WriteAttributeInteger('pictures_history4', $ring_category_4);
+            }
+            if ($model == self::D2105V || $model == self::D2106V) {
+                $ring_category_5 = $this->CreateRingCategory(5);
+                $this->WriteAttributeInteger('pictures_history5', $ring_category_5);
+            }
+            if ($model == self::D2106V) {
+                $ring_category_6 = $this->CreateRingCategory(6);
+                $this->WriteAttributeInteger('pictures_history6', $ring_category_6);
             }
             if ($ring_category == 1) {
                 $ident = 'DoorbirdRing1Pic';
@@ -3457,6 +3585,21 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                 $ident = 'DoorbirdRing3Pic';
                 $picturename = 'doorbirdring3pic_';
                 $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $ring_category_3);
+            }
+            if ($ring_category == 4) {
+                $ident = 'DoorbirdRing4Pic';
+                $picturename = 'doorbirdring4pic_';
+                $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $ring_category_4);
+            }
+            if ($ring_category == 5) {
+                $ident = 'DoorbirdRing5Pic';
+                $picturename = 'doorbirdring5pic_';
+                $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $ring_category_5);
+            }
+            if ($ring_category == 6) {
+                $ident = 'DoorbirdRing6Pic';
+                $picturename = 'doorbirdring6pic_';
+                $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $ring_category_6);
             }
         } else {
             $this->SendDebug('Doorbird', 'No category is set, please set category.', 0);

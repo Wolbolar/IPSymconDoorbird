@@ -4,9 +4,9 @@
 	"name": "Doorbird",
 	"url": "www.doorbird.com",
 	"compatibility": {
-		"version": "5.3"
+		"version": "6.1"
 	},
-	"version": "0.9",
-	"build": 19,
+	"version": "1.0",
+	"build": 20,
 	"date": 0
 }

@@ -1,4 +1,4 @@
-[Test](https://github.com/wolbolar/docs/de/README.md)
+[Test](https://github.com/wolbolar/IPSymconDoorbird/docs/de/README.md)
 
 
 

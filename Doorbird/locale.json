@@ -61,6 +61,9 @@
 			"Time last bell": "Zeitpunkt letztes Klingelsignal",
 			"Time last bell 2": "Zeitpunkt letztes Klingelsignal 2",
 			"Time last bell 3": "Zeitpunkt letztes Klingelsignal 3",
+			"Time last bell 4": "Zeitpunkt letztes Klingelsignal 4",
+			"Time last bell 5": "Zeitpunkt letztes Klingelsignal 5",
+			"Time last bell 6": "Zeitpunkt letztes Klingelsignal 6",
 			"Time of last movement": "Zeitpunkt letzte Bewegung",
 			"Time last door opening": "Zeitpunkt letzte Türöffnung",
 			"Time last door opening 2": "Zeitpunkt letzte Türöffnung 2",
@@ -156,7 +159,16 @@
 			"Web Admin": "Web Admin",
 			"show Doorbird Webadmin on the WebFront": "Doorbird Webadmin im WebFront anzeigen",
 			"Enable variable for Webadmin": "Variable für Webadmin anlegen",
-			"open Doorbird Webadmin": "Doorbird Webadmin öffnen"
+			"open Doorbird Webadmin": "Doorbird Webadmin öffnen",
+			"Doorbell Event 1 IP-Symcon": "Klingelereignis 1 IP-Symcon",
+			"Doorbell Event 2 IP-Symcon": "Klingelereignis 2 IP-Symcon",
+			"Doorbell Event 3 IP-Symcon": "Klingelereignis 3 IP-Symcon",
+			"Doorbell Event 4 IP-Symcon": "Klingelereignis 4 IP-Symcon",
+			"Doorbell Event 5 IP-Symcon": "Klingelereignis 5 IP-Symcon",
+			"Doorbell Event 6 IP-Symcon": "Klingelereignis 6 IP-Symcon",
+			"Motion Event IP-Symcon": "Bewegungsereignis IP-Symcon",
+			"Doorbell Open Event 1 IP-Symcon": "Relais 1 Ereignis IP-Symcon",
+			"Doorbell Open Event 2 IP-Symcon": "Relais 2 Ereignis IP-Symcon"
 		}
 	}
 }

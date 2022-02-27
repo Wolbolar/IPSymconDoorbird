@@ -45,7 +45,8 @@ class Doorbird extends IPSModule
 
 
     private const GET_FAVORITES = '/bha-api/favorites.cgi'; // Get Favorites URL
-    private const SET_HTTP_FAVORITE = '/bha-api/favorites.cgi?action=save&type=http&title='; // Set Favorites URL
+    private const SET_HTTP_FAVORITE = '/bha-api/favorites.cgi?action=save&type=http&title='; // Set HTTP Favorites URL
+    private const SET_SIP_FAVORITE = '/bha-api/favorites.cgi?action=save&type=sip&title='; // Set SIP Favorites URL
     private const DELETE_FAVORITE = '/bha-api/favorites.cgi?action=remove&type='; // Delete Fovorites URL
     private const GET_INFO = '/bha-api/info.cgi'; // Get Info
     private const GET_HISTORY = '/bha-api/history.cgi?index='; // Get History
@@ -243,9 +244,49 @@ class Doorbird extends IPSModule
                     );
                 }
             }
+            if ($model == self::D2104V) {
+                if ($SenderID == $this->GetIDForIdent('LastRingtone4')) {
+                    $this->SetRingPicture(4);
+                    $email = $this->ReadPropertyString('email');
+                    $this->EmailAlert($email, 4);
+                    $this->SendDebug('Doorbird recieved LastRingtone4 at', date('H:i', time()), 0);
+                    $this->SendDebug(
+                        'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
+                    );
+                }
+            }
+            if ($model == self::D2105V) {
+                if ($SenderID == $this->GetIDForIdent('LastRingtone5')) {
+                    $this->SetRingPicture(5);
+                    $email = $this->ReadPropertyString('email');
+                    $this->EmailAlert($email, 5);
+                    $this->SendDebug('Doorbird recieved LastRingtone5 at', date('H:i', time()), 0);
+                    $this->SendDebug(
+                        'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
+                    );
+                }
+            }
+            if ($model == self::D2106V) {
+                if ($SenderID == $this->GetIDForIdent('LastRingtone6')) {
+                    $this->SetRingPicture(6);
+                    $email = $this->ReadPropertyString('email');
+                    $this->EmailAlert($email, 6);
+                    $this->SendDebug('Doorbird recieved LastRingtone6 at', date('H:i', time()), 0);
+                    $this->SendDebug(
+                        'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
+                    );
+                }
+            }
             if ($SenderID == $this->GetIDForIdent('LastMovement')) {
                 $this->GetSnapshot();
                 $this->SendDebug('Doorbird recieved LastMovement at', date('H:i', time()), 0);
+                $this->SendDebug(
+                    'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
+                );
+            }
+            if ($SenderID == $this->GetIDForIdent('LastDoorOpen')) {
+                $this->GetSnapshot();
+                $this->SendDebug('Doorbird recieved LastDoorOpen at', date('H:i', time()), 0);
                 $this->SendDebug(
                     'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
                 );
@@ -444,7 +485,7 @@ class Doorbird extends IPSModule
                 $this->SetLastRingtone(3);
             } elseif ($data == 'motionsensor') {
                 $this->SetLastMovement();
-            } elseif ($data == 'dooropen') {
+            } elseif ($data == 'dooropen1') {
                 $this->SetLastDoorOpen(1);
             } elseif ($data == 'dooropen2') {
                 $this->SetLastDoorOpen(2);
@@ -478,44 +519,60 @@ class Doorbird extends IPSModule
         }
         $webhook_call_motion = $this->GetFavoritURL(false, 'motionsensor');
         $this->SendDebug('webhook call motion', $webhook_call_motion, 0);
-        $webhook_call_doorbell111 = $this->GetFavoritURL(false, 'doorbell111');
-        $this->SendDebug('webhook call doorbell111', $webhook_call_doorbell111, 0);
-        $webhook_call_doorbell211 = $this->GetFavoritURL(false, 'doorbell211');
-        $webhook_call_doorbell311 = $this->GetFavoritURL(false, 'doorbell311');
-        $webhook_call_dooropen = $this->GetFavoritURL(false, 'dooropen');
-        $this->SendDebug('webhook call dooropen', $webhook_call_dooropen, 0);
-        $webhook_call_dooropen2 = $this->GetFavoritURL(false, 'dooropen2');
+        $webhook_call_doorbell_1 = $this->GetFavoritURL(false, 'doorbell1');
+        $this->SendDebug('webhook call doorbell 1', $webhook_call_doorbell_1, 0);
+        $webhook_call_doorbell_2 = $this->GetFavoritURL(false, 'doorbell2');
+        $webhook_call_doorbell_3 = $this->GetFavoritURL(false, 'doorbell3');
+        $webhook_call_doorbell_4 = $this->GetFavoritURL(false, 'doorbell4');
+        $webhook_call_doorbell_5 = $this->GetFavoritURL(false, 'doorbell5');
+        $webhook_call_doorbell_6 = $this->GetFavoritURL(false, 'doorbell6');
+        $webhook_call_dooropen_1 = $this->GetFavoritURL(false, 'dooropen1');
+        $this->SendDebug('webhook call dooropen', $webhook_call_dooropen_1, 0);
+        $webhook_call_dooropen_2 = $this->GetFavoritURL(false, 'dooropen2');
+        $this->SendDebug('webhook call dooropen', $webhook_call_dooropen_2, 0);
         $webhook_call_motion_secure = $this->GetFavoritURL(true, 'motionsensor');
-        $webhook_call_doorbell111_secure = $this->GetFavoritURL(true, 'doorbell111');
-        $webhook_call_doorbell211_secure = $this->GetFavoritURL(true, 'doorbell211');
-        $webhook_call_doorbell311_secure = $this->GetFavoritURL(true, 'doorbell311');
-        $webhook_call_dooropen_secure = $this->GetFavoritURL(true, 'dooropen');
-        $webhook_call_dooropen2_secure = $this->GetFavoritURL(true, 'dooropen2');
+        $webhook_call_doorbell_1_secure = $this->GetFavoritURL(true, 'doorbell1');
+        $webhook_call_doorbell_2_secure = $this->GetFavoritURL(true, 'doorbell2');
+        $webhook_call_doorbell_3_secure = $this->GetFavoritURL(true, 'doorbell3');
+        $webhook_call_doorbell_4_secure = $this->GetFavoritURL(true, 'doorbell4');
+        $webhook_call_doorbell_5_secure = $this->GetFavoritURL(true, 'doorbell5');
+        $webhook_call_doorbell_6_secure = $this->GetFavoritURL(true, 'doorbell6');
+        $webhook_call_dooropen_1_secure = $this->GetFavoritURL(true, 'dooropen1');
+        $webhook_call_dooropen_2_secure = $this->GetFavoritURL(true, 'dooropen2');
         $duplicate_motionsensor = false;
-        $duplicate_dooropen = false;
-        $duplicate_dooropen2 = false;
-        $duplicate_doorbell111 = false;
-        $duplicate_doorbell112 = false;
-        $duplicate_doorbell113 = false;
+        $duplicate_dooropen_1 = false;
+        $duplicate_dooropen_2 = false;
+        $duplicate_doorbell_1 = false;
+        $duplicate_doorbell_2 = false;
+        $duplicate_doorbell_3 = false;
+        $duplicate_doorbell_4 = false;
+        $duplicate_doorbell_5 = false;
+        $duplicate_doorbell_6 = false;
         if (!empty($http)) {
             foreach ($http as $key => $http_call) {
                 $this->SendDebug('Doorbird HTTP Key', $key, 0);
                 $this->SendDebug('Doorbird HTTP Title', $http_call['title'], 0);
                 $this->SendDebug('Doorbird HTTP Value', $http_call['value'], 0);
                 if (($webhook_call_motion == $http_call['value'] && $duplicate_motionsensor == true)
-                    || ($webhook_call_doorbell111 == $http_call['value']
-                        && $duplicate_doorbell111 == true)
-                    || ($webhook_call_doorbell211 == $http_call['value'] && $duplicate_doorbell112 == true)
-                    || ($webhook_call_doorbell311 == $http_call['value'] && $duplicate_doorbell113 == true)
-                    || ($webhook_call_dooropen == $http_call['value'] && $duplicate_dooropen == true)
-                    || ($webhook_call_dooropen2 == $http_call['value'] && $duplicate_dooropen2 == true)
+                    || ($webhook_call_doorbell_1 == $http_call['value']
+                        && $duplicate_doorbell_1 == true)
+                    || ($webhook_call_doorbell_2 == $http_call['value'] && $duplicate_doorbell_2 == true)
+                    || ($webhook_call_doorbell_3 == $http_call['value'] && $duplicate_doorbell_3 == true)
+                    || ($webhook_call_doorbell_4 == $http_call['value'] && $duplicate_doorbell_4 == true)
+                    || ($webhook_call_doorbell_5 == $http_call['value'] && $duplicate_doorbell_5 == true)
+                    || ($webhook_call_doorbell_6 == $http_call['value'] && $duplicate_doorbell_6 == true)
+                    || ($webhook_call_dooropen_1 == $http_call['value'] && $duplicate_dooropen_1 == true)
+                    || ($webhook_call_dooropen_2 == $http_call['value'] && $duplicate_dooropen_2 == true)
                     || ($webhook_call_motion_secure == $http_call['value'] && $duplicate_motionsensor == true)
-                    || ($webhook_call_doorbell111_secure == $http_call['value']
-                        && $duplicate_doorbell111 == true)
-                    || ($webhook_call_doorbell211_secure == $http_call['value'] && $duplicate_doorbell112 == true)
-                    || ($webhook_call_doorbell311_secure == $http_call['value'] && $duplicate_doorbell113 == true)
-                    || ($webhook_call_dooropen_secure == $http_call['value'] && $duplicate_dooropen == true)
-                    || ($webhook_call_dooropen2_secure == $http_call['value'] && $duplicate_dooropen2 == true)
+                    || ($webhook_call_doorbell_1_secure == $http_call['value']
+                        && $duplicate_doorbell_1 == true)
+                    || ($webhook_call_doorbell_2_secure == $http_call['value'] && $duplicate_doorbell_2 == true)
+                    || ($webhook_call_doorbell_3_secure == $http_call['value'] && $duplicate_doorbell_3 == true)
+                    || ($webhook_call_doorbell_4_secure == $http_call['value'] && $duplicate_doorbell_4 == true)
+                    || ($webhook_call_doorbell_5_secure == $http_call['value'] && $duplicate_doorbell_5 == true)
+                    || ($webhook_call_doorbell_6_secure == $http_call['value'] && $duplicate_doorbell_6 == true)
+                    || ($webhook_call_dooropen_1_secure == $http_call['value'] && $duplicate_dooropen_1 == true)
+                    || ($webhook_call_dooropen_2_secure == $http_call['value'] && $duplicate_dooropen_2 == true)
                 ) {
                     $this->SendDebug('Doorbird HTTP Delete Key', $key, 0);
                     $this->DeleteFavorites($key, 'http');
@@ -524,59 +581,90 @@ class Doorbird extends IPSModule
                     $this->SendDebug('Duplicate', $http_call['value'], 0);
                     $duplicate_motionsensor = true;
                 }
-                if ($webhook_call_doorbell111 == $http_call['value'] || $webhook_call_doorbell111_secure == $http_call['value']) {
+                if ($webhook_call_doorbell_1 == $http_call['value'] || $webhook_call_doorbell_1_secure == $http_call['value']) {
                     $this->SendDebug('Duplicate', $http_call['value'], 0);
-                    $duplicate_doorbell111 = true;
+                    $duplicate_doorbell_1 = true;
                 }
-                if ($webhook_call_doorbell211 == $http_call['value'] || $webhook_call_doorbell211_secure == $http_call['value']) {
+                if ($webhook_call_doorbell_2 == $http_call['value'] || $webhook_call_doorbell_2_secure == $http_call['value']) {
                     $this->SendDebug('Duplicate', $http_call['value'], 0);
-                    $duplicate_doorbell112 = true;
+                    $duplicate_doorbell_2 = true;
                 }
-                if ($webhook_call_doorbell311 == $http_call['value'] || $webhook_call_doorbell311_secure == $http_call['value']) {
+                if ($webhook_call_doorbell_3 == $http_call['value'] || $webhook_call_doorbell_3_secure == $http_call['value']) {
                     $this->SendDebug('Duplicate', $http_call['value'], 0);
-                    $duplicate_doorbell113 = true;
+                    $duplicate_doorbell_3 = true;
                 }
-                if ($webhook_call_dooropen == $http_call['value'] || $webhook_call_dooropen_secure == $http_call['value']) {
+                if ($webhook_call_doorbell_4 == $http_call['value'] || $webhook_call_doorbell_4_secure == $http_call['value']) {
                     $this->SendDebug('Duplicate', $http_call['value'], 0);
-                    $duplicate_dooropen = true;
+                    $duplicate_doorbell_4 = true;
                 }
-                if ($webhook_call_dooropen2 == $http_call['value'] || $webhook_call_dooropen2_secure == $http_call['value']) {
+                if ($webhook_call_doorbell_5 == $http_call['value'] || $webhook_call_doorbell_5_secure == $http_call['value']) {
                     $this->SendDebug('Duplicate', $http_call['value'], 0);
-                    $duplicate_dooropen2 = true;
+                    $duplicate_doorbell_5 = true;
+                }
+                if ($webhook_call_doorbell_6 == $http_call['value'] || $webhook_call_doorbell_6_secure == $http_call['value']) {
+                    $this->SendDebug('Duplicate', $http_call['value'], 0);
+                    $duplicate_doorbell_6 = true;
+                }
+                if ($webhook_call_dooropen_1 == $http_call['value'] || $webhook_call_dooropen_1_secure == $http_call['value']) {
+                    $this->SendDebug('Duplicate', $http_call['value'], 0);
+                    $duplicate_dooropen_1 = true;
+                }
+                if ($webhook_call_dooropen_2 == $http_call['value'] || $webhook_call_dooropen_2_secure == $http_call['value']) {
+                    $this->SendDebug('Duplicate', $http_call['value'], 0);
+                    $duplicate_dooropen_2 = true;
                 }
             }
         }
         //doorbell add favorites
-        if (!$duplicate_doorbell111) {
-            $this->AddHTTPFavorite('IPSDoorbell', 'doorbell111', '111 IPSDoorbell');
+        if (!$duplicate_doorbell_1) {
+            $this->AddHTTPFavorite($this->Translate('Doorbell Event 1 IP-Symcon'), 'doorbell1', 1, $this->Translate('Doorbell Event 1 IP-Symcon'));
             IPS_Sleep(300);
         }
         //motionsensor
         if (!$duplicate_motionsensor) {
-            $this->AddHTTPFavorite('IPSMotionsensor', 'motionsensor', 'IPSMotionsensor');
+            $this->AddHTTPFavorite($this->Translate('Motion Event IP-Symcon'), 'motionsensor', 7, $this->Translate('Motion Event IP-Symcon'));
             IPS_Sleep(300);
         }
-        //dooropen
-        if (!$duplicate_dooropen) {
-            $this->AddHTTPFavorite('IPSDooropen', 'dooropen', 'IPSDooropen');
+        //dooropen relay 1
+        if (!$duplicate_dooropen_1) {
+            $this->AddHTTPFavorite($this->Translate('Doorbell Open Event 1 IP-Symcon'), 'dooropen1', 8, $this->Translate('Doorbell Open Event 1 IP-Symcon'));
             IPS_Sleep(300);
         }
+        //dooropen relay 2
         $model = $this->ReadPropertyInteger('model');
-        if ($model == self::D2101V || $model == self::D2102V || $model == self::D2103V) {
-            if (!$duplicate_dooropen2) {
-                $this->AddHTTPFavorite('IPSDooropen2', 'dooropen2', 'IPSDooropen2');
+        if ($model == self::D1102V || $model == self::D2102V || $model == self::D2103V || self::D2101FV_EKEY) {
+            if (!$duplicate_dooropen_2) {
+                $this->AddHTTPFavorite($this->Translate('Doorbell Open Event 2 IP-Symcon'), 'dooropen2', 9, $this->Translate('Doorbell Open Event 2 IP-Symcon'));
                 IPS_Sleep(300);
             }
         }
         if ($model == self::D2102V || $model == self::D2103V) {
-            if (!$duplicate_doorbell112) {
-                $this->AddHTTPFavorite('IPSDoorbell2', 'doorbell211', '211 IPSDoorbell2');
+            if (!$duplicate_doorbell_2) {
+                $this->AddHTTPFavorite($this->Translate('Doorbell Event 2 IP-Symcon'), 'doorbell2', 2, $this->Translate('Doorbell Event 2 IP-Symcon'));
                 IPS_Sleep(300);
             }
         }
         if ($model == self::D2103V) {
-            if (!$duplicate_doorbell113) {
-                $this->AddHTTPFavorite('IPSDoorbell3', 'doorbell311', '311 IPSDoorbell3');
+            if (!$duplicate_doorbell_3) {
+                $this->AddHTTPFavorite($this->Translate('Doorbell Event 3 IP-Symcon'), 'doorbell3', 3, $this->Translate('Doorbell Event 3 IP-Symcon'));
+                IPS_Sleep(300);
+            }
+        }
+        if ($model == self::D2104V) {
+            if (!$duplicate_doorbell_4) {
+                $this->AddHTTPFavorite($this->Translate('Doorbell Event 4 IP-Symcon'), 'doorbell4', 4, $this->Translate('Doorbell Event 4 IP-Symcon'));
+                IPS_Sleep(300);
+            }
+        }
+        if ($model == self::D2105V) {
+            if (!$duplicate_doorbell_5) {
+                $this->AddHTTPFavorite($this->Translate('Doorbell Event 5 IP-Symcon'), 'doorbell5', 5, $this->Translate('Doorbell Event 5 IP-Symcon'));
+                IPS_Sleep(300);
+            }
+        }
+        if ($model == self::D2106V) {
+            if (!$duplicate_doorbell_6) {
+                $this->AddHTTPFavorite($this->Translate('Doorbell Event 6 IP-Symcon'), 'doorbell6', 6, $this->Translate('Doorbell Event 6 IP-Symcon'));
                 IPS_Sleep(300);
             }
         }
@@ -638,11 +726,21 @@ class Doorbird extends IPSModule
         return $this->SendDoorbird($URL);
     }
 
-    public function AddHTTPFavorite(string $title, string $event, string $message)
+    public function AddHTTPFavorite(string $title, string $event, int $id, string $message)
     {
         $event_value = $this->GetEventValue();
-        $URL = self::SET_HTTP_FAVORITE . $title . $event_value . $event;
-        $this->SendDebug('Doorbird', 'Add Favorite ' . $message, 0);
+        $title = urlencode($title);
+        $URL = self::SET_HTTP_FAVORITE . $title . $event_value . $event . "&id=" . $id;
+        $this->SendDebug('Doorbird', 'Add HTTP Favorite ' . $message, 0);
+        return $this->SendDoorbird($URL);
+    }
+
+    public function AddSIPFavorite(string $title, string $event, int $id, string $message)
+    {
+        $event_value = $this->GetEventValue();
+        $title = urlencode($title);
+        $URL = self::SET_SIP_FAVORITE . $title . $event_value . $event . "&id=" . $id;
+        $this->SendDebug('Doorbird', 'Add HTTP Favorite ' . $message, 0);
         return $this->SendDoorbird($URL);
     }
 
@@ -882,6 +980,9 @@ class Doorbird extends IPSModule
 
         $this->RegisterProfile('Doorbird.LastDoor', 'LockOpen', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $this->RegisterVariableString('LastDoorOpen', $this->Translate('Time last door opening'), 'Doorbird.LastDoor', $this->_getPosition());
+
+
+
         $this->RegisterProfile('Doorbird.Firmware', 'Robot', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $this->RegisterVariableString('FirmwareVersion', $this->Translate('Doorbird Firmware Version'), 'Doorbird.Firmware', $this->_getPosition());
         $this->RegisterProfile('Doorbird.Buildnumber', 'Gear', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
@@ -1260,7 +1361,7 @@ class Doorbird extends IPSModule
         $script_name = substr($_SERVER['SCRIPT_NAME'], strlen('/hook/doorbird' . $this->InstanceID));
         // $this->SendDebug('Request Script Name:', $script_name, 0);
         $request_type = strpos($script_name, 'picture');
-        if ($request_type == 1 || $script_name == '/slideshowhistory' || $script_name == '/slideshowhistory2' || $script_name == '/slideshowhistory3' || $script_name == '/slideshowsnapshot' || $script_name == '/cssslideshow' || $script_name == '/cssslideshow/' || $script_name == '/cssslideshow/css-fadeshow.css' || $script_name == '/cssslideshow/css-fadeshow.css/') {
+        if ($request_type == 1 || $script_name == '/slideshowhistory' || $script_name == '/slideshowhistory2' || $script_name == '/slideshowhistory3' || $script_name == '/slideshowhistory4'|| $script_name == '/slideshowhistory5'|| $script_name == '/slideshowhistory6' || $script_name == '/slideshowsnapshot' || $script_name == '/cssslideshow' || $script_name == '/cssslideshow/' || $script_name == '/cssslideshow/css-fadeshow.css' || $script_name == '/cssslideshow/css-fadeshow.css/') {
             $passwordcheck = false;
         } else {
             $passwordcheck = true;
@@ -1328,7 +1429,16 @@ class Doorbird extends IPSModule
         } elseif ($script_name == '/slideshowhistory3') {
             $html = $this->GetSlideShow('slideshowhistory3');
             echo $html;
-        } elseif ($script_name == '/slideshowsnapshot') {
+        } elseif ($script_name == '/slideshowhistory4') {
+            $html = $this->GetSlideShow('slideshowhistory4');
+            echo $html;
+        }elseif ($script_name == '/slideshowhistory5') {
+            $html = $this->GetSlideShow('slideshowhistory5');
+            echo $html;
+        }elseif ($script_name == '/slideshowhistory6') {
+            $html = $this->GetSlideShow('slideshowhistory6');
+            echo $html;
+        }elseif ($script_name == '/slideshowsnapshot') {
             $html = $this->GetSlideShow('slideshowsnapshot');
             echo $html;
         } elseif ($script_name == '/cssslideshow' || $script_name == '/cssslideshow/' || $script_name == '/cssslideshow/css-fadeshow.css' || $script_name == '/cssslideshow/css-fadeshow.css/') {
@@ -1351,15 +1461,21 @@ class Doorbird extends IPSModule
         if (isset($_GET['doorbirdevent'])) {
             $this->SendDebug('Doorbird:', json_encode($_GET), 0);
             $data = $_GET['doorbirdevent'];
-            if ($data == 'doorbell111') {
+            if ($data == 'doorbell1') {
                 $this->SetLastRingtone(1);
-            } elseif ($data == 'doorbell211') {
+            } elseif ($data == 'doorbell2') {
                 $this->SetLastRingtone(2);
-            } elseif ($data == 'doorbell311') {
+            } elseif ($data == 'doorbell3') {
                 $this->SetLastRingtone(3);
-            } elseif ($data == 'motionsensor') {
+            }elseif ($data == 'doorbell4') {
+                $this->SetLastRingtone(4);
+            }elseif ($data == 'doorbell5') {
+                $this->SetLastRingtone(5);
+            }elseif ($data == 'doorbell6') {
+                $this->SetLastRingtone(6);
+            }elseif ($data == 'motionsensor') {
                 $this->SetLastMovement();
-            } elseif ($data == 'dooropen') {
+            } elseif ($data == 'dooropen1') {
                 $this->SetLastDoorOpen(1);
             } elseif ($data == 'dooropen2') {
                 $this->SetLastDoorOpen(2);
@@ -1464,6 +1580,18 @@ class Doorbird extends IPSModule
             $media_objects = $this->GetMediaIDs($category_id);
         }
         if ($slideshow_type == 'slideshowhistory3') {
+            $category_id = $this->ReadAttributeInteger('pictures_history3');
+            $media_objects = $this->GetMediaIDs($category_id);
+        }
+        if ($slideshow_type == 'slideshowhistory4') {
+            $category_id = $this->ReadAttributeInteger('pictures_history3');
+            $media_objects = $this->GetMediaIDs($category_id);
+        }
+        if ($slideshow_type == 'slideshowhistory5') {
+            $category_id = $this->ReadAttributeInteger('pictures_history3');
+            $media_objects = $this->GetMediaIDs($category_id);
+        }
+        if ($slideshow_type == 'slideshowhistory6') {
             $category_id = $this->ReadAttributeInteger('pictures_history3');
             $media_objects = $this->GetMediaIDs($category_id);
         }
@@ -1663,6 +1791,15 @@ class Doorbird extends IPSModule
         }
         if ($slideshow_type == 'slideshowhistory3') {
             $picture_name = 'picturehistory_3_';
+        }
+        if ($slideshow_type == 'slideshowhistory4') {
+            $picture_name = 'picturehistory_4_';
+        }
+        if ($slideshow_type == 'slideshowhistory5') {
+            $picture_name = 'picturehistory_5_';
+        }
+        if ($slideshow_type == 'slideshowhistory6') {
+            $picture_name = 'picturehistory_6_';
         }
         if ($slideshow_type == 'slideshowsnapshot') {
             $picture_name = 'picturesnapshot_';

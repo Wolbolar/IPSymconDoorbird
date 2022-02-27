@@ -291,6 +291,13 @@ class Doorbird extends IPSModule
                     'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
                 );
             }
+            if ($SenderID == $this->GetIDForIdent('LastDoorOpen_2')) {
+                $this->GetSnapshot();
+                $this->SendDebug('Doorbird recieved LastDoorOpen 2 at', date('H:i', time()), 0);
+                $this->SendDebug(
+                    'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
+                );
+            }
         }
     }
 
@@ -981,7 +988,8 @@ class Doorbird extends IPSModule
         $this->RegisterProfile('Doorbird.LastDoor', 'LockOpen', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $this->RegisterVariableString('LastDoorOpen', $this->Translate('Time last door opening'), 'Doorbird.LastDoor', $this->_getPosition());
 
-
+        $this->RegisterProfile('Doorbird.LastDoor', 'LockOpen', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
+        $this->RegisterVariableString('LastDoorOpen_2', $this->Translate('Time last door opening 2'), 'Doorbird.LastDoor', $this->_getPosition());
 
         $this->RegisterProfile('Doorbird.Firmware', 'Robot', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $this->RegisterVariableString('FirmwareVersion', $this->Translate('Doorbird Firmware Version'), 'Doorbird.Firmware', $this->_getPosition());
@@ -1038,7 +1046,7 @@ class Doorbird extends IPSModule
                 $this->SetIcon('slideshow_history_3', 'Camera', $exist_slideshow_history_3);
                 $this->SetValue('slideshow_history_3', $content);
             }
-            if ($$model == self::D2104V || $model == self::D2105V || $model == self::D2106V) {
+            if ($model == self::D2104V || $model == self::D2105V || $model == self::D2106V) {
                 $exist_slideshow_history_4 = $this->CheckExistence('slideshow_history_4');
                 $this->RegisterVariableString('slideshow_history_4', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
                 $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowhistory4" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
@@ -3422,6 +3430,10 @@ class Doorbird extends IPSModule
                 if ($this->GetIDForIdent('LastDoorOpen') > 0) {
                     $this->RegisterMessage($this->GetIDForIdent('LastDoorOpen'), VM_UPDATE);
                     $this->SendDebug('Doorbird', 'Register Message LastDoorOpen', 0);
+                }
+                if ($this->GetIDForIdent('LastDoorOpen_2') > 0) {
+                    $this->RegisterMessage($this->GetIDForIdent('LastDoorOpen_2'), VM_UPDATE);
+                    $this->SendDebug('Doorbird', 'Register Message LastDoorOpen_2', 0);
                 }
             }
             if ($this->CheckAccess()) {

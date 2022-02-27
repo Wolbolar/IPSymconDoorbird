@@ -151,14 +151,88 @@ In der Testumgebung stehen dann noch weitere Funktionen zur Verfügung.
 
 ![Buttons](img/doorbird_buttons.png?raw=true "Buttons")
 
-### c. Einrichtung in der Doorbird App
+### c. Einrichtung in der Doorbird App / Doorbird Web Admin
 
 Nachdem das Modul in IP-Symcon eingerichtet worden ist, müssen noch Einstellungen in der Doorbird App bzw. über den Webadmin aus IP-Symcon vorgenommen werden.
-In der Doorbird App unter _Einstellungen -> Administration_ sich als Admin der Klingel anmelden.
+In der Doorbird App unter _Einstellungen -> Administration_ sich als Admin der Klingel anmelden, alternativ aus der Instanz in IP-Symcon den Doorbird Webadmin öffnen.
+Es öffnet sich ein Browser Fenster in dem man sich mit den Admin Anmeldedaten für die Doorbird anmelden muss.
+
+![Webadmin](img/doorbird_web_admin_de_1.png?raw=true "Webadmin")
 
 Zunächst in der Doorbird App bzw. im Web Admin prüfen ob die HTTP Aufrufe von IP-Symcon ergänzt worden sind unter _Favoriten -> HTTP(S) Aufrufe_.
-Dann unter _Experteneinstellungen -> Relais_ bei dem Relais das eine Benachrichtigung bei Türöffnung an IP-Symcon absetzten soll auf _Zeitplan für Folgeaktionen_ klicken.
-Hier wählt man _HTTP(S) Aufrufe_ aus und als Aktion _IPSDooropen_. Anschließend noch den Zeitplan aktiv setzten, wann IP-Symcon von der Doorbird benachrichtigt werden soll. In der Regel setzt man hier den Zeitplan auf immer aktiv damit man auch stets eine Benachrichtigung erhält.
+
+#### 1. Einrichtung der Klingelbenachrichtigung
+
+Unter _Experteneinstellungen_ den Menüpunkt _Zeitplan für Türklingel_ auswählen.
+
+![Doorbell1](img/doorbell_schedule_1.png?raw=true "Doorbell1")
+
+Das Icon oben links anklicken und dort _HTTP(S) Aufrufe_ auswählen, dann in die Mitte klicken und aus dem Auswahlmenü den passenden Eintrag zur Klingel wählen.
+
+![Doorbell2](img/doorbell_schedule_2.png?raw=true "Doorbell2")
+
+Hier im Beispiel _Klingelereignis 1 IP-Symcon_ selektieren und anschließend oben rechts mit dem Icon alles auswählen.
+
+![Doorbell3](img/doorbell_schedule_3.png?raw=true "Doorbell3")
+
+#### 2. Einrichtung der Bewegungsbenachrichtigung
+
+Möchte man die Bewegungserkennung nutzten, muss zunächst der Bewegungssensor unter Einstellungen aktiviert werden.
+
+![Motion1](img/motion_sensor_1.png?raw=true "Motion1")
+
+Anschließend auf die Einstellungen des Motion Senors wechseln. Hier den Unterpunkt _Zeitplan für Aktionen_ auswählen.
+
+![Motion2](img/motion_sensor_2.png?raw=true "Motion2")
+
+Das Icon oben links anklicken und dort _HTTP(S) Aufrufe_ auswählen, dann in die Mitte klicken und aus dem Auswahlmenü den passenden Eintrag zur Bewegung wählen.
+
+![Motion3](img/motion_sensor_3.png?raw=true "Motion3")
+
+Hier im _Bewegungsereignis IP-Symcon_ selektieren und anschließend oben rechts mit dem Icon alles auswählen.
+
+![Motion4](img/motion_sensor_4.png?raw=true "Motion4")
+
+#### 3. Einrichtung der Relaisbenachrichtigung
+
+##### 3.1 Einrichtung von RFID
+
+Sollte das Modell über RFID verfügen kann man dies auf Wunsch aktivieren. RFID löst das Relais 1 aus. 
+
+![RFID](img/rfid_1.png?raw=true "RFID")
+
+Wenn man eine Benachrichtung in IP-Symcon erhalten will wenn das Relais 1 geschaltet wurde muss man weitere Einstellungen unter Relais 1 vornehmen.
+
+##### 3.1 Einrichtung von Relais 1
+
+Wenn RFID genutzt wird, schaltet RFID das Relais 1.
+
+![Relay1](img/relay_1.png?raw=true "Relay 1")
+
+Hier wählt man _Zeitplan für Folgeaktionen_ aus.
+
+Das Icon oben links anklicken und dort _HTTP(S) Aufrufe_ auswählen, dann in die Mitte klicken und aus dem Auswahlmenü den passenden Eintrag zum Relais 1 wählen.
+
+![Relay2](img/relay_2.png?raw=true "Relay 2")
+
+Hier im _Relais 1 Ereignis IP-Symcon_ selektieren und anschließend oben rechts mit dem Icon alles auswählen.
+
+![Relay3](img/relay_3.png?raw=true "Relay 3")
+
+##### 3.1 Einrichtung von Relais 2
+
+Wenn Relais 2 genutzt wird und eine Benachrichtigung gewünscht ist, muss dies ebenfalls einmalig aktiviert werden.
+Hier wählt man _Zeitplan für Folgeaktionen_ aus.
+
+Das Icon oben links anklicken und dort _HTTP(S) Aufrufe_ auswählen, dann in die Mitte klicken und aus dem Auswahlmenü den passenden Eintrag zum Relais 2 wählen.
+
+![Relay4](img/relay_4.png?raw=true "Relay 4")
+
+Hier im _Relais 2 Ereignis IP-Symcon_ selektieren und anschließend oben rechts mit dem Icon alles auswählen.
+
+![Relay5](img/relay_5.png?raw=true "Relay 5")
+
+In der Regel setzt man hier den Zeitplan auf immer aktiv damit man auch stets eine Benachrichtigung erhält.
 
 
 ## 4. Funktionsreferenz
@@ -219,8 +293,9 @@ Betätigt den Türöffner der Doorbird
 
 Liest Favoriten aus der Doorbird aus  
 
-   
+`Doorbird_OpenDoorRelaisNumber(integer $InstanceID, int $relaisnumber)`
 
+Schaltet das Relais mit der Nummer $relaisnumber
 
 
 ###  b. GUIDs und Datenaustausch:

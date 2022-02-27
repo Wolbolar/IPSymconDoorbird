@@ -13,6 +13,6 @@ Modul für IP-Symcon ab Version 5.0. Ermöglicht die Kommunikation mit einer Doo
  
 Module for IP-Symcon from version 5.0. Allows communication with a Doorbird doorphone.
 
- - [English Documentation](docs/en/README.md "English documentation") 
+ - [English Documentation](en/README.md "English documentation") 
 
 

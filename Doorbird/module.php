@@ -1064,42 +1064,42 @@ class Doorbird extends IPSModule
             if ($doorbell_number > 0) {
                 $exist_slideshow_history_1 = $this->CheckExistence('slideshow_history_1');
                 $this->RegisterVariableString('slideshow_history_1', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
-                $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowhistory" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
+                $content = '<iframe src="' . $this->GetWebhookURL(false) . '/slideshowhistory" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
                 $this->SetIcon('slideshow_history_1', 'Camera', $exist_slideshow_history_1);
                 $this->SetValue('slideshow_history_1', $content);
             }
             if ($doorbell_number > 1) {
                 $exist_slideshow_history_2 = $this->CheckExistence('slideshow_history_2');
                 $this->RegisterVariableString('slideshow_history_2', $this->Translate('Slideshow History 2'), '~HTMLBox', $this->_getPosition());
-                $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowhistory2" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
+                $content = '<iframe src="' . $this->GetWebhookURL(false) . '/slideshowhistory2" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
                 $this->SetIcon('slideshow_history_2', 'Camera', $exist_slideshow_history_2);
                 $this->SetValue('slideshow_history_2', $content);
             }
             if ($doorbell_number > 2) {
                 $exist_slideshow_history_3 = $this->CheckExistence('slideshow_history_3');
                 $this->RegisterVariableString('slideshow_history_3', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
-                $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowhistory3" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
+                $content = '<iframe src="' . $this->GetWebhookURL(false) . '/slideshowhistory3" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
                 $this->SetIcon('slideshow_history_3', 'Camera', $exist_slideshow_history_3);
                 $this->SetValue('slideshow_history_3', $content);
             }
             if ($doorbell_number > 3) {
                 $exist_slideshow_history_4 = $this->CheckExistence('slideshow_history_4');
                 $this->RegisterVariableString('slideshow_history_4', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
-                $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowhistory4" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
+                $content = '<iframe src="' . $this->GetWebhookURL(false) . '/slideshowhistory4" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
                 $this->SetIcon('slideshow_history_4', 'Camera', $exist_slideshow_history_4);
                 $this->SetValue('slideshow_history_4', $content);
             }
             if ($doorbell_number > 4) {
                 $exist_slideshow_history_5 = $this->CheckExistence('slideshow_history_5');
                 $this->RegisterVariableString('slideshow_history_5', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
-                $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowhistory5" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
+                $content = '<iframe src="' . $this->GetWebhookURL(false) . '/slideshowhistory5" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
                 $this->SetIcon('slideshow_history_5', 'Camera', $exist_slideshow_history_5);
                 $this->SetValue('slideshow_history_5', $content);
             }
             if ($doorbell_number > 5) {
                 $exist_slideshow_history_6 = $this->CheckExistence('slideshow_history_6');
                 $this->RegisterVariableString('slideshow_history_6', $this->Translate('Slideshow History'), '~HTMLBox', $this->_getPosition());
-                $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowhistory6" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
+                $content = '<iframe src="' . $this->GetWebhookURL(false) . '/slideshowhistory6" width=' . $this->ReadPropertyInteger('iframe_width_history') . 'px height=' . $this->ReadPropertyInteger('iframe_height_history') . 'px></iframe>';
                 $this->SetIcon('slideshow_history_6', 'Camera', $exist_slideshow_history_6);
                 $this->SetValue('slideshow_history_6', $content);
             }
@@ -1107,7 +1107,7 @@ class Doorbird extends IPSModule
         if ($this->ReadPropertyBoolean('slideshow_snapshot')) {
             $exist_slideshow_snapshot = $this->CheckExistence('slideshow_snapshot');
             $this->RegisterVariableString('slideshow_snapshot', $this->Translate('Slideshow Snapshot'), '~HTMLBox', $this->_getPosition());
-            $content = '<iframe src="' . $this->GetWebhookURL(true) . '/slideshowsnapshot" width=' . $this->ReadPropertyInteger('iframe_width_snapshot') . 'px height=' . $this->ReadPropertyInteger('iframe_height_snapshot') . 'px></iframe>';
+            $content = '<iframe src="' . $this->GetWebhookURL(false) . '/slideshowsnapshot" width=' . $this->ReadPropertyInteger('iframe_width_snapshot') . 'px height=' . $this->ReadPropertyInteger('iframe_height_snapshot') . 'px></iframe>';
             $this->SetIcon('slideshow_snapshot', 'Camera', $exist_slideshow_snapshot);
             $this->SetValue('slideshow_snapshot', $content);
         }
@@ -1850,7 +1850,7 @@ class Doorbird extends IPSModule
         }
         foreach ($media_objects as $key => $media_object) {
             $html .= '<div class="fs-slide">' . PHP_EOL;
-            $html .= '<div class="fs-slide-bg" style="background-image: url(' . $this->GetWebhookURL(true) . '/' . $picture_name . $key . '.jpg);"></div>' . PHP_EOL;
+            $html .= '<div class="fs-slide-bg" style="background-image: url(' . $this->GetWebhookURL(false) . '/' . $picture_name . $key . '.jpg);"></div>' . PHP_EOL;
             $html .= '<div class="slide-content">' . PHP_EOL;
             $html .= '<p>' . $this->GetPictureDescription($media_object) . '</p>' . PHP_EOL;
             $html .= '</div>' . PHP_EOL;

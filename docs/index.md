@@ -9,7 +9,7 @@ Doorbird PHP Module for IP-Symcon
 
 Modul für IP-Symcon ab Version 5.0. Ermöglicht die Kommunikation mit einer Doorbird Türsprechanlage.
 
- - [Deutsche Dokumentation](docs/de/README.md "Deutsche Dokumentation")
+ - [Deutsche Dokumentation](de/README.md "Deutsche Dokumentation")
  
 Module for IP-Symcon from version 5.0. Allows communication with a Doorbird doorphone.
 

@@ -11,6 +11,7 @@ class Doorbird extends IPSModule
 {
     use ProfileHelper;
 
+    private const Unkown = 0; // model not set
     private const D101 = 1; // D101
     private const D202 = 2; // D202
     private const D2101V = 3; // D2101V
@@ -184,7 +185,7 @@ class Doorbird extends IPSModule
         if (IPS_GetKernelRunlevel() !== KR_READY) {
             return;
         }
-        $this->SetupVariables();
+        $this->ValidateConfiguration();
     }
 
     public function PictureDebug(bool $debug)
@@ -205,11 +206,17 @@ class Doorbird extends IPSModule
         $this->LogMessage('SenderID: ' . $SenderID . ', Message: ' . $Message . ', Data:' . json_encode($Data), KL_DEBUG);
         if ($Message == IM_CHANGESTATUS) {
             if ($Data[0] === IS_ACTIVE) {
-                $this->SetupVariables();
+                $this->SendDebug(
+                    'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
+                );
+                // $this->ValidateConfiguration();
             }
         } elseif ($Message == IPS_KERNELMESSAGE) {
             if ($Data[0] === KR_READY) {
-                $this->SetupVariables();
+                $this->SendDebug(
+                    'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
+                );
+                // $this->ValidateConfiguration();
             }
         } else {
             if ($SenderID == $this->GetIDForIdent('LastRingtone')) {
@@ -409,7 +416,7 @@ class Doorbird extends IPSModule
             self::D2101FPBK => ["doorbell_number" => 1, "relay_number" => 2, "rfid" => true, "fingersensor" => false, "keypad" => false],
             self::D2101FV_EKEY => ["doorbell_number" => 1, "relay_number" => 2, "rfid" => true, "fingersensor" => true, "keypad" => false],
             self::D2102FV_EKEY => ["doorbell_number" => 2, "relay_number" => 2, "rfid" => true, "fingersensor" => true, "keypad" => false],
-            self::D2100E => ["doorbell_number" => 1, "relay_number" => 2, "rfid" => true, "fingersensor" => false, "keypad" => false],
+            self::D2100E => ["doorbell_number" => 2, "relay_number" => 2, "rfid" => true, "fingersensor" => false, "keypad" => false],
             self::D1100E => ["doorbell_number" => 1, "relay_number" => 2, "rfid" => false, "fingersensor" => false, "keypad" => false]
 
         ];
@@ -847,14 +854,17 @@ class Doorbird extends IPSModule
         $result = json_decode($result);
         if (isset($result->BHA->VERSION[0]->FIRMWARE)) {
             $firmware = $result->BHA->VERSION[0]->FIRMWARE;
+
             $this->SetValue('FirmwareVersion', $firmware);
         }
         if (isset($result->BHA->VERSION[0]->BUILD_NUMBER)) {
             $buildnumber = $result->BHA->VERSION[0]->BUILD_NUMBER;
+
             $this->SetValue('Buildnumber', $buildnumber);
         }
         if (isset($result->BHA->VERSION[0]->WIFI_MAC_ADDR)) {
             $wifimacaddr = $result->BHA->VERSION[0]->WIFI_MAC_ADDR;
+
             $this->SetValue('MACAdress', $wifimacaddr);
         }
         return $result;
@@ -999,36 +1009,74 @@ class Doorbird extends IPSModule
 
     protected function SetupVariables()
     {
+        $hostdoorbell = $this->ReadPropertyString('Host');
+        $doorbirduser = $this->ReadPropertyString('User');
+        $password = $this->ReadPropertyString('Password');
+        $portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
+
         $this->RegisterVariableString('DoorbirdVideo', 'Doorbird Video', '~HTMLBox', $this->_getPosition());
+        $selectionaltview = $this->ReadPropertyBoolean('altview');
+        $prefix = $this->GetURLPrefix($hostdoorbell);
+        if ($selectionaltview) {
+            $DoorbirdVideoHTML =
+                '<img src="' . $prefix . $hostdoorbell . ':' . $portdoorbell . self::LIVE_VIDEO_REQUEST . '?http-user=' . $doorbirduser . '&http-password='
+                . $password . '" style=width:' . $this->ReadPropertyInteger('iframe_width_video') . 'px; height:' . $this->ReadPropertyInteger('iframe_height_video') . 'px; >';
+        } else {
+            $DoorbirdVideoHTML = '<iframe src="' . $prefix . $hostdoorbell . ':' . $portdoorbell . self::LIVE_VIDEO_REQUEST . '?http-user=' . $doorbirduser
+                                 . '&http-password=' . $password . '"  width=' . $this->ReadPropertyInteger('iframe_width_video') . 'px; height=' . $this->ReadPropertyInteger('iframe_height_video') . 'px; ></iframe>';
+        }
+        $this->SetValue('DoorbirdVideo', $DoorbirdVideoHTML);
         $this->RegisterProfile('Doorbird.Ring', 'Alert', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $model = $this->ReadPropertyInteger('model');
         $doorbell_number = $this->GetNumberDoorbells($this->GetDeviceInformation($model));
         if ($doorbell_number > 0) {
             $this->RegisterVariableString('LastRingtone', $this->Translate('Time last bell'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterMessage($this->GetIDForIdent('LastRingtone'), VM_UPDATE);
+            $this->SendDebug('Doorbird', 'Register Message LastRingtone', 0);
         }
         if ($doorbell_number > 1) {
             $this->RegisterVariableString('LastRingtone2', $this->Translate('Time last bell 2'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterMessage($this->GetIDForIdent('LastRingtone2'), VM_UPDATE);
+            $this->SendDebug('Doorbird', 'Register Message LastRingtone2', 0);
         }
         if ($doorbell_number > 2) {
             $this->RegisterVariableString('LastRingtone3', $this->Translate('Time last bell 3'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterMessage($this->GetIDForIdent('LastRingtone3'), VM_UPDATE);
+            $this->SendDebug('Doorbird', 'Register Message LastRingtone3', 0);
         }
         if ($doorbell_number > 3) {
             $this->RegisterVariableString('LastRingtone4', $this->Translate('Time last bell 4'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterMessage($this->GetIDForIdent('LastRingtone4'), VM_UPDATE);
+            $this->SendDebug('Doorbird', 'Register Message LastRingtone4', 0);
         }
         if ($doorbell_number > 4) {
             $this->RegisterVariableString('LastRingtone5', $this->Translate('Time last bell 5'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterMessage($this->GetIDForIdent('LastRingtone5'), VM_UPDATE);
+            $this->SendDebug('Doorbird', 'Register Message LastRingtone5', 0);
         }
         if ($doorbell_number > 5) {
             $this->RegisterVariableString('LastRingtone6', $this->Translate('Time last bell 6'), 'Doorbird.Ring', $this->_getPosition());
+            $this->RegisterMessage($this->GetIDForIdent('LastRingtone6'), VM_UPDATE);
+            $this->SendDebug('Doorbird', 'Register Message LastRingtone6', 0);
         }
+
         $this->RegisterProfile('Doorbird.Movement', 'Motion', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $this->RegisterVariableString('LastMovement', $this->Translate('Time of last movement'), 'Doorbird.Movement', $this->_getPosition());
+        if ($this->GetIDForIdent('LastMovement') > 0) {
+
+            $this->RegisterMessage($this->GetIDForIdent('LastMovement'), VM_UPDATE);
+            $this->SendDebug('Doorbird', 'Register Message LastMovement', 0);
+        }
 
         $this->RegisterProfile('Doorbird.LastDoor', 'LockOpen', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $this->RegisterVariableString('LastDoorOpen', $this->Translate('Time last door opening'), 'Doorbird.LastDoor', $this->_getPosition());
+        $this->RegisterMessage($this->GetIDForIdent('LastDoorOpen'), VM_UPDATE);
+        $this->SendDebug('Doorbird', 'Register Message LastDoorOpen', 0);
         $relay_number = $this->GetNumberRelays($this->GetDeviceInformation($model));
         if($relay_number > 1){
             $this->RegisterVariableString('LastDoorOpen_2', $this->Translate('Time last door opening 2'), 'Doorbird.LastDoor', $this->_getPosition());
+            $this->RegisterMessage($this->GetIDForIdent('LastDoorOpen_2'), VM_UPDATE);
+            $this->SendDebug('Doorbird', 'Register Message LastDoorOpen_2', 0);
         }
 
         $this->RegisterProfile('Doorbird.Firmware', 'Robot', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
@@ -1037,6 +1085,8 @@ class Doorbird extends IPSModule
         $this->RegisterVariableString('Buildnumber', $this->Translate('Doorbird Build Number'), 'Doorbird.Buildnumber', $this->_getPosition());
         $this->RegisterProfile('Doorbird.MAC', 'Notebook', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $this->RegisterVariableString('MACAdress', $this->Translate('Doorbird WLAN MAC'), 'Doorbird.MAC', $this->_getPosition());
+        $info = $this->GetInfo();
+        $this->SendDebug('Doorbird', 'Info: ' . json_encode($info), 0);
         $lightass = [
             [0, 'Licht einschalten', 'Light', -1]];
         $doorass = [
@@ -1118,7 +1168,6 @@ class Doorbird extends IPSModule
             $this->SetIcon('webadmin', 'Database', $exist_webadmin);
             $this->SetValue('webadmin', $content);
         }
-        $this->ValidateConfiguration();
     }
 
     protected function GetPictureDebug()
@@ -3208,7 +3257,11 @@ class Doorbird extends IPSModule
             [
                 'code'    => 219,
                 'icon'    => 'error',
-                'caption' => 'No valid IP-Symcon IP adress or host.']];
+                'caption' => 'No valid IP-Symcon IP adress or host.'],
+            [
+                'code'    => 220,
+                'icon'    => 'error',
+                'caption' => 'no doorbird model set.']];
 
         return $form;
     }
@@ -3270,6 +3323,7 @@ class Doorbird extends IPSModule
         $this->SendDebug('Doorbird', 'Webhook User: ' . $webhookusername, 0);
         $webhookpassword = $this->ReadPropertyString('webhookpassword');
         $this->SendDebug('Doorbird', 'Webhook Password: ' . $webhookpassword, 0);
+        $model = $this->ReadPropertyInteger('model');
 
         //IP Doorbell prüfen
         if (!filter_var($hostdoorbell, FILTER_VALIDATE_IP) === false) {
@@ -3318,6 +3372,12 @@ class Doorbird extends IPSModule
             }
         }
 
+        if ($model == 0) {
+            $this->SendDebug('Doorbird', 'select a doorbird model', 0);
+            $this->SetStatus(220); // no doorbird model set
+            return;
+        }
+
         //User und Passwort prüfen
         if ($doorbirduser == '') {
             $this->SendDebug('Doorbird', 'doorbird user field must not be empty', 0);
@@ -3336,18 +3396,6 @@ class Doorbird extends IPSModule
             $this->SetStatus(213); //Felder dürfen nicht leer sein
         }
         if ($doorbirduser !== '' && $password !== '' && $hostcheck === true) {
-            $selectionaltview = $this->ReadPropertyBoolean('altview');
-            $prefix = $this->GetURLPrefix($hostdoorbell);
-            if ($selectionaltview) {
-                $DoorbirdVideoHTML =
-                    '<img src="' . $prefix . $hostdoorbell . ':' . $portdoorbell . self::LIVE_VIDEO_REQUEST . '?http-user=' . $doorbirduser . '&http-password='
-                    . $password . '" style=width:' . $this->ReadPropertyInteger('iframe_width_video') . 'px; height:' . $this->ReadPropertyInteger('iframe_height_video') . 'px; >';
-            } else {
-                $DoorbirdVideoHTML = '<iframe src="' . $prefix . $hostdoorbell . ':' . $portdoorbell . self::LIVE_VIDEO_REQUEST . '?http-user=' . $doorbirduser
-                                     . '&http-password=' . $password . '"  width=' . $this->ReadPropertyInteger('iframe_width_video') . 'px; height=' . $this->ReadPropertyInteger('iframe_height_video') . 'px; ></iframe>';
-            }
-            $this->SetValue('DoorbirdVideo', $DoorbirdVideoHTML);
-
             $ipsversion = $this->GetIPSVersion();
             if ($ipsversion == 0) {
                 //prüfen ob Script existent
@@ -3376,11 +3424,13 @@ class Doorbird extends IPSModule
             } else {
                 $this->SendDebug('Doorbird', 'category snapshot not set', 0);
                 $this->SetStatus(208); //category doorbird snapshot not set
+                return;
             }
             if ($category_history > 0) {
                 $this->SendDebug('Doorbird', 'Kategorie mit ObjektID ' . $category_history . ' gefunden', 0);
             } else {
                 $this->SetStatus(209); //category doorbird history not set
+                return;
             }
             //Timer für Historie
             // Ersetzt durch Event das Bilder bei Klingeln abholt
@@ -3407,11 +3457,6 @@ class Doorbird extends IPSModule
                 } else {
                     $this->SendDebug('Doorbird', 'Doorbird Snapshot Script mit ' . $IDSnapshot . ' gefunden', 0);
                 }
-            } else {
-                if ($this->GetIDForIdent('LastMovement') > 0) {
-                    $this->RegisterMessage($this->GetIDForIdent('LastMovement'), VM_UPDATE);
-                    $this->SendDebug('Doorbird', 'Register Message LastMovement', 0);
-                }
             }
 
             if ($ipsversion == 0) {
@@ -3424,60 +3469,11 @@ class Doorbird extends IPSModule
                 } else {
                     $this->SendDebug('Doorbird', 'Doorbird Ring Picture Script mit ' . $IDRing . ' gefunden', 0);
                 }
-            } else {
-                $model = $this->ReadPropertyInteger('model');
-                $doorbell_number = $this->GetNumberDoorbells($this->GetDeviceInformation($model));
-                if ($this->GetIDForIdent('LastRingtone') > 0) {
-                    $this->RegisterMessage($this->GetIDForIdent('LastRingtone'), VM_UPDATE);
-                    $this->SendDebug('Doorbird', 'Register Message LastRingtone', 0);
-                }
-                if ($doorbell_number > 1) {
-                    if ($this->GetIDForIdent('LastRingtone2') > 0) {
-                        $this->RegisterMessage($this->GetIDForIdent('LastRingtone2'), VM_UPDATE);
-                        $this->SendDebug('Doorbird', 'Register Message LastRingtone2', 0);
-                    }
-                }
-                if ($doorbell_number > 2) {
-                    if ($this->GetIDForIdent('LastRingtone3') > 0) {
-                        $this->RegisterMessage($this->GetIDForIdent('LastRingtone3'), VM_UPDATE);
-                        $this->SendDebug('Doorbird', 'Register Message LastRingtone3', 0);
-                    }
-                }
-                if ($doorbell_number > 3) {
-                    if ($this->GetIDForIdent('LastRingtone4') > 0) {
-                        $this->RegisterMessage($this->GetIDForIdent('LastRingtone4'), VM_UPDATE);
-                        $this->SendDebug('Doorbird', 'Register Message LastRingtone4', 0);
-                    }
-                }
-                if ($doorbell_number > 4) {
-                    if ($this->GetIDForIdent('LastRingtone5') > 0) {
-                        $this->RegisterMessage($this->GetIDForIdent('LastRingtone5'), VM_UPDATE);
-                        $this->SendDebug('Doorbird', 'Register Message LastRingtone5', 0);
-                    }
-                }
-                if ($doorbell_number > 5) {
-                    if ($this->GetIDForIdent('LastRingtone6') > 0) {
-                        $this->RegisterMessage($this->GetIDForIdent('LastRingtone6'), VM_UPDATE);
-                        $this->SendDebug('Doorbird', 'Register Message LastRingtone6', 0);
-                    }
-                }
             }
 
-            if ($ipsversion >= 1) {
-                if ($this->GetIDForIdent('LastDoorOpen') > 0) {
-                    $this->RegisterMessage($this->GetIDForIdent('LastDoorOpen'), VM_UPDATE);
-                    $this->SendDebug('Doorbird', 'Register Message LastDoorOpen', 0);
-                }
-                if ($this->GetIDForIdent('LastDoorOpen_2') > 0) {
-                    $this->RegisterMessage($this->GetIDForIdent('LastDoorOpen_2'), VM_UPDATE);
-                    $this->SendDebug('Doorbird', 'Register Message LastDoorOpen_2', 0);
-                }
-            }
             if ($this->CheckAccess()) {
                 $this->SetupNotification();
                 $this->SendDebug('Doorbird', 'Setup notification', 0);
-                $info = $this->GetInfo();
-                $this->SendDebug('Doorbird', 'Info: ' . json_encode($info), 0);
 
                 //Email
                 $emailalert = $this->ReadPropertyBoolean('activeemail');
@@ -3533,6 +3529,7 @@ class Doorbird extends IPSModule
                     }
                 }
                 // Status Aktiv
+                $this->SetupVariables();
                 $this->SetStatus(IS_ACTIVE);
             } else {
                 $this->SetStatus(217); // no access

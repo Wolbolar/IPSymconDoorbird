@@ -168,7 +168,8 @@
 			"Doorbell Event 6 IP-Symcon": "Klingelereignis 6 IP-Symcon",
 			"Motion Event IP-Symcon": "Bewegungsereignis IP-Symcon",
 			"Doorbell Open Event 1 IP-Symcon": "Relais 1 Ereignis IP-Symcon",
-			"Doorbell Open Event 2 IP-Symcon": "Relais 2 Ereignis IP-Symcon"
+			"Doorbell Open Event 2 IP-Symcon": "Relais 2 Ereignis IP-Symcon",
+			"no doorbird model set.": "Bitte das passende Doorbird Modell auswählen."
 		}
 	}
 }

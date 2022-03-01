@@ -73,6 +73,26 @@ und schließend das Modul auswählen und auf _Installieren_
 
 drücken.
 
+#### Discovery der Doorbird
+
+Nach der Installation des Doorbirds Moduls erfolgt die Meldung
+
+![Discovery 1](img/discovery_1.png?raw=true "Discovery 1")
+
+Hier mit _Ja_ bestätigen. Es öffnet sich das Fenster zum Instanz anlegen.
+
+![Discovery 2](img/discovery_2.png?raw=true "Discovery 2")
+
+Hier einfach mit _Ok_ bestätigen.
+
+![Discovery 3](img/discovery_3.png?raw=true "Discovery 3")
+
+Hier die passende Doorbird Türsprechanlage aussuchen und auf
+
+![Discovery 4](img/discovery_4.png?raw=true "Discovery 4")
+
+klicken.
+
 #### Alternatives Installieren über Modules Instanz (IP-Symcon < 5.1)
 
 [Alternatives Installieren über Modules Instanz](moduleinstall.md "Alternatives Installieren über Modules Instanz")
@@ -81,13 +101,18 @@ drücken.
 ### b. Einrichtung in IPS
 
 
-Bevor die eigentliche Instanz angelegt wird, müssen zwei Kategorien an einer gewünschten Stelle im Objektbaum angelegt werden.
+Bevor die eigentliche Konfiguration der Doorbird Instanz abgeschlossen werden kann, müssen zwei Kategorien an einer gewünschten Stelle im Objektbaum angelegt werden.
 In diese beiden Kategorien werden dann später vom Modul bei einem Klingelsignal oder bei einer Bewegungserkennung oder manueller Aufforderung,
 jeweils ein Bild zum Zeitpunkt des Events abgelegt.
 Wir legen also eine Kategorie an der gewünschten Position im Objektbaum an (_Rechtsklick -> Objekt hinzufügen -> Kategorie_) und benennen diese z.B. mit
 den Namen _Doorbird Besucherhistorie_ und _Doorbird Klingelhistorie_.
-	
-In IP-Symcon nun _Instanz hinzufügen_ (_Rechtsklick -> Objekt hinzufügen -> Instanz_) auswählen unter der Kategorie, unter der man die Doorbird hinzufügen will,
+
+#### Einrichten der Doorbird Instanz
+
+Die Doorbird Instanz sollte von der Doorbird Discovery Instanz gefunden worden sein und die Doorbird Instanz angelegt worden sein. 
+Sollte eine Suche innerhalb des Netzwerks nicht erfolgreich gewesen sein, kann die Doorbird Instanz auch einfach von Hand manuell angelegt werden.
+
+Dazu IP-Symcon nun _Instanz hinzufügen_ (_Rechtsklick -> Objekt hinzufügen -> Instanz_) auswählen unter der Kategorie, unter der man die Doorbird hinzufügen will,
 und _Doorbird_ auswählen.
  
 Im Konfigurationsformular ist zunächt der passende Gerätetyp der Doorbird auszuwählen.
@@ -219,7 +244,7 @@ Hier im _Relais 1 Ereignis IP-Symcon_ selektieren und anschließend oben rechts 
 
 ![Relay3](img/relay_3.png?raw=true "Relay 3")
 
-##### 3.1 Einrichtung von Relais 2
+##### 3.2 Einrichtung von Relais 2
 
 Wenn Relais 2 genutzt wird und eine Benachrichtigung gewünscht ist, muss dies ebenfalls einmalig aktiviert werden.
 Hier wählt man _Zeitplan für Folgeaktionen_ aus.
@@ -233,6 +258,32 @@ Hier im _Relais 2 Ereignis IP-Symcon_ selektieren und anschließend oben rechts 
 ![Relay5](img/relay_5.png?raw=true "Relay 5")
 
 In der Regel setzt man hier den Zeitplan auf immer aktiv damit man auch stets eine Benachrichtigung erhält.
+
+
+Ausführliche Information zur Nutzung der Doorbird App findet man in der 
+
+[Doorbird App Bedienungsanleitung](https://manual.doorbird.com/app/de/ "Doorbird App Manual")
+
+##### 3.3 Optionale Einrichtung von einem Smart Lock
+
+Es ist möglich in der Doorbird App ein Smart Lock zu hinterlegen. Damit kann dann aus der Doorbird App mit dem Türöffner direkt die Tür über ein externes angebundenes System geöffnet werden.
+Möchte man ein von IP-Symcon verwaltetest Schließsystem direkt aus der Doorbird App schalten, kann man dies optional in der Doorbird App hinzufügen.
+
+In IP-Symcon öffnet man die Doorbird Instanz und öffnet den Reiter _Smart Lock_.
+Hier selektiert man die Variable, die das Türschloss schaltet.
+
+Angezeigt wird hier auch der Webhook über den diese Variable von der Doorbird App in IP-Symcon geschaltet werden kann.
+
+Es stehen abhängig vom genutzten Funktionsumfang von IP-Symcon zwei URLs zur Verfügung.
+
+Sollte kein IP-Symcon Connect genutzt werden steht außschließlich eine lokale URL zur Verfügung, das hat den Nachteil das man die Tür nicht mit der Doorbird App von unterwegs bei Bedarf öffnen kann.
+
+Ist IP-Symcon Connect aktiv, wird auch die IP-Symcon Connect URL angezeigt, damit ist es möglich auch wenn von unterwegs bei Nutzung der Doorbird App die Tür bei Bedarf zu öffnen.
+
+Die URL in IP-Symcon abschreiben. Dann in der Doorbird App auf das zu konfiguriende Doorbird Gerät klicken und _Smartlocks_ auf _Ein_ stellen.
+Dadurch wird das Smartlock, das in dem Fall über IP-Symcon geschaltet wird, ins Türöffner-Menü auf der Live-Ansicht der Doorbird App hingefügt.
+
+Hier wählt man den Menüpunkt _Benutzerdefinierten URL Aufruf hinzufügen_
 
 
 ## 4. Funktionsreferenz

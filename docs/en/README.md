@@ -68,6 +68,23 @@ Then select the module and click _Install_
 
 ![Store](img/install_en.png?raw=true "install")
 
+#### Discovery of the Doorbird
+
+After installing the Doorbirds module, the message appears
+
+![Discovery 1](img/discovery_1.png?raw=true "Discovery 1")
+
+Confirm here with _Yes_. The window for creating an instance opens.
+
+![Discovery 2](img/discovery_2.png?raw=true "Discovery 2")
+
+Simply confirm here with _Ok_.
+
+![Discovery 3](img/discovery_3.png?raw=true "Discovery 3")
+
+Select the right Doorbird door intercom system here and click
+
+![Discovery 4](img/discovery_4.png?raw=true "Discovery 4")
 
 #### Install alternative via Modules instance (IP-Symcon < 5.1)
 
@@ -140,6 +157,94 @@ Press _Setup Notification_ to set up notifications from the Doorbird.
 There are also other functions available in the test environment.
 
 ![Buttons](img/doorbird_buttons_en.png?raw=true "Buttons")
+
+### c. Setup in the Doorbird App / Doorbird Web Admin
+
+After the module has been set up in IP-Symcon, settings still have to be made in the Doorbird app or via the web admin from IP-Symcon.
+In the Doorbird app under _Settings -> Administration_ log in as the admin of the bell, alternatively open the Doorbird Webadmin from the instance in IP-Symcon.
+A browser window opens in which you have to log in with the admin login data for the Doorbird.
+
+![Webadmin](img/doorbird_web_admin_de_1.png?raw=true "Webadmin")
+
+First check in the Doorbird App or in the Web Admin whether the HTTP calls from IP-Symcon have been added under _Favorites -> HTTP(S) calls_.
+
+#### 1. Ring notification setup
+
+Under _Expert Settings_ select the menu item _Doorbell Scheduler_.
+
+![Doorbell1](img/doorbell_schedule_1.png?raw=true "Doorbell1")
+
+Click on the icon at the top left and select _HTTP(S) calls_, then click in the middle and select the appropriate entry for the bell from the selection menu.
+
+![Doorbell2](img/doorbell_schedule_2.png?raw=true "Doorbell2")
+
+In the example, select _Ringelevent 1 IP-Symcon_ and then select everything with the icon at the top right.
+
+![Doorbell3](img/doorbell_schedule_3.png?raw=true "Doorbell3")
+
+#### 2. Set up motion notification
+
+If you want to use motion detection, the motion sensor must first be activated under Settings.
+
+![Motion1](img/motion_sensor_1.png?raw=true "Motion1")
+
+Then switch to the settings of the motion sensor. Select the sub-item _Schedule for actions_ here.
+
+![Motion2](img/motion_sensor_2.png?raw=true "Motion2")
+
+Click on the icon at the top left and select _HTTP(S) Calls_ there, then click in the middle and select the appropriate entry for the movement from the selection menu.
+
+![Motion3](img/motion_sensor_3.png?raw=true "Motion3")
+
+Select here in the _movement event IP-Symcon_ and then select everything with the icon at the top right.
+
+![Motion4](img/motion_sensor_4.png?raw=true "Motion4")
+
+#### 3. Relay notification setup
+
+##### 3.1 Setup of RFID
+
+If the model has RFID, you can activate it if you wish. RFID triggers relay 1.
+
+![RFID](img/rfid_1.png?raw=true "RFID")
+
+If you want to receive a notification in IP-Symcon when relay 1 has been switched, you have to make further settings under relay 1.
+
+##### 3.1 Relay 1 setup
+
+If RFID is used, RFID switches relay 1.
+
+![Relay1](img/relay_1.png?raw=true "Relay 1")
+
+Here you select _schedule for follow-up actions_.
+
+Click on the icon at the top left and select _HTTP(S) calls_ there, then click in the middle and select the appropriate entry for relay 1 from the selection menu.
+
+![Relay2](img/relay_2.png?raw=true "Relay 2")
+
+Here in the _Relay 1 event select IP-Symcon_ and then select everything with the icon at the top right.
+
+![Relay3](img/relay_3.png?raw=true "Relay 3")
+
+##### 3.2 Relay 2 setup
+
+If relay 2 is used and a notification is desired, this must also be activated once.
+Here you select _schedule for follow-up actions_.
+
+Click on the icon at the top left and select _HTTP(S) calls_ there, then click in the middle and select the appropriate entry for relay 2 from the selection menu.
+
+![Relay4](img/relay_4.png?raw=true "Relay 4")
+
+Select here in the _Relay 2 event IP-Symcon_ and then select everything with the icon at the top right.
+
+![Relay5](img/relay_5.png?raw=true "Relay 5")
+
+As a rule, you set the schedule to always active so that you always receive a notification.
+
+
+Detailed information on using the Doorbird app can be found in the
+
+[Doorbird App Manual](https://manual.doorbird.com/app/de/ "Doorbird App Manual")
 
 ## 4. Functionreference
 

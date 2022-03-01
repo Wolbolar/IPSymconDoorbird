@@ -33,7 +33,7 @@ class DoorbirdDiscovery extends IPSModule
         $this->StartDiscovery();
 
         // Status Error Kategorie zum Import auswählen
-        $this->SetStatus(102);
+        $this->SetStatus(IS_ACTIVE);
     }
 
     private function StartDiscovery()
@@ -301,7 +301,9 @@ class DoorbirdDiscovery extends IPSModule
                                 'name'         => $name,
                                 'hostname'     => $hostname,
                                 'PortDoorbell' => 80,
-                                'Host'         => $host,],],
+                                'Host'         => $host,
+                                'model'        => 0,
+                                'IPSIP'        => $this->GetSymconIP()],],
                         [
                             'moduleID'      => '{82347F20-F541-41E1-AC5B-A636FD3AE2D8}',
                             'configuration' => [

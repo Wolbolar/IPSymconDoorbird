@@ -172,6 +172,63 @@ class Doorbird extends IPSModule
         $this->RegisterAttributeInteger('pictures_history2', 0);
         $this->RegisterAttributeInteger('pictures_history3', 0);
         $this->RegisterAttributeBoolean('pictures_debug', true);
+        $this->RegisterAttributeBoolean('Smartlock', false);
+        $this->RegisterAttributeInteger('SmartlockID', 0);
+        $this->RegisterAttributeBoolean('SmartlockID_Visibility', false);
+        $this->RegisterAttributeString('SmartlockValue', "");
+        $this->RegisterAttributeBoolean('SmartlockValue_Visibility', false);
+        $this->RegisterAttributeString('SmartlockValueOptions', '[]');
+        $this->RegisterAttributeBoolean('Doorstation', false);
+        $this->RegisterAttributeInteger('Tile1', 0);
+        $this->RegisterAttributeBoolean('Tile1_Visibility', true);
+        $this->RegisterAttributeString('Tile1Value', "");
+        $this->RegisterAttributeBoolean('Tile1Value_Visibility', false);
+        $this->RegisterAttributeString('Tile1ValueOptions', '[]');
+        $this->RegisterAttributeInteger('Tile2', 0);
+        $this->RegisterAttributeBoolean('Tile2_Visibility', false);
+        $this->RegisterAttributeString('Tile2Value', "");
+        $this->RegisterAttributeBoolean('Tile2Value_Visibility', false);
+        $this->RegisterAttributeString('Tile2ValueOptions', '[]');
+        $this->RegisterAttributeInteger('Tile3', 0);
+        $this->RegisterAttributeBoolean('Tile3_Visibility', false);
+        $this->RegisterAttributeString('Tile3Value', "");
+        $this->RegisterAttributeBoolean('Tile3Value_Visibility', false);
+        $this->RegisterAttributeString('Tile3ValueOptions', '[]');
+        $this->RegisterAttributeInteger('Tile4', 0);
+        $this->RegisterAttributeBoolean('Tile4_Visibility', false);
+        $this->RegisterAttributeString('Tile4Value', "");
+        $this->RegisterAttributeBoolean('Tile4Value_Visibility', false);
+        $this->RegisterAttributeString('Tile4ValueOptions', '[]');
+        $this->RegisterAttributeInteger('Tile5', 0);
+        $this->RegisterAttributeBoolean('Tile5_Visibility', false);
+        $this->RegisterAttributeString('Tile5Value', "");
+        $this->RegisterAttributeBoolean('Tile5Value_Visibility', false);
+        $this->RegisterAttributeString('Tile5ValueOptions', '[]');
+        $this->RegisterAttributeInteger('Tile6', 0);
+        $this->RegisterAttributeBoolean('Tile6_Visibility', false);
+        $this->RegisterAttributeString('Tile6Value', "");
+        $this->RegisterAttributeBoolean('Tile6Value_Visibility', false);
+        $this->RegisterAttributeString('Tile6ValueOptions', '[]');
+        $this->RegisterAttributeInteger('Tile7', 0);
+        $this->RegisterAttributeBoolean('Tile7_Visibility', false);
+        $this->RegisterAttributeString('Tile7Value', "");
+        $this->RegisterAttributeBoolean('Tile7Value_Visibility', false);
+        $this->RegisterAttributeString('Tile7ValueOptions', '[]');
+        $this->RegisterAttributeInteger('Tile8', 0);
+        $this->RegisterAttributeBoolean('Tile8_Visibility', false);
+        $this->RegisterAttributeString('Tile8Value', "");
+        $this->RegisterAttributeBoolean('Tile8Value_Visibility', false);
+        $this->RegisterAttributeString('Tile8ValueOptions', '[]');
+        $this->RegisterAttributeInteger('Tile9', 0);
+        $this->RegisterAttributeBoolean('Tile9_Visibility', false);
+        $this->RegisterAttributeString('Tile9Value', "");
+        $this->RegisterAttributeBoolean('Tile9Value_Visibility', false);
+        $this->RegisterAttributeString('Tile9ValueOptions', '[]');
+        $this->RegisterAttributeInteger('Tile10', 0);
+        $this->RegisterAttributeBoolean('Tile10_Visibility', false);
+        $this->RegisterAttributeString('Tile10Value', "");
+        $this->RegisterAttributeBoolean('Tile10Value_Visibility', false);
+        $this->RegisterAttributeString('Tile10ValueOptions', '[]');
 
         //we will wait until the kernel is ready
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
@@ -1401,6 +1458,257 @@ class Doorbird extends IPSModule
         }
     }
 
+    public function DebugGetAttribute(string $attributename, string $type)
+    {
+        if($type == "bool")
+        {
+            $attribute = $this->ReadAttributeBoolean($attributename);
+        }
+        elseif($type == "int")
+        {
+            $attribute = $this->ReadAttributeInteger($attributename);
+        }
+        elseif($type == "float")
+        {
+            $attribute = $this->ReadAttributeFloat($attributename);
+        }
+        elseif($type == "string")
+        {
+            $attribute = $this->ReadAttributeString($attributename);
+        }
+        return $attribute;
+    }
+
+    public function EnableSmartlock(bool $enable)
+    {
+        $this->WriteAttributeBoolean('Smartlock', $enable);
+        $this->WriteAttributeBoolean('SmartlockID_Visibility', $enable);
+        if($enable)
+        {
+            $this->UpdateFormField("SmartlockID", "visible", true);
+            $this->UpdateFormField("SmartlockLabel", "italic", true);
+        }
+        else{
+            $this->UpdateFormField("SmartlockID", "visible", false);
+            $this->UpdateFormField("SmartlockValue", "visible", false);
+            $this->UpdateFormField("SmartlockURL", "visible", false);
+            $this->UpdateFormField("SmartlockLabel", "italic", false);
+        }
+    }
+
+    public function EnableSmartlockValue(int $id)
+    {
+        $this->WriteAttributeBoolean('SmartlockValue_Visibility', true);
+        $this->WriteAttributeInteger('SmartlockID', $id);
+        $options = [];
+        if($id > 0)
+        {
+            $var_info = IPS_GetVariable($id);
+            $profile = $var_info['VariableProfile'];
+            if($profile == ""){
+                $profile = $var_info['VariableCustomProfile'];
+            }
+            $var_profile = IPS_GetVariableProfile($profile);
+            $associations = $var_profile['Associations'];
+            foreach($associations as $association)
+            {
+                $options[] = ["caption" => $association['Name'], "value" => $association['Value']];
+            }
+        }
+        $this->WriteAttributeString('SmartlockValueOptions', json_encode($options));
+        if($id > 0)
+        {
+            $this->UpdateFormField("SmartlockValue", "visible", true);
+            $this->ReloadForm();
+        }
+    }
+
+    protected function GetSmartlockURL()
+    {
+        $smartlook_url = $this->GetWebhookURL(false) . '?doorbirdevent=smartlook';
+        return $smartlook_url;
+    }
+
+    public function SetSmartlockValue(string $value)
+    {
+        $this->WriteAttributeString('SmartlockValue', $value);
+        $this->UpdateFormField("SmartlockURL", "visible", true);
+    }
+
+    protected function GetSmartlockValue()
+    {
+        $smartlock_value = $this->ReadAttributeString('SmartlockValue');
+        $smartlock_id = $this->ReadAttributeInteger('SmartlockID');
+        if($smartlock_id > 0)
+        {
+            $var_info = IPS_GetVariable($smartlock_id);
+            $variable_type = $var_info['VariableType'];
+            if($variable_type == VARIABLETYPE_BOOLEAN)
+            {
+                $smartlock_value = boolval($smartlock_value);
+            }
+            if($variable_type == VARIABLETYPE_INTEGER)
+            {
+                $smartlock_value = intval($smartlock_value);
+            }
+            if($variable_type == VARIABLETYPE_FLOAT)
+            {
+                $smartlock_value = floatval($smartlock_value);
+            }
+            if($variable_type == VARIABLETYPE_STRING)
+            {
+                $smartlock_value = strval($smartlock_value);
+            }
+        }
+        else
+        {
+            $smartlock_value = 0;
+        }
+        return $smartlock_value;
+    }
+
+    protected function SetSmartlock()
+    {
+        $smartlock_id = $this->ReadAttributeInteger('SmartlockID');
+        $smartlock_value = $this->ReadAttributeString('SmartlockValue');
+        $var_info = IPS_GetVariable($smartlock_id);
+        $variable_type = $var_info['VariableType'];
+        if($variable_type == VARIABLETYPE_BOOLEAN)
+        {
+            $smartlock_value = boolval($smartlock_value);
+        }
+        if($variable_type == VARIABLETYPE_INTEGER)
+        {
+            $smartlock_value = intval($smartlock_value);
+        }
+        if($variable_type == VARIABLETYPE_FLOAT)
+        {
+            $smartlock_value = floatval($smartlock_value);
+        }
+        if($variable_type == VARIABLETYPE_STRING)
+        {
+            $smartlock_value = strval($smartlock_value);
+        }
+        if($smartlock_id > 0)
+        {
+            $this->SendDebug('Doorbird:', 'Set Smartlook with ID ' . $smartlock_id . ' to value ' . print_r($smartlock_value), 0);
+            RequestAction($smartlock_id, $smartlock_value);
+        }
+    }
+
+    public function EnableTileValue(int $number, int $id)
+    {
+        $this->WriteAttributeBoolean('Tile' . $number . 'Value_Visibility', true);
+        $this->WriteAttributeInteger('Tile' .  $number, $id);
+        $options = [];
+        if($id > 0)
+        {
+            $var_info = IPS_GetVariable($id);
+            $profile = $var_info['VariableProfile'];
+            if($profile == ""){
+                $profile = $var_info['VariableCustomProfile'];
+            }
+            $var_profile = IPS_GetVariableProfile($profile);
+            $associations = $var_profile['Associations'];
+            foreach($associations as $association)
+            {
+                $options[] = ["caption" => $association['Name'], "value" => $association['Value']];
+            }
+        }
+        $this->WriteAttributeString('Tile' . $number . 'ValueOptions', json_encode($options));
+        if($id > 0)
+        {
+            $this->UpdateFormField("Tile" . $number . "Value", "visible", true);
+            $this->ReloadForm();
+        }
+    }
+
+    protected function SetTile($id, $variable_id)
+    {
+        $this->WriteAttributeInteger('Tile'.$id, $variable_id);
+        $this->WriteAttributeBoolean('Tile'.$id.'_Visibility', true);
+        $this->UpdateFormField('Tile'.$id, "visible", true);
+    }
+
+    protected function GetTileURL($number)
+    {
+        $tile_url = $this->GetWebhookURL(false) . '?doorbirdevent=tile' . $number;
+        return $tile_url;
+    }
+
+    public function SetTileValue(int $number, string $value)
+    {
+        $this->WriteAttributeString('Tile' . $number . 'Value', $value);
+        $this->UpdateFormField("Tile" . $number . "URL", "visible", true);
+        if($number < 10)
+        {
+            $next = $number + 1;
+            $this->UpdateFormField("Tile" . $next, "visible", true);
+        }
+    }
+
+    protected function GetTileValue(int $number)
+    {
+        $tile_value = $this->ReadAttributeString('Tile' . $number . 'Value');
+        $tile_id = $this->ReadAttributeInteger('Tile' . $number);
+        if($tile_id > 0)
+        {
+            $var_info = IPS_GetVariable($tile_id);
+            $variable_type = $var_info['VariableType'];
+            if($variable_type == VARIABLETYPE_BOOLEAN)
+            {
+                $tile_value = boolval($tile_value);
+            }
+            if($variable_type == VARIABLETYPE_INTEGER)
+            {
+                $tile_value = intval($tile_value);
+            }
+            if($variable_type == VARIABLETYPE_FLOAT)
+            {
+                $tile_value = floatval($tile_value);
+            }
+            if($variable_type == VARIABLETYPE_STRING)
+            {
+                $tile_value = strval($tile_value);
+            }
+        }
+        else
+        {
+            $tile_value = 0;
+        }
+
+        return $tile_value;
+    }
+
+    protected function SetDevice($number)
+    {
+        $tile_id = $this->ReadAttributeInteger('Tile' . $number);
+        $tile_value = $this->ReadAttributeString('Tile' . $number . 'Value');
+        $var_info = IPS_GetVariable($tile_id);
+        $variable_type = $var_info['VariableType'];
+        if($variable_type == VARIABLETYPE_BOOLEAN)
+        {
+            $tile_value = boolval($tile_id);
+        }
+        if($variable_type == VARIABLETYPE_INTEGER)
+        {
+            $tile_value = intval($tile_id);
+        }
+        if($variable_type == VARIABLETYPE_FLOAT)
+        {
+            $tile_value = floatval($tile_id);
+        }
+        if($variable_type == VARIABLETYPE_STRING)
+        {
+            $tile_value = strval($tile_id);
+        }
+        if($tile_id > 0)
+        {
+            $this->SendDebug('Doorbird:', 'Set Device for tile ' . $number . ' with ID ' . $tile_id . ' to value ' . print_r($tile_value), 0);
+            RequestAction($tile_id, $tile_value);
+        }
+    }
+
     protected function SetLastDoorOpen($id)
     {
         $relaxationdooropen = $this->ReadPropertyInteger('relaxationdooropen');
@@ -1573,6 +1881,40 @@ class Doorbird extends IPSModule
             } elseif ($data == 'dooropen2') {
                 $this->SetLastDoorOpen(2);
             }
+            elseif ($data == 'smartlook') {
+                $this->SetSmartlock();
+            }
+            elseif ($data == 'tile1') {
+                $this->SetDevice(1);
+            }
+            elseif ($data == 'tile2') {
+                $this->SetDevice(2);
+            }
+            elseif ($data == 'tile3') {
+                $this->SetDevice(3);
+            }
+            elseif ($data == 'tile4') {
+                $this->SetDevice(4);
+            }
+            elseif ($data == 'tile5') {
+                $this->SetDevice(5);
+            }
+            elseif ($data == 'tile6') {
+                $this->SetDevice(6);
+            }
+            elseif ($data == 'tile7') {
+                $this->SetDevice(7);
+            }
+            elseif ($data == 'tile8') {
+                $this->SetDevice(8);
+            }
+            elseif ($data == 'tile9') {
+                $this->SetDevice(9);
+            }
+            elseif ($data == 'tile10') {
+                $this->SetDevice(10);
+            }
+
         }
     }
 
@@ -3127,6 +3469,346 @@ class Doorbird extends IPSModule
     {
         $form = [
             [
+                'type'    => 'ExpansionPanel',
+                'caption' => 'Smartlock',
+                'items'   => [
+                    [
+                        'name'    => 'Smartlock',
+                        'type'    => 'CheckBox',
+                        'caption' => 'Enable Smartlock',
+                        'visible' => true,
+                        'value'   => $this->ReadAttributeBoolean('Smartlock'),
+                        'onChange' => 'Doorbird_EnableSmartlock($id, $Smartlock);'],
+                    [
+                        'type'    => 'Label',
+                        'name' => 'SmartlockLabel',
+                        'caption' => 'with the smartlock option you can open a lock through IP-Symcon from inside the Doorbird app user interface',
+                        'italic' => false,
+                        'visible' => true,
+                    ],
+                    [
+                        'type'    => 'SelectVariable',
+                        'name'    => 'SmartlockID',
+                        'caption' => 'Smartlook Variable Open',
+                        'visible' => $this->ReadAttributeBoolean('SmartlockID_Visibility'),
+                        'value'   => $this->ReadAttributeInteger('SmartlockID'),
+                        'requiredAction'    => 1,
+                        'onChange' => 'Doorbird_EnableSmartlockValue($id, $SmartlockID);'],
+
+                    [
+                        'type'    => 'Select',
+                        'name'    => 'SmartlockValue',
+                        'visible' => $this->ReadAttributeBoolean('SmartlockValue_Visibility'),
+                        'caption' => 'Smartlook variable value set for open',
+                        'value'   => $this->GetSmartlockValue(),
+                        'onChange' => 'Doorbird_SetSmartlockValue($id, $SmartlockValue);',
+                        'options' => json_decode($this->ReadAttributeString('SmartlockValueOptions'), true)
+                    ],
+                    [
+                        'type'    => 'ValidationTextBox',
+                        'name'    => 'SmartlockURL',
+                        'visible' => $this->ReadAttributeBoolean('SmartlockValue_Visibility'),
+                        'caption' => 'Smartlook HTTP Request URL for Doorbird App',
+                        'enabled' => false,
+                        'width' => "700px",
+                        'value' => $this->GetSmartlockURL()
+                    ]]
+                    /*,
+                    [
+                        'type'    => 'SelectValue',
+                        'name'    => 'SmartlockValue',
+                        'visible' => $visible,
+                        'caption' => 'Smartlook variable value set for open',
+                        "variableID"=> 22912
+                        // "variableID"=> $smartlock_id
+                        ]
+                    */
+                ],
+            [
+                'type'    => 'ExpansionPanel',
+                'caption' => 'Doorstation A1101',
+                'items'   => [
+                    /*
+                    [
+                        'name'    => 'Doorstation',
+                        'type'    => 'CheckBox',
+                        'caption' => 'Enable Doorstation'],
+                    */
+                    [
+                        'type'    => 'Label',
+                        'caption' => 'HTTP request URL for tiles in the doorstation A1101'],
+                    [
+                        'type'    => 'SelectVariable',
+                        'name'    => 'Tile1',
+                        'caption' => 'Tile 1',
+                        'visible' => $this->ReadAttributeBoolean('Tile1_Visibility'),
+                        'value'   => $this->ReadAttributeInteger('Tile1'),
+                        'requiredAction'    => 1,
+                        'onChange' => 'Doorbird_EnableTileValue($id, 1, $Tile1);'
+                    ],
+                    [
+                        'type'    => 'Select',
+                        'name'    => 'Tile1Value',
+                        'visible' => $this->ReadAttributeBoolean('Tile1Value_Visibility'),
+                        'caption' => 'Tile 1 variable value set',
+                        'value'   => $this->GetTileValue(1),
+                        'onChange' => 'Doorbird_SetTileValue($id, 1, $Tile1Value);',
+                        'options' => json_decode($this->ReadAttributeString('Tile1ValueOptions'), true)
+                    ],
+                    [
+                        'type'    => 'ValidationTextBox',
+                        'name'    => 'Tile1URL',
+                        'visible' => $this->ReadAttributeBoolean('Tile1Value_Visibility'),
+                        'caption' => 'Tile 1 HTTP Request URL for Doorbird App',
+                        'enabled' => false,
+                        'width' => "700px",
+                        'value' => $this->GetTileURL(1)
+                    ],
+                    [
+                        'type'    => 'SelectVariable',
+                        'name'    => 'Tile2',
+                        'caption' => 'Tile 2',
+                        'visible' => $this->ReadAttributeBoolean('Tile2_Visibility'),
+                        'value'   => $this->ReadAttributeInteger('Tile2'),
+                        'requiredAction'    => 1,
+                        'onChange' => 'Doorbird_EnableTileValue($id, 2, $Tile2);'
+                    ],
+                    [
+                        'type'    => 'Select',
+                        'name'    => 'Tile2Value',
+                        'visible' => $this->ReadAttributeBoolean('Tile2Value_Visibility'),
+                        'caption' => 'Tile 2 variable value set',
+                        'value'   => $this->GetTileValue(2),
+                        'onChange' => 'Doorbird_SetTileValue($id, 2, $Tile2Value);',
+                        'options' => json_decode($this->ReadAttributeString('Tile2ValueOptions'), true)
+                    ],
+                    [
+                        'type'    => 'ValidationTextBox',
+                        'name'    => 'Tile2URL',
+                        'visible' => $this->ReadAttributeBoolean('Tile2Value_Visibility'),
+                        'caption' => 'Tile 2 HTTP Request URL for Doorbird App',
+                        'enabled' => false,
+                        'width' => "700px",
+                        'value' => $this->GetTileURL(2)
+                    ],
+                    [
+                        'type'    => 'SelectVariable',
+                        'name'    => 'Tile3',
+                        'caption' => 'Tile 3',
+                        'visible' => $this->ReadAttributeBoolean('Tile3_Visibility'),
+                        'value'   => $this->ReadAttributeInteger('Tile3'),
+                        'requiredAction'    => 1,
+                        'onChange' => 'Doorbird_EnableTileValue($id, 3, $Tile3);'
+                    ],
+                    [
+                        'type'    => 'Select',
+                        'name'    => 'Tile3Value',
+                        'visible' => $this->ReadAttributeBoolean('Tile3Value_Visibility'),
+                        'caption' => 'Tile 3 variable value set',
+                        'value'   => $this->GetTileValue(3),
+                        'onChange' => 'Doorbird_SetTileValue($id, 3, $Tile3Value);',
+                        'options' => json_decode($this->ReadAttributeString('Tile3ValueOptions'), true)
+                    ],
+                    [
+                        'type'    => 'ValidationTextBox',
+                        'name'    => 'Tile3URL',
+                        'visible' => $this->ReadAttributeBoolean('Tile3Value_Visibility'),
+                        'caption' => 'Tile 3 HTTP Request URL for Doorbird App',
+                        'enabled' => false,
+                        'width' => "700px",
+                        'value' => $this->GetTileURL(3)
+                    ],
+                    [
+                        'type'    => 'SelectVariable',
+                        'name'    => 'Tile4',
+                        'caption' => 'Tile 4',
+                        'visible' => $this->ReadAttributeBoolean('Tile4_Visibility'),
+                        'value'   => $this->ReadAttributeInteger('Tile4'),
+                        'requiredAction'    => 1,
+                        'onChange' => 'Doorbird_EnableTileValue($id, 4, $Tile4);'
+                    ],
+                    [
+                        'type'    => 'Select',
+                        'name'    => 'Tile4Value',
+                        'visible' => $this->ReadAttributeBoolean('Tile4Value_Visibility'),
+                        'caption' => 'Tile 4 variable value set',
+                        'value'   => $this->GetTileValue(4),
+                        'onChange' => 'Doorbird_SetTileValue($id, 4, $Tile4Value);',
+                        'options' => json_decode($this->ReadAttributeString('Tile4ValueOptions'), true)
+                    ],
+                    [
+                        'type'    => 'ValidationTextBox',
+                        'name'    => 'Tile4URL',
+                        'visible' => $this->ReadAttributeBoolean('Tile4Value_Visibility'),
+                        'caption' => 'Tile 4 HTTP Request URL for Doorbird App',
+                        'enabled' => false,
+                        'width' => "700px",
+                        'value' => $this->GetTileURL(4)
+                    ],
+                    [
+                        'type'    => 'SelectVariable',
+                        'name'    => 'Tile5',
+                        'caption' => 'Tile 5',
+                        'visible' => $this->ReadAttributeBoolean('Tile5_Visibility'),
+                        'value'   => $this->ReadAttributeInteger('Tile5'),
+                        'requiredAction'    => 1,
+                        'onChange' => 'Doorbird_EnableTileValue($id, 5, $Tile5);'
+                    ],
+                    [
+                        'type'    => 'Select',
+                        'name'    => 'Tile5Value',
+                        'visible' => $this->ReadAttributeBoolean('Tile5Value_Visibility'),
+                        'caption' => 'Tile 5 variable value set',
+                        'value'   => $this->GetTileValue(5),
+                        'onChange' => 'Doorbird_SetTileValue($id, 5, $Tile5Value);',
+                        'options' => json_decode($this->ReadAttributeString('Tile5ValueOptions'), true)
+                    ],
+                    [
+                        'type'    => 'ValidationTextBox',
+                        'name'    => 'Tile5URL',
+                        'visible' => $this->ReadAttributeBoolean('Tile5Value_Visibility'),
+                        'caption' => 'Tile 5 HTTP Request URL for Doorbird App',
+                        'enabled' => false,
+                        'width' => "700px",
+                        'value' => $this->GetTileURL(5)
+                    ],
+                    [
+                        'type'    => 'SelectVariable',
+                        'name'    => 'Tile6',
+                        'caption' => 'Tile 6',
+                        'visible' => $this->ReadAttributeBoolean('Tile6_Visibility'),
+                        'value'   => $this->ReadAttributeInteger('Tile6'),
+                        'requiredAction'    => 1,
+                        'onChange' => 'Doorbird_EnableTileValue($id, 6, $Tile6);'
+                    ],
+                    [
+                        'type'    => 'Select',
+                        'name'    => 'Tile6Value',
+                        'visible' => $this->ReadAttributeBoolean('Tile6Value_Visibility'),
+                        'caption' => 'Tile 6 variable value set',
+                        'value'   => $this->GetTileValue(6),
+                        'onChange' => 'Doorbird_SetTileValue($id, 6, $Tile6Value);',
+                        'options' => json_decode($this->ReadAttributeString('Tile6ValueOptions'), true)
+                    ],
+                    [
+                        'type'    => 'ValidationTextBox',
+                        'name'    => 'Tile6URL',
+                        'visible' => $this->ReadAttributeBoolean('Tile6Value_Visibility'),
+                        'caption' => 'Tile 6 HTTP Request URL for Doorbird App',
+                        'enabled' => false,
+                        'width' => "700px",
+                        'value' => $this->GetTileURL(6)
+                    ],
+                    [
+                        'type'    => 'SelectVariable',
+                        'name'    => 'Tile7',
+                        'caption' => 'Tile 7',
+                        'visible' => $this->ReadAttributeBoolean('Tile7_Visibility'),
+                        'value'   => $this->ReadAttributeInteger('Tile7'),
+                        'requiredAction'    => 1,
+                        'onChange' => 'Doorbird_EnableTileValue($id, 7, $Tile7);'
+                    ],
+                    [
+                        'type'    => 'Select',
+                        'name'    => 'Tile7Value',
+                        'visible' => $this->ReadAttributeBoolean('Tile7Value_Visibility'),
+                        'caption' => 'Tile 7 variable value set',
+                        'value'   => $this->GetTileValue(7),
+                        'onChange' => 'Doorbird_SetTileValue($id, 7, $Tile7Value);',
+                        'options' => json_decode($this->ReadAttributeString('Tile7ValueOptions'), true)
+                    ],
+                    [
+                        'type'    => 'ValidationTextBox',
+                        'name'    => 'Tile7URL',
+                        'visible' => $this->ReadAttributeBoolean('Tile7Value_Visibility'),
+                        'caption' => 'Tile 7 HTTP Request URL for Doorbird App',
+                        'enabled' => false,
+                        'width' => "700px",
+                        'value' => $this->GetTileURL(7)
+                    ],
+                    [
+                        'type'    => 'SelectVariable',
+                        'name'    => 'Tile8',
+                        'caption' => 'Tile 8',
+                        'visible' => $this->ReadAttributeBoolean('Tile8_Visibility'),
+                        'value'   => $this->ReadAttributeInteger('Tile8'),
+                        'requiredAction'    => 1,
+                        'onChange' => 'Doorbird_EnableTileValue($id, 8, $Tile8);'
+                    ],
+                    [
+                        'type'    => 'Select',
+                        'name'    => 'Tile8Value',
+                        'visible' => $this->ReadAttributeBoolean('Tile8Value_Visibility'),
+                        'caption' => 'Tile 8 variable value set',
+                        'value'   => $this->GetTileValue(8),
+                        'onChange' => 'Doorbird_SetTileValue($id, 8, $Tile8Value);',
+                        'options' => json_decode($this->ReadAttributeString('Tile8ValueOptions'), true)
+                    ],
+                    [
+                        'type'    => 'ValidationTextBox',
+                        'name'    => 'Tile8URL',
+                        'visible' => $this->ReadAttributeBoolean('Tile8Value_Visibility'),
+                        'caption' => 'Tile 8 HTTP Request URL for Doorbird App',
+                        'enabled' => false,
+                        'width' => "800px",
+                        'value' => $this->GetTileURL(8)
+                    ],
+                    [
+                        'type'    => 'SelectVariable',
+                        'name'    => 'Tile9',
+                        'caption' => 'Tile 9',
+                        'visible' => $this->ReadAttributeBoolean('Tile9_Visibility'),
+                        'value'   => $this->ReadAttributeInteger('Tile9'),
+                        'requiredAction'    => 1,
+                        'onChange' => 'Doorbird_EnableTileValue($id, 9, $Tile9);'
+                    ],
+                    [
+                        'type'    => 'Select',
+                        'name'    => 'Tile9Value',
+                        'visible' => $this->ReadAttributeBoolean('Tile9Value_Visibility'),
+                        'caption' => 'Tile 9 variable value set',
+                        'value'   => $this->GetTileValue(9),
+                        'onChange' => 'Doorbird_SetTileValue($id, 9, $Tile9Value);',
+                        'options' => json_decode($this->ReadAttributeString('Tile9ValueOptions'), true)
+                    ],
+                    [
+                        'type'    => 'ValidationTextBox',
+                        'name'    => 'Tile9URL',
+                        'visible' => $this->ReadAttributeBoolean('Tile9Value_Visibility'),
+                        'caption' => 'Tile 9 HTTP Request URL for Doorbird App',
+                        'enabled' => false,
+                        'width' => "700px",
+                        'value' => $this->GetTileURL(9)
+                    ],
+                    [
+                        'type'    => 'SelectVariable',
+                        'name'    => 'Tile10',
+                        'caption' => 'Tile 10',
+                        'visible' => $this->ReadAttributeBoolean('Tile10_Visibility'),
+                        'value'   => $this->ReadAttributeInteger('Tile10'),
+                        'requiredAction'    => 1,
+                        'onChange' => 'Doorbird_EnableTileValue($id, 10, $Tile10);'
+                    ],
+                    [
+                        'type'    => 'Select',
+                        'name'    => 'Tile10Value',
+                        'visible' => $this->ReadAttributeBoolean('Tile10Value_Visibility'),
+                        'caption' => 'Tile 10 variable value set',
+                        'value'   => $this->GetTileValue(10),
+                        'onChange' => 'Doorbird_SetTileValue($id, 10, $Tile10Value);',
+                        'options' => json_decode($this->ReadAttributeString('Tile10ValueOptions'), true)
+                    ],
+                    [
+                        'type'    => 'ValidationTextBox',
+                        'name'    => 'Tile10URL',
+                        'visible' => $this->ReadAttributeBoolean('Tile10Value_Visibility'),
+                        'caption' => 'Tile 10 HTTP Request URL for Doorbird App',
+                        'enabled' => false,
+                        'width' => "700px",
+                        'value' => $this->GetTileURL(10)
+                    ]
+                ]],
+            [
                 'type'    => 'Label',
                 'caption' => 'Setup notifications from doorbird to IP-Symcon'],
             [
@@ -3158,7 +3840,6 @@ class Doorbird extends IPSModule
                 'type'      => 'Button',
                 'caption'   => 'ir light',
                 'onClick'   => 'Doorbird_Light($id);']];
-
         return $form;
     }
 

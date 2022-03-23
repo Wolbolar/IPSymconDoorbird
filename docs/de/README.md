@@ -271,6 +271,7 @@ Möchte man ein von IP-Symcon verwaltetest Schließsystem direkt aus der Doorbir
 
 In IP-Symcon öffnet man die Doorbird Instanz und öffnet den Reiter _Smart Lock_.
 Hier selektiert man die Variable, die das Türschloss schaltet.
+![Smartlook](img/smartlook.png?raw=true "Smartlook")
 
 Angezeigt wird hier auch der Webhook über den diese Variable von der Doorbird App in IP-Symcon geschaltet werden kann.
 
@@ -281,9 +282,50 @@ Sollte kein IP-Symcon Connect genutzt werden steht außschließlich eine lokale 
 Ist IP-Symcon Connect aktiv, wird auch die IP-Symcon Connect URL angezeigt, damit ist es möglich auch wenn von unterwegs bei Nutzung der Doorbird App die Tür bei Bedarf zu öffnen.
 
 Die URL in IP-Symcon abschreiben. Dann in der Doorbird App auf das zu konfiguriende Doorbird Gerät klicken und _Smartlocks_ auf _Ein_ stellen.
+
+![Smartlook](img/smartlock_off.png?raw=true "Smartlook Off")
+
+Im Menü nun 
+
+![Smartlook](img/smartlock_url.png?raw=true "Smartlook URL")
+
+auswählen und die URL aus IP-Symcon eintragen.
+
+Anschließend den Eintrag auswählen
+
+![Smartlook Symcon](img/smartlock_symcon.png?raw=true "Smartlook Symcon")
+
 Dadurch wird das Smartlock, das in dem Fall über IP-Symcon geschaltet wird, ins Türöffner-Menü auf der Live-Ansicht der Doorbird App hingefügt.
 
-Hier wählt man den Menüpunkt _Benutzerdefinierten URL Aufruf hinzufügen_
+##### 3.4 Optionale Einrichtung der A1101
+
+Sollte eine Doorbird Innenstation A1101 benutzt werden kann man im Menü der Innenstation bei Bedarf auch Kachel ergänzen. Damit ist es möglich z.B. eine Außenbeleuchtung einzuschalten.
+
+In IP-Symcon kann man eine Variable eines Geräts selektionieren, die geschaltet werden soll.
+
+![A1101 Symcon](img/doorstation_a1101_tile.png?raw=true "A1101 Symcon")
+
+Die URL kann man dann abschreiben und in der Doorbird App zuweisen.
+
+Dazu in der Doorbird App in den Einstellungen der KLingelanlage auf _Peripherie_ wechseln.
+
+![Peripherie1](img/peripherie_1.png?raw=true "Peripherie 1")
+
+Hier die Innenstation auswählen.
+
+![Peripherie2](img/peripherie_2.png?raw=true "Peripherie 2")
+
+Auf _Einstellungen der Türstation_ klicken.
+
+![Peripherie3](img/peripherie_3.png?raw=true "Peripherie 3")
+
+_Menü-Konfiguartion_ auswählen
+
+![Peripherie4](img/peripherie_4.png?raw=true "Peripherie 4")
+
+Hier kann man nun mit einem + eine Kachel ergänzen und dieser ein HTTP Request aus IP-Symcon zuweisen sowie ein passendes Icon.
+So kann man dann beliebige Geräte, die über IP-Symcon gesteuert werden, auch aus dem Display der A1101 schalten.
+
 
 
 ## 4. Funktionsreferenz

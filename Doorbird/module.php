@@ -1523,9 +1523,16 @@ class Doorbird extends IPSModule
         }
     }
 
-    protected function GetSmartlockURL()
+    protected function GetSmartlockURL($type)
     {
-        $smartlook_url = $this->GetWebhookURL(false) . '?doorbirdevent=smartlook';
+        if($type == 'local')
+        {
+            $smartlook_url = $this->GetWebhookURL(false) . '?doorbirdevent=smartlook';
+        }
+        elseif ($type == 'connect')
+        {
+            $smartlook_url = $this->GetConnectURL() . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=smartlook';
+        }
         return $smartlook_url;
     }
 
@@ -1616,6 +1623,12 @@ class Doorbird extends IPSModule
             }
         }
         $this->WriteAttributeString('Tile' . $number . 'ValueOptions', json_encode($options));
+        if($number < 10)
+        {
+            $next = $number + 1;
+            $this->UpdateFormField("Tile" . $next, "visible", true);
+        }
+
         if($id > 0)
         {
             $this->UpdateFormField("Tile" . $number . "Value", "visible", true);
@@ -1628,6 +1641,11 @@ class Doorbird extends IPSModule
         $this->WriteAttributeInteger('Tile'.$id, $variable_id);
         $this->WriteAttributeBoolean('Tile'.$id.'_Visibility', true);
         $this->UpdateFormField('Tile'.$id, "visible", true);
+        if($id < 10)
+        {
+            $next = $id + 1;
+            $this->UpdateFormField("Tile" . $next, "visible", true);
+        }
     }
 
     protected function GetTileURL($number)
@@ -3511,7 +3529,16 @@ class Doorbird extends IPSModule
                         'caption' => 'Smartlook HTTP Request URL for Doorbird App',
                         'enabled' => false,
                         'width' => "700px",
-                        'value' => $this->GetSmartlockURL()
+                        'value' => $this->GetSmartlockURL('local')
+                    ],
+                    [
+                        'type'    => 'ValidationTextBox',
+                        'name'    => 'SmartlockConnectURL',
+                        'visible' => $this->ReadAttributeBoolean('SmartlockValue_Visibility'),
+                        'caption' => 'Smartlook HTTP Request IP-Symcon Connect for Doorbird App',
+                        'enabled' => false,
+                        'width' => "800px",
+                        'value' => $this->GetSmartlockURL('connect')
                     ]]
                     /*,
                     [

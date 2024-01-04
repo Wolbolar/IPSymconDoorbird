@@ -405,6 +405,9 @@ class Doorbird extends IPSModule
             $this->SendDebug('Doorbird Nonce:', $nonce, 1);
             // $this->SendDebug('Doorbird:', 'Nonce: '.bin2hex($nonce), 0);
 
+            if (unpack('N', $opslimit)[1] > 100 || unpack('N', $memlimit)[1] > 10000) 
+                return;
+            
             $ciphertext =
                 substr($payload, 36, 34); // lenght 8 Bytes, With ChaCha20-Poly1305 encrypted text which contains informations about the Event.
             $this->SendDebug('Doorbird Ciphertext:', $ciphertext, 1);

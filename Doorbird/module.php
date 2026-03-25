@@ -3546,6 +3546,7 @@ class Doorbird extends IPSModuleStrict
                 'name'     => 'list_sip',
                 'caption'  => 'SIP Numbers',
                 'rowCount' => $rowcount_sip,
+                'loadValuesFromConfiguration' => false,
                 'add'      => false,
                 'delete'   => false,
                 'sort'     => [
@@ -3579,6 +3580,7 @@ class Doorbird extends IPSModuleStrict
                 'name'     => 'list_favorites',
                 'caption'  => 'HTTP(S) Calls',
                 'rowCount' => $rowcount_http,
+                'loadValuesFromConfiguration' => false,
                 'add'      => false,
                 'delete'   => false,
                 'sort'     => [
@@ -3630,6 +3632,7 @@ class Doorbird extends IPSModuleStrict
                 'name'     => 'list_schedule',
                 'caption'  => 'Doorbird Schedule',
                 'rowCount' => $rowcount_schedule,
+                'loadValuesFromConfiguration' => false,
                 'add'      => false,
                 'delete'   => false,
                 'sort'     => [

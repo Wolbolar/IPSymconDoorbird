@@ -16,7 +16,7 @@ trait ProfileHelper
      * @param $Digits
      * @param $Vartype
      */
-    protected function RegisterProfile($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize, $Digits, $Vartype)
+    protected function RegisterProfile($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize, $Digits, $Vartype): void
     {
         if (!IPS_VariableProfileExists($Name)) {
             IPS_CreateVariableProfile($Name, $Vartype); // 0 boolean, 1 int, 2 float, 3 string,
@@ -51,7 +51,7 @@ trait ProfileHelper
      * @param $Vartype
      * @param $Associations
      */
-    protected function RegisterProfileAssociation($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $Stepsize, $Digits, $Vartype, $Associations)
+    protected function RegisterProfileAssociation($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $Stepsize, $Digits, $Vartype, $Associations): void
     {
         if (is_array($Associations) && count($Associations) === 0) {
             $MinValue = 0;
@@ -82,7 +82,7 @@ trait ProfileHelper
      * @param string $message
      * @param int    $format 0 = Text, 1 = Hex
      */
-    private function _debug(string $notification = null, string $message = null, $format = 0)
+    private function _debug(?string $notification = null, ?string $message = null, int $format = 0): void
     {
         $this->SendDebug($notification, $message, $format);
     }
@@ -92,10 +92,9 @@ trait ProfileHelper
      *
      * @return int
      */
-    private function _getPosition()
+    private function _getPosition(): int
     {
         $this->position++;
         return $this->position;
     }
 }
-

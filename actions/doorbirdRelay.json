@@ -1,0 +1,30 @@
+{
+    "id": "{B1680C4F-4F70-4E85-BF7E-2A167BFEF7D7}",
+    "caption": "DoorBird: Switch Relay",
+    "description": "Switches one of the DoorBird relays for the selected DoorBird instance.",
+    "category": "target",
+    "format": "Switch DoorBird relay {RELAY} at {TARGET, object}",
+    "form": [
+        {
+            "type": "Select",
+            "name": "RELAY",
+            "caption": "Relay",
+            "options": [
+                {
+                    "label": "Relay 1",
+                    "value": 1
+                },
+                {
+                    "label": "Relay 2",
+                    "value": 2
+                }
+            ]
+        }
+    ],
+    "action": "Doorbird_OpenDoorRelaisNumber($_IPS['TARGET'], (int) $_IPS['RELAY']);",
+    "readable": "Doorbird_OpenDoorRelaisNumber($_IPS['TARGET'], (int) $_IPS['RELAY']);",
+    "restrictions": {
+        "objectType": [1],
+        "moduleID": ["{D489FA0B-765D-451E-8B21-C6B61ECAC00E}"]
+    }
+}

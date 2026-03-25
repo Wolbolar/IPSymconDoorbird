@@ -1,9 +1,9 @@
 # IPSymconDoorbird
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)](https://www.symcon.de/forum/threads/38222-IP-Symcon-5-0-verf%C3%BCgbar)
+[![Version](https://img.shields.io/badge/Symcon%20Version-9.0%20%3E-green.svg)](https://www.symcon.de/)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 
-Modul für IP-Symcon ab Version 5.x. Ermöglicht die Kommunikation mit einer Doorbird Türsprechanlage.
+Modul für IP-Symcon ab Version 9.x. Ermöglicht die Kommunikation mit einer Doorbird Türsprechanlage.
 
 ![Doorbird](img/doorbird_logo_dark_small.png?raw=true "Doorbird")
 
@@ -20,7 +20,11 @@ Modul für IP-Symcon ab Version 5.x. Ermöglicht die Kommunikation mit einer Doo
 
 ## 1. Funktionsumfang
 
-Mit dem Modul lassen sich Befehle an eine Doorbird Türsprechanlage senden und die Statusrückmeldung in IP-Symcon (ab Version 5) empfangen. 
+Mit dem Modul lassen sich Befehle an eine Doorbird Türsprechanlage senden und die Statusrückmeldung in IP-Symcon (ab Version 9) empfangen. 
+
+__Wichtiger Hinweis__
+
+Dieses Modul setzt inzwischen zwingend IP-Symcon 9.x voraus. Ältere IP-Symcon Versionen werden nicht mehr unterstützt.
 
 ### Befehle an Doorbird senden:  
 
@@ -36,15 +40,22 @@ Mit dem Modul lassen sich Befehle an eine Doorbird Türsprechanlage senden und d
  - Zeitpunkt letzte Türöffnung
  - Bild bei Bewegung
  - Bild bei Klingelsignal
+
+### Neue Funktionen in der aktuellen Version:
+
+ - HTML-SDK Kachel für die neue Kachelansicht von IP-Symcon
+ - Aktionen für häufig genutzte Doorbird Befehle
+ - Überarbeitete A1101 Konfiguration mit Liste für Favorit und Kacheln
+ - HTTP-Aufrufe für A1101 werden direkt im Modul angezeigt
 	
   
 
 ## 2. Voraussetzungen
 
- - IP-Symcon 6.x
+ - IP-Symcon 9.x
  - Doorbird Türsprechanlage, Hardware Version 1.00 und höher. Firmware Version 000098 und höher.
  - der Master Branch ist für die aktuelle IP-Symcon Version ausgelegt.
- - bei IP-Symcon Versionen kleiner 4.1 ist der Branch _Old-Version_ zu wählen
+ - ältere IP-Symcon Versionen werden nicht mehr unterstützt
 
 ## 3. Installation
 
@@ -163,6 +174,8 @@ __Wichtig__
 Doorbird sendet Infomationen an IP-Symon über einen Webhook, damit dies sicher ist im Feld Benutzername und Passwort ein Wert einzutragen. Dieser wert kann individuell für das Modul festgelegt werden
 und hat nichts mit den Zugangsdaten für IP-Symcon zu tun. 
 
+Die Webhook Zugangsdaten werden ebenfalls für die im Modul angezeigten HTTP-Aufrufe der Doorstation A1101 berücksichtigt. Die im Modul angezeigte URL ist daher die URL, die in der Doorbird App oder im Web Admin hinterlegt werden soll.
+
 ![Webhook](img/doorbird_webhook.png?raw=true "Doorbird Webhook")
 
 
@@ -185,6 +198,12 @@ Es öffnet sich ein Browser Fenster in dem man sich mit den Admin Anmeldedaten f
 ![Webadmin](img/doorbird_web_admin_de_1.png?raw=true "Webadmin")
 
 Zunächst in der Doorbird App bzw. im Web Admin prüfen ob die HTTP Aufrufe von IP-Symcon ergänzt worden sind unter _Favoriten -> HTTP(S) Aufrufe_.
+
+#### Doorstation A1101
+
+Für die Doorstation A1101 stellt das Modul im Konfigurationsformular eine Liste für _Favorit_ sowie _Kachel 1..n_ bereit. Dort kann für jeden Eintrag eine Zielvariable und der gewünschte Zielwert hinterlegt werden.
+
+Die im Formular angezeigte HTTP URL ist jeweils der Aufruf, der in der Doorbird App oder im Doorbird Web Admin für den entsprechenden Favoriten oder die jeweilige Kachel eingetragen werden muss.
 
 #### 1. Einrichtung der Klingelbenachrichtigung
 

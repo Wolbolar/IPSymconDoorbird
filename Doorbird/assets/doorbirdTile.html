@@ -1,0 +1,385 @@
+<div id="doorbird-tile"></div>
+<script>
+const initialState = __INITIAL_STATE__;
+let state = initialState;
+
+const root = document.getElementById('doorbird-tile');
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function renderMedia() {
+    if (!state.hasCredentials || !state.host) {
+        return '<div class="db-empty">DoorBird host or credentials are missing.</div>';
+    }
+
+    if (state.view === 'visitor') {
+        return '<iframe class="db-frame" src="' + escapeHtml(state.visitorUrl) + '" loading="lazy"></iframe>';
+    }
+
+    if (state.view === 'motion') {
+        return '<iframe class="db-frame" src="' + escapeHtml(state.motionUrl) + '" loading="lazy"></iframe>';
+    }
+
+    if (!state.liveUrl) {
+        return '<div class="db-empty">Live stream URL is not available.</div>';
+    }
+
+    if (state.liveMode === 'image') {
+        return '<div class="db-media-inner"><img class="db-image" src="' + escapeHtml(state.liveUrl) + '" alt="DoorBird live image"></div>';
+    }
+
+    return '<div class="db-media-inner"><iframe class="db-frame" src="' + escapeHtml(state.liveUrl) + '" loading="lazy"></iframe></div>';
+}
+
+const icons = {
+    door: '',
+    light: '',
+    accept: '',
+    decline: ''
+};
+
+function loadAssets() {
+    const assets = window.assets || {};
+    icons.door = assets.iconDoor || '';
+    icons.light = assets.iconLight || '';
+    icons.accept = assets.iconPhoneAccept || '';
+    icons.decline = assets.iconPhoneDecline || '';
+}
+
+function iconActionButton(action, label, icon, options = {}) {
+    const classes = ['db-icon-action'];
+    if (options.accent) {
+        classes.push('is-accent');
+    }
+    if (options.warn) {
+        classes.push('is-warn');
+    }
+    if (options.disabled) {
+        classes.push('is-disabled');
+    }
+
+    const disabled = options.disabled ? 'disabled' : '';
+    const title = escapeHtml(options.tooltip || label);
+    return `
+        <button
+            class="${classes.join(' ')}"
+            ${disabled}
+            title="${title}"
+            aria-label="${title}"
+            onclick="requestAction('${action}', true);">
+            <span class="db-icon-wrap">${icon ? `<img class="db-icon-image" src="${icon}" alt="">` : ''}</span>
+            <span class="db-icon-label">${escapeHtml(label)}</span>
+        </button>
+    `;
+}
+
+function render() {
+    const lastRing = state.lastRing ? escapeHtml(state.lastRing) : 'No ring event';
+    const lastMovement = state.lastMovement ? escapeHtml(state.lastMovement) : 'No motion event';
+
+    root.innerHTML = `
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+                overflow: hidden;
+                padding: 0;
+            }
+
+            #doorbird-tile {
+                --db-bg: radial-gradient(circle at top left, #264154 0%, #152837 42%, #0e1722 100%);
+                --db-panel: rgba(9, 16, 24, 0.74);
+                --db-panel-strong: rgba(6, 12, 19, 0.88);
+                --db-panel-border: rgba(180, 212, 239, 0.16);
+                --db-text: #f3f8fc;
+                --db-muted: #9eb5c5;
+                --db-gold: #d4a03a;
+                --db-gold-soft: rgba(212, 160, 58, 0.18);
+                --db-blue: #74b4ff;
+                --db-red: #c46c63;
+                box-sizing: border-box;
+                color: var(--db-text);
+                display: block;
+                font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+                height: 100%;
+                margin: 0;
+                overflow: hidden;
+                padding-top: 46px;
+                width: 100%;
+            }
+
+            #doorbird-tile .db-shell {
+                background: var(--db-bg);
+                border-radius: 0;
+                box-sizing: border-box;
+                display: grid;
+                gap: 0;
+                grid-template-rows: auto auto 1fr auto;
+                height: 100%;
+                min-height: 0;
+                overflow: hidden;
+                padding: 10px 10px 8px;
+            }
+
+            #doorbird-tile .db-nav,
+            #doorbird-tile .db-actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-bottom: 8px;
+            }
+
+            #doorbird-tile .db-tab,
+            #doorbird-tile .db-refresh,
+            #doorbird-tile .db-link {
+                appearance: none;
+                background: rgba(255, 255, 255, 0.08);
+                border: 1px solid transparent;
+                border-radius: 999px;
+                color: var(--db-text);
+                cursor: pointer;
+                font-size: 13px;
+                font-weight: 600;
+                padding: 10px 14px;
+                text-decoration: none;
+                transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, opacity 120ms ease;
+            }
+
+            #doorbird-tile .db-tab:hover,
+            #doorbird-tile .db-refresh:hover,
+            #doorbird-tile .db-link:hover {
+                border-color: var(--db-panel-border);
+                transform: translateY(-1px);
+            }
+
+            #doorbird-tile .db-tab.is-active {
+                background: var(--db-gold-soft);
+                border-color: rgba(212, 160, 58, 0.38);
+                color: #fff2d3;
+            }
+
+            #doorbird-tile .db-actions {
+                gap: 12px;
+                margin-bottom: 0;
+            }
+
+            #doorbird-tile .db-icon-action {
+                align-items: center;
+                appearance: none;
+                background: transparent;
+                border: 0;
+                color: var(--db-text);
+                cursor: pointer;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                min-width: 76px;
+                padding: 0;
+                transition: opacity 120ms ease, transform 120ms ease;
+            }
+
+            #doorbird-tile .db-icon-action:hover {
+                transform: translateY(-1px);
+            }
+
+            #doorbird-tile .db-icon-wrap {
+                align-items: center;
+                background: rgba(255, 255, 255, 0.08);
+                border: 1px solid var(--db-panel-border);
+                border-radius: 999px;
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+                color: var(--db-text);
+                display: inline-flex;
+                height: 54px;
+                justify-content: center;
+                transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+                width: 54px;
+            }
+
+            #doorbird-tile .db-icon-image {
+                display: block;
+                height: 28px;
+                width: 28px;
+            }
+
+            #doorbird-tile .db-icon-label {
+                color: var(--db-muted);
+                font-size: 12px;
+                font-weight: 700;
+                line-height: 1.1;
+                text-align: center;
+            }
+
+            #doorbird-tile .db-icon-action:hover .db-icon-wrap {
+                border-color: rgba(255, 255, 255, 0.24);
+                background: rgba(255, 255, 255, 0.12);
+            }
+
+            #doorbird-tile .db-icon-action.is-accent .db-icon-wrap {
+                background: rgba(116, 180, 255, 0.18);
+                border-color: rgba(116, 180, 255, 0.35);
+                color: #d9ecff;
+            }
+
+            #doorbird-tile .db-icon-action.is-warn .db-icon-wrap {
+                background: rgba(196, 108, 99, 0.18);
+                border-color: rgba(196, 108, 99, 0.34);
+                color: #ffd9d5;
+            }
+
+            #doorbird-tile .db-icon-action.is-disabled {
+                cursor: default;
+                opacity: 0.42;
+            }
+
+            #doorbird-tile .db-icon-action.is-disabled:hover {
+                transform: none;
+            }
+
+            #doorbird-tile .db-media {
+                align-items: stretch;
+                background: var(--db-panel-strong);
+                border: 1px solid var(--db-panel-border);
+                border-radius: 20px;
+                display: flex;
+                justify-content: center;
+                margin-top: 0;
+                min-height: 0;
+                overflow: hidden;
+                position: relative;
+            }
+
+            #doorbird-tile .db-media-inner {
+                align-items: center;
+                display: flex;
+                height: 100%;
+                justify-content: center;
+                overflow: hidden;
+                width: 100%;
+            }
+
+            #doorbird-tile .db-frame,
+            #doorbird-tile .db-image {
+                background: #091117;
+                border: 0;
+                display: block;
+                height: 100%;
+                min-height: 340px;
+                width: 100%;
+            }
+
+            #doorbird-tile .db-image {
+                object-fit: cover;
+                object-position: center center;
+                overflow: hidden;
+                width: 100%;
+            }
+
+            #doorbird-tile .db-empty {
+                align-items: center;
+                color: var(--db-muted);
+                display: flex;
+                height: 100%;
+                justify-content: center;
+                min-height: 340px;
+                padding: 24px;
+                text-align: center;
+            }
+
+            #doorbird-tile .db-footer {
+                display: grid;
+                gap: 10px;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                margin-top: 8px;
+            }
+
+            #doorbird-tile .db-stat {
+                background: var(--db-panel);
+                border: 1px solid var(--db-panel-border);
+                border-radius: 16px;
+                padding: 12px;
+            }
+
+            #doorbird-tile .db-stat-label {
+                color: var(--db-muted);
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.05em;
+                margin-bottom: 6px;
+                text-transform: uppercase;
+            }
+
+            #doorbird-tile .db-stat-value {
+                font-size: 15px;
+                font-weight: 700;
+            }
+
+            @media (max-width: 700px) {
+                #doorbird-tile {
+                    padding-top: 42px;
+                }
+
+                #doorbird-tile .db-footer {
+                    grid-template-columns: 1fr;
+                }
+
+                #doorbird-tile .db-frame,
+                #doorbird-tile .db-image,
+                #doorbird-tile .db-empty {
+                    min-height: 260px;
+                }
+            }
+        </style>
+        <div class="db-shell">
+            <div class="db-nav">
+                <button class="db-tab ${state.view === 'live' ? 'is-active' : ''}" onclick="requestAction('VisualizationView', 'live');">Live</button>
+                <button class="db-tab ${state.view === 'visitor' ? 'is-active' : ''}" onclick="requestAction('VisualizationView', 'visitor');">Visitor History</button>
+                <button class="db-tab ${state.view === 'motion' ? 'is-active' : ''}" onclick="requestAction('VisualizationView', 'motion');">Motion History</button>
+                <button class="db-refresh" onclick="requestAction('VisualizationRefreshSnapshot', true);">Refresh Snapshot</button>
+                <a class="db-link" href="${escapeHtml(state.webAdminUrl)}" target="_blank" rel="noopener">Web Admin</a>
+            </div>
+
+            <div class="db-actions">
+                ${iconActionButton('VisualizationOpenDoor', 'Open', icons.door, {accent: true, tooltip: 'Open Door'})}
+                ${iconActionButton('VisualizationLight', 'Light', icons.light, {tooltip: 'Switch Light On'})}
+                ${iconActionButton('VisualizationAcceptCall', 'Accept', icons.accept, {disabled: !state.doorIpAvailable, tooltip: 'Accept DoorIP Call'})}
+                ${iconActionButton('VisualizationDeclineCall', 'Hang Up', icons.decline, {warn: true, disabled: !state.doorIpAvailable, tooltip: 'Decline or End DoorIP Call'})}
+            </div>
+
+            <div class="db-media">${renderMedia()}</div>
+
+            <div class="db-footer">
+                <div class="db-stat">
+                    <span class="db-stat-label">Last Ring</span>
+                    <span class="db-stat-value">${lastRing}</span>
+                </div>
+                <div class="db-stat">
+                    <span class="db-stat-label">Last Motion</span>
+                    <span class="db-stat-value">${lastMovement}</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function handleMessage(data) {
+    try {
+        const nextState = typeof data === 'string' ? JSON.parse(data) : data;
+        state = {...state, ...nextState};
+        render();
+    } catch (error) {
+        console.error('DoorBird visualization update failed', error);
+    }
+}
+
+loadAssets();
+render();
+</script>

@@ -7,7 +7,7 @@ require_once __DIR__ . '/../libs/ConstHelper.php';
 
 // Modul für Doorbird
 
-class Doorbird extends IPSModule
+class Doorbird extends IPSModuleStrict
 {
     use ProfileHelper;
 
@@ -50,6 +50,7 @@ class Doorbird extends IPSModule
     private const SET_SIP_FAVORITE = '/bha-api/favorites.cgi?action=save&type=sip&title='; // Set SIP Favorites URL
     private const DELETE_FAVORITE = '/bha-api/favorites.cgi?action=remove&type='; // Delete Fovorites URL
     private const GET_INFO = '/bha-api/info.cgi'; // Get Info
+    private const GET_SESSION = '/bha-api/getsession.cgi'; // Get Session / Notification Key
     private const GET_HISTORY = '/bha-api/history.cgi?index='; // Get History
     private const GET_SCHEDULE = '/bha-api/schedule.cgi'; // Get Schedule
     private const LIGHT = '/bha-api/light-on.cgi'; // Light
@@ -61,15 +62,15 @@ class Doorbird extends IPSModule
     // helper properties
     private int $position = 0;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
 
+        $this->SetVisualizationType(1);
+
         //These lines are parsed on Symcon Startup or Instance creation
         //You cannot use variables here. Just static values.
-        $this->RequireParent('{82347F20-F541-41E1-AC5B-A636FD3AE2D8}');
-
         $this->RegisterPropertyString('name', '');
         $this->RegisterPropertyString('Host', '');
         $this->RegisterPropertyInteger('PortDoorbell', 80);
@@ -88,6 +89,8 @@ class Doorbird extends IPSModule
         $this->RegisterPropertyInteger('relaxationmotionsensor', 10);
         $this->RegisterPropertyBoolean('dooropen', true);
         $this->RegisterPropertyInteger('relaxationdooropen', 10);
+        $this->RegisterPropertyString('custom_events', '[]');
+        $this->RegisterPropertyString('a1101_calls', '[]');
         $this->RegisterPropertyBoolean('activeemail', false);
         $this->RegisterPropertyString('email', '');
         $this->RegisterPropertyInteger('smtpmodule', 0);
@@ -150,6 +153,10 @@ class Doorbird extends IPSModule
         $this->RegisterPropertyInteger('categorysnapshot', 0);
         $this->RegisterPropertyInteger('model', 0);
         $this->RegisterAttributeString('schedule', '[]');
+        $this->RegisterAttributeInteger('DetectedModel', 0);
+        $this->RegisterAttributeString('DetectedDeviceType', '');
+        $this->RegisterAttributeString('DetectedDeviceInfo', '[]');
+        $this->RegisterAttributeInteger('DoorIPInstanceID', 0);
         $this->RegisterPropertyString('list_favorites', '[]');
         $this->RegisterPropertyString('list_sip', '[]');
         $this->RegisterPropertyString('list_schedule', '[]');
@@ -172,94 +179,182 @@ class Doorbird extends IPSModule
         $this->RegisterAttributeInteger('pictures_history2', 0);
         $this->RegisterAttributeInteger('pictures_history3', 0);
         $this->RegisterAttributeBoolean('pictures_debug', true);
+        $this->RegisterAttributeString('NotificationEncryptionKey', '');
+        $this->RegisterAttributeString('NotificationEncryptionKeyHash', '');
+        $this->RegisterAttributeString('LastUdpEventFingerprint', '');
+        $this->RegisterAttributeInteger('LastUdpEventTimestamp', 0);
+        $this->RegisterAttributeString('VisualizationView', 'live');
         $this->RegisterAttributeBoolean('Smartlock', false);
         $this->RegisterAttributeInteger('SmartlockID', 0);
         $this->RegisterAttributeBoolean('SmartlockID_Visibility', false);
         $this->RegisterAttributeString('SmartlockValue', "");
         $this->RegisterAttributeBoolean('SmartlockValue_Visibility', false);
         $this->RegisterAttributeString('SmartlockValueOptions', '[]');
+        $this->RegisterAttributeInteger('SmartlockPulseDuration', 0);
+        $this->RegisterAttributeBoolean('SmartlockPulseDuration_Visibility', false);
+        $this->RegisterAttributeString('SmartlockPulseResetValue', 'false');
         $this->RegisterAttributeBoolean('Doorstation', false);
-        $this->RegisterAttributeInteger('Tile1', 0);
-        $this->RegisterAttributeBoolean('Tile1_Visibility', true);
-        $this->RegisterAttributeString('Tile1Value', "");
-        $this->RegisterAttributeBoolean('Tile1Value_Visibility', false);
-        $this->RegisterAttributeString('Tile1ValueOptions', '[]');
-        $this->RegisterAttributeInteger('Tile2', 0);
-        $this->RegisterAttributeBoolean('Tile2_Visibility', false);
-        $this->RegisterAttributeString('Tile2Value', "");
-        $this->RegisterAttributeBoolean('Tile2Value_Visibility', false);
-        $this->RegisterAttributeString('Tile2ValueOptions', '[]');
-        $this->RegisterAttributeInteger('Tile3', 0);
-        $this->RegisterAttributeBoolean('Tile3_Visibility', false);
-        $this->RegisterAttributeString('Tile3Value', "");
-        $this->RegisterAttributeBoolean('Tile3Value_Visibility', false);
-        $this->RegisterAttributeString('Tile3ValueOptions', '[]');
-        $this->RegisterAttributeInteger('Tile4', 0);
-        $this->RegisterAttributeBoolean('Tile4_Visibility', false);
-        $this->RegisterAttributeString('Tile4Value', "");
-        $this->RegisterAttributeBoolean('Tile4Value_Visibility', false);
-        $this->RegisterAttributeString('Tile4ValueOptions', '[]');
-        $this->RegisterAttributeInteger('Tile5', 0);
-        $this->RegisterAttributeBoolean('Tile5_Visibility', false);
-        $this->RegisterAttributeString('Tile5Value', "");
-        $this->RegisterAttributeBoolean('Tile5Value_Visibility', false);
-        $this->RegisterAttributeString('Tile5ValueOptions', '[]');
-        $this->RegisterAttributeInteger('Tile6', 0);
-        $this->RegisterAttributeBoolean('Tile6_Visibility', false);
-        $this->RegisterAttributeString('Tile6Value', "");
-        $this->RegisterAttributeBoolean('Tile6Value_Visibility', false);
-        $this->RegisterAttributeString('Tile6ValueOptions', '[]');
-        $this->RegisterAttributeInteger('Tile7', 0);
-        $this->RegisterAttributeBoolean('Tile7_Visibility', false);
-        $this->RegisterAttributeString('Tile7Value', "");
-        $this->RegisterAttributeBoolean('Tile7Value_Visibility', false);
-        $this->RegisterAttributeString('Tile7ValueOptions', '[]');
-        $this->RegisterAttributeInteger('Tile8', 0);
-        $this->RegisterAttributeBoolean('Tile8_Visibility', false);
-        $this->RegisterAttributeString('Tile8Value', "");
-        $this->RegisterAttributeBoolean('Tile8Value_Visibility', false);
-        $this->RegisterAttributeString('Tile8ValueOptions', '[]');
-        $this->RegisterAttributeInteger('Tile9', 0);
-        $this->RegisterAttributeBoolean('Tile9_Visibility', false);
-        $this->RegisterAttributeString('Tile9Value', "");
-        $this->RegisterAttributeBoolean('Tile9Value_Visibility', false);
-        $this->RegisterAttributeString('Tile9ValueOptions', '[]');
-        $this->RegisterAttributeInteger('Tile10', 0);
-        $this->RegisterAttributeBoolean('Tile10_Visibility', false);
-        $this->RegisterAttributeString('Tile10Value', "");
-        $this->RegisterAttributeBoolean('Tile10Value_Visibility', false);
-        $this->RegisterAttributeString('Tile10ValueOptions', '[]');
 
-        //we will wait until the kernel is ready
+        //We need to call the RegisterHook function on Kernel READY
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
+        $this->RegisterMessage(0, IPS_KERNELSTARTED);
+
+        $this->RegisterTimer('ResetSmartlockPulse', 0, 'Doorbird_ResetSmartlockPulse($_IPS[\'TARGET\']);');
     }
 
-    public function ApplyChanges()
+    public function Destroy(): void
+    {
+        // Debug-Information zur Überprüfung, dass Destroy aufgerufen wird
+        $this->SendDebug('Destroy', 'Destroy-Methode wird aufgerufen', 0);
+
+        // Webhook löschen, falls dieser existiert
+        $webhookAddress = $this->GetWebhookAddress();
+        $this->UnregisterHook($webhookAddress);
+
+        //Never delete this line!
+        parent::Destroy();
+    }
+
+    public function ApplyChanges(): void
     {
         //Never delete this line!
         parent::ApplyChanges();
 
         if (IPS_GetKernelRunlevel() !== KR_READY) {
+            $this->SendDebug('Doorbird Webhook', 'Skip webhook registration because kernel is not ready yet', 0);
             return;
         }
+        $this->SendDebug('Doorbird Webhook', 'ApplyChanges started with kernel ready, check webhook registration first', 0);
+        $this->EnsureWebhookRegistration();
+        $this->AutoSelectDoorIPInstance();
+        if ($this->HasDoorbirdCredentials()) {
+            $this->SendDebug('Doorbird Setup', 'DoorBird credentials available, start automatic device detection', 0);
+            $this->UpdateDetectedDeviceInformation();
+        } else {
+            $this->SendDebug('Doorbird Setup', 'DoorBird credentials incomplete, skip automatic device detection', 0);
+        }
         $this->ValidateConfiguration();
+        $this->UpdateDoorbirdVisualization();
     }
 
-    public function PictureDebug(bool $debug)
+    public function PictureDebug(bool $debug): void
     {
         $this->WriteAttributeBoolean('pictures_debug', $debug);
     }
 
-    public function GetConfigurationForParent()
+    public function RefreshNotificationEncryptionKey(): string
     {
-        // $Config['Host'] = $this->GetHostIP();
-        $Config['Port'] = 6524;
-        $Config['BindPort'] = 6524;
-        return json_encode($Config);
+        $key = $this->GetNotificationEncryptionKey(true);
+        if ($key === '') {
+            return 'Notification encryption key refresh failed';
+        }
+
+        return 'Notification encryption key refreshed';
     }
 
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    public function SetDoorIPInstance(int $instanceID): void
     {
+        $this->WriteAttributeInteger('DoorIPInstanceID', $instanceID);
+    }
+
+    public function CheckDoorIntercomConfiguration(): string
+    {
+        $doorIPInstanceID = $this->GetDoorIPInstanceID();
+        if ($doorIPInstanceID === 0) {
+            foreach ($this->GetDoorIPDetectionDiagnostics() as $message) {
+                $this->SendDebug('Doorbird DoorIP', $message, 0);
+            }
+            $this->SendDebug('Doorbird DoorIP', 'No DoorIP instance selected or detected. See diagnostic messages above.', 0);
+            return 'No DoorIP instance available';
+        }
+
+        $doorIPConfig = json_decode(IPS_GetConfiguration($doorIPInstanceID), true);
+        if (!is_array($doorIPConfig)) {
+            $doorIPConfig = [];
+        }
+
+        $username = (string) ($doorIPConfig['Username'] ?? '');
+        $domain = (string) ($doorIPConfig['Domain'] ?? '');
+        $symconIp = $this->ReadPropertyString('IPSIP');
+        $sipTarget = $username !== '' ? $username . '@' . ($domain !== '' ? $domain : $symconIp) : '';
+
+        $this->SendDebug('Doorbird DoorIP', 'Selected DoorIP instance: ' . $doorIPInstanceID, 0);
+        $this->SendDebug('Doorbird DoorIP', 'DoorIP configuration: ' . json_encode($doorIPConfig), 0);
+        $this->SendDebug('Doorbird DoorIP', 'Expected SIP target for DoorBird: ' . $sipTarget, 0);
+
+        $favoritesRaw = $this->GetFavorites();
+        $scheduleRaw = $this->GetSchedule();
+        $this->SendDebug('Doorbird DoorIP', 'DoorBird favorites raw: ' . ($favoritesRaw !== false ? $favoritesRaw : 'request failed'), 0);
+        $this->SendDebug('Doorbird DoorIP', 'DoorBird schedule raw: ' . ($scheduleRaw !== false ? $scheduleRaw : 'request failed'), 0);
+
+        if ($favoritesRaw !== false) {
+            $favorites = json_decode($favoritesRaw, true);
+            if (is_array($favorites) && isset($favorites['sip']) && is_array($favorites['sip'])) {
+                foreach ($favorites['sip'] as $favoriteId => $favorite) {
+                    $this->SendDebug(
+                        'Doorbird DoorIP',
+                        'Found SIP favorite #' . $favoriteId . ': ' . json_encode($favorite),
+                        0
+                    );
+                    if (($sipTarget !== '') && isset($favorite['value']) && ((string) $favorite['value'] === $sipTarget)) {
+                        $this->SendDebug(
+                            'Doorbird DoorIP',
+                            'Matching DoorIP SIP favorite found at favorite #' . $favoriteId,
+                            0
+                        );
+                    }
+                }
+            }
+        }
+
+        if ($scheduleRaw !== false) {
+            $schedule = json_decode($scheduleRaw, true);
+            if (is_array($schedule)) {
+                foreach ($schedule as $scheduleId => $scheduleEntry) {
+                    $this->SendDebug(
+                        'Doorbird DoorIP',
+                        'Found schedule #' . $scheduleId . ': ' . json_encode($scheduleEntry),
+                        0
+                    );
+                }
+            }
+        }
+
+        return 'DoorIP configuration check written to debug log';
+    }
+
+    public function GetCompatibleParents(): string
+    {
+        $initial = [
+            'Open' => true
+        ];
+        $doorbirdHost = $this->ReadPropertyString('Host');
+        if ($doorbirdHost !== '') {
+            $initial['Host'] = $doorbirdHost;
+        }
+        $symconIp = $this->ReadPropertyString('IPSIP');
+        if ($symconIp !== '') {
+            $initial['BindIP'] = $symconIp;
+        }
+
+        return json_encode([
+            'type'    => 'require',
+            'modules' => [[
+                'moduleID'      => '{82347F20-F541-41E1-AC5B-A636FD3AE2D8}',
+                'configuration' => [
+                    'Port'     => 6524,
+                    'BindPort' => 6524
+                ],
+                'initial'       => $initial
+            ]]
+        ]);
+    }
+
+    public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
+    {
+        //Never delete this line!
+        parent::MessageSink($TimeStamp, $SenderID, $Message, $Data);
+
         $this->LogMessage('SenderID: ' . $SenderID . ', Message: ' . $Message . ', Data:' . json_encode($Data), KL_DEBUG);
         if ($Message == IM_CHANGESTATUS) {
             if ($Data[0] === IS_ACTIVE) {
@@ -270,10 +365,11 @@ class Doorbird extends IPSModule
             }
         } elseif ($Message == IPS_KERNELMESSAGE) {
             if ($Data[0] === KR_READY) {
-                $this->SendDebug(
-                    'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
-                );
-                // $this->ValidateConfiguration();
+                $this->SendDebug(__FUNCTION__, '✅ Kernel READY – send Initial-Events', 0);
+                $webhookAddress = $this->GetWebhookAddress();
+                $this->RegisterHook($webhookAddress);
+                $this->ValidateConfiguration();
+                $this->UpdateDoorbirdVisualization();
             }
         } else {
             if ($SenderID == $this->GetIDForIdent('LastRingtone')) {
@@ -285,7 +381,7 @@ class Doorbird extends IPSModule
                     'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
                 );
             }
-            $model = $this->ReadPropertyInteger('model');
+            $model = $this->GetCurrentModel();
             if ($model == self::D2102V || $model == self::D2103V) {
                 if ($SenderID == $this->GetIDForIdent('LastRingtone2')) {
                     $this->SetRingPicture(2);
@@ -355,96 +451,277 @@ class Doorbird extends IPSModule
                     'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
                 );
             }
-            if ($SenderID == $this->GetIDForIdent('LastDoorOpen_2')) {
-                $this->GetSnapshot();
-                $this->SendDebug('Doorbird recieved LastDoorOpen 2 at', date('H:i', time()), 0);
-                $this->SendDebug(
-                    'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
-                );
+            if ($this->CheckExistence('LastDoorOpen_2')) {
+                if ($SenderID == $this->GetIDForIdent('LastDoorOpen_2')) {
+                    $this->GetSnapshot();
+                    $this->SendDebug('Doorbird recieved LastDoorOpen 2 at', date('H:i', time()), 0);
+                    $this->SendDebug(
+                        'Doorbird', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . '\r\n Data: ' . print_r($Data, true), 0
+                    );
+                }
             }
+            $this->UpdateDoorbirdVisualization();
         }
     }
 
-    public function ReceiveData($JSONString)
+    public function ReceiveData(string $JSONString): string
     {
-        // $this->SendDebug('Doorbird:', $JSONString, 0);
         $payload_udp = json_decode($JSONString);
-        // $type = $payload->Type;
-        $this->SendDebug('Doorbird Recieve:', utf8_decode($payload_udp->Buffer), 1);
-        $dataraw = utf8_decode($payload_udp->Buffer);
+        if (!is_object($payload_udp) || !property_exists($payload_udp, 'Buffer') || !is_string($payload_udp->Buffer)) {
+            $this->SendDebug('Doorbird Receive', 'Invalid parent payload: ' . $JSONString, 0);
+            return '';
+        }
+
+        $payload = $this->DecodeIncomingBuffer($payload_udp->Buffer);
+        if ($payload === false) {
+            $this->SendDebug('Doorbird Receive', 'Could not decode incoming buffer', 0);
+            return '';
+        }
+
+        $this->SendDebug('Doorbird Receive Raw', $payload, 1);
+        $dataraw = $payload;
         $doorbird_user = $this->ReadPropertyString('User');
-        $INTERCOM_ID = substr($doorbird_user, 0, 6);
-        $doorbird_password = $this->ReadPropertyString('Password');
+        $intercomId = substr($doorbird_user, 0, 6);
         $data = explode(':', $dataraw);
         if (isset($data[1])) {
             $doorbird_id = $data[1];
 
-            if ($doorbird_id == $INTERCOM_ID) {
-                $this->SendDebug('Doorbird Recieve:', $payload_udp->Buffer, 0);
+            if ($doorbird_id == $intercomId) {
+                $this->SendDebug('Doorbird Receive', $payload_udp->Buffer, 0);
             }
-        } else {
-            // Step 1: get packet via UDP:
-            $payload = utf8_decode($payload_udp->Buffer);
-            // Step 2: Split up:
-            $ident = substr($payload, 0, 3); // lenght 3 Bytes, 0xDE 0xAD 0xBE
-            $this->SendDebug('Doorbird Ident:', $ident, 1);
-            // $this->SendDebug('Doorbird:', 'Ident: '.bin2hex($ident), 0);
-            $version = substr($payload, 3, 1); // lenght 1 Bytes, 0x01
-            $this->SendDebug('Doorbird Version:', $version, 1);
-            //$this->SendDebug('Doorbird:', 'Version: '.bin2hex($version), 0);
-            $opslimit = substr($payload, 4, 4); // lenght 4 Bytes, Used for password stretching with Argon2i.
-            $this->SendDebug('Doorbird OPSLimit:', $opslimit, 1);
-            // $this->SendDebug('Doorbird:', 'OPSLimit: '.bin2hex($opslimit), 0);
-            $memlimit = substr($payload, 8, 4); // lenght 4 Bytes, Used for password stretching with Argon2i.
-            $this->SendDebug('Doorbird MEMLimit:', $memlimit, 1);
-            // $this->SendDebug('Doorbird:', 'MEMLimit: '.bin2hex($memlimit), 0);
-            $salt = substr($payload, 12, 16); // lenght 16 Bytes, Used for password stretching with Argon2i.
-            $this->SendDebug('Doorbird Salt:', $salt, 1);
-            // $this->SendDebug('Doorbird:', 'Salt: '.bin2hex($salt), 0);
-            $nonce = substr($payload, 28, 8); // lenght 8 Bytes, Used for encryption with ChaCha20-Poly1305
-            $this->SendDebug('Doorbird Nonce:', $nonce, 1);
-            // $this->SendDebug('Doorbird:', 'Nonce: '.bin2hex($nonce), 0);
+            return '';
+        }
 
-            if (unpack('N', $opslimit)[1] > 100 || unpack('N', $memlimit)[1] > 10000) 
-                return;
-            
-            $ciphertext =
-                substr($payload, 36, 34); // lenght 8 Bytes, With ChaCha20-Poly1305 encrypted text which contains informations about the Event.
-            $this->SendDebug('Doorbird Ciphertext:', $ciphertext, 1);
-            // $this->SendDebug('Doorbird:', 'Ciphertext: '.bin2hex($ciphertext), 0);
-            // Step 3: Generate stretched password
-            $password = substr($doorbird_password, 0, 5); // first 5 chars of your password
-            $key = sodium_crypto_pwhash(
-                SODIUM_CRYPTO_SIGN_SEEDBYTES, $password, $salt, // SALT
-                unpack('N', $opslimit)[1], //OPSLIMIT
-                unpack('N', $memlimit)[1], //MEMLIMIT
-                SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
-            );
-            $this->SendDebug('Doorbird Key:', $key, 1); // Key für decrypt in HEX
-            // Step 4: Decrypt CIPHERTEXT with ChaCha20-Poly1305, use the stretched password and NONCE
-            $decrypted = sodium_crypto_aead_chacha20poly1305_decrypt($ciphertext, '', $nonce, $key);
-            if ($decrypted) {
-                $this->SendDebug('Doorbird:', 'decryption successfull', 0);
-                $this->SendDebug('Doorbird Decrypted Data:', $decrypted, 1);
-                // Step 5: Split the output up
-                $INTERCOM_ID = substr($decrypted, 0, 6); // Starting 6 chars from the user name
-                $this->SendDebug('Doorbird Intercom ID:', $INTERCOM_ID, 0);
-                $EVENT = (int) trim(substr($decrypted, 6, 8));
+        if (!$this->IsEncryptedNotificationPayload($payload)) {
+            $this->SendDebug('Doorbird Receive', 'Ignoring unsupported payload format', 0);
+            return '';
+        }
 
-                if ($EVENT == 1) { // Contains the doorbell or „motion“ to detect which event was triggered
-                    $this->SetLastRingtone(1);
-                }
-                if ($EVENT == 101) { // Contains the doorbell or „motion“ to detect which event was triggered
-                    $this->SetLastRingtone(2);
-                }
-                $this->SendDebug('Doorbird Event:', strval($EVENT), 0);
-                $TIMESTAMP = unpack('N', substr($decrypted, 14, 4))[1];
-                $this->SendDebug('Doorbird Timestamp UTC:', gmdate('H:i:s d.m.Y', $TIMESTAMP), 0);
-                $this->SendDebug('Doorbird Timestamp local:', date('H:i:s d.m.Y', $TIMESTAMP), 0);
-            } else {
-                $this->SendDebug('Doorbird:', 'decryption not successfull', 0);
+        $packetVersion = ord($payload[3]);
+        $this->SendDebug('Doorbird Receive', 'UDP packet version ' . $packetVersion, 0);
+        if ($packetVersion === 0x01) {
+            $this->HandleUdpNotificationV1($payload, $intercomId);
+            return '';
+        }
+        if ($packetVersion === 0x02) {
+            $this->HandleUdpNotificationV2($payload, $intercomId);
+            return '';
+        }
+
+        $this->SendDebug('Doorbird Receive', 'Unsupported UDP notification version ' . $packetVersion, 0);
+
+        return '';
+    }
+
+    private function DecodeIncomingBuffer(string $buffer): string|false
+    {
+        if ($buffer === '') {
+            return '';
+        }
+
+        if ((strlen($buffer) % 2) === 0 && ctype_xdigit($buffer)) {
+            $decodedBuffer = hex2bin($buffer);
+            if ($decodedBuffer !== false) {
+                return $decodedBuffer;
             }
         }
+
+        return $buffer;
+    }
+
+    private function IsEncryptedNotificationPayload(string $payload): bool
+    {
+        return strlen($payload) >= 4 && substr($payload, 0, 3) === "\xDE\xAD\xBE";
+    }
+
+    private function HandleUdpNotificationV1(string $payload, string $expectedIntercomId): void
+    {
+        if (strlen($payload) < 70) {
+            $this->SendDebug('Doorbird Receive V1', 'Encrypted payload too short: ' . strlen($payload), 0);
+            return;
+        }
+
+        $doorbirdPassword = $this->ReadPropertyString('Password');
+        $opslimit = substr($payload, 4, 4);
+        $memlimit = substr($payload, 8, 4);
+        $salt = substr($payload, 12, 16);
+        $nonce = substr($payload, 28, 8);
+        $ciphertext = substr($payload, 36, 34);
+
+        $opslimitValue = unpack('N', $opslimit);
+        $memlimitValue = unpack('N', $memlimit);
+        if ($opslimitValue === false || $memlimitValue === false) {
+            $this->SendDebug('Doorbird Receive V1', 'Could not unpack opslimit or memlimit', 0);
+            return;
+        }
+
+        $opslimitValue = $opslimitValue[1];
+        $memlimitValue = $memlimitValue[1];
+        if ($opslimitValue > 100 || $memlimitValue > 10000) {
+            $this->SendDebug('Doorbird Receive V1', 'Rejecting payload due to opslimit/memlimit bounds', 0);
+            return;
+        }
+
+        $password = substr($doorbirdPassword, 0, 5);
+        $key = sodium_crypto_pwhash(
+            SODIUM_CRYPTO_SIGN_SEEDBYTES,
+            $password,
+            $salt,
+            $opslimitValue,
+            $memlimitValue,
+            SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
+        );
+
+        $decrypted = sodium_crypto_aead_chacha20poly1305_decrypt($ciphertext, '', $nonce, $key);
+        if ($decrypted === false) {
+            $this->SendDebug('Doorbird Receive V1', 'Decryption failed', 0);
+            return;
+        }
+
+        $this->ProcessDecryptedUdpNotification($decrypted, $expectedIntercomId, 'v1');
+    }
+
+    private function HandleUdpNotificationV2(string $payload, string $expectedIntercomId): void
+    {
+        if (strlen($payload) === 4) {
+            $this->SendDebug('Doorbird Receive V2', 'Ignoring keepalive packet', 0);
+            return;
+        }
+        if (strlen($payload) < 46) {
+            $this->SendDebug('Doorbird Receive V2', 'Encrypted payload too short: ' . strlen($payload), 0);
+            return;
+        }
+
+        $nonce = substr($payload, 4, 8);
+        $ciphertext = substr($payload, 12, 34);
+        $key = $this->GetNotificationEncryptionKey(false);
+        if ($key === '') {
+            $this->SendDebug('Doorbird Receive V2', 'No notification encryption key available', 0);
+            return;
+        }
+
+        $decrypted = sodium_crypto_aead_chacha20poly1305_decrypt($ciphertext, '', $nonce, $key);
+        if ($decrypted === false) {
+            $this->SendDebug('Doorbird Receive V2', 'Decryption failed with cached key, refreshing key once', 0);
+            $key = $this->GetNotificationEncryptionKey(true);
+            if ($key === '') {
+                return;
+            }
+            $decrypted = sodium_crypto_aead_chacha20poly1305_decrypt($ciphertext, '', $nonce, $key);
+            if ($decrypted === false) {
+                $this->SendDebug('Doorbird Receive V2', 'Decryption failed after key refresh', 0);
+                return;
+            }
+        }
+
+        $this->ProcessDecryptedUdpNotification($decrypted, $expectedIntercomId, 'v2');
+    }
+
+    private function ProcessDecryptedUdpNotification(string $decrypted, string $expectedIntercomId, string $sourceVersion): void
+    {
+        if (strlen($decrypted) < 18) {
+            $this->SendDebug('Doorbird Receive ' . strtoupper($sourceVersion), 'Decrypted payload too short: ' . strlen($decrypted), 0);
+            return;
+        }
+
+        $intercomId = substr($decrypted, 0, 6);
+        $this->SendDebug('Doorbird Intercom ID', $intercomId, 0);
+        if ($intercomId !== $expectedIntercomId) {
+            $this->SendDebug('Doorbird Receive ' . strtoupper($sourceVersion), 'Ignoring payload for foreign intercom ID', 0);
+            return;
+        }
+
+        $eventRaw = trim(substr($decrypted, 6, 8));
+        $this->SendDebug('Doorbird Receive Event', 'UDP ' . $sourceVersion . ' event "' . $eventRaw . '" resolved for intercom ' . $intercomId, 0);
+        if ($this->IsDuplicateUdpEvent($intercomId, $eventRaw, $sourceVersion)) {
+            $this->SendDebug('Doorbird Receive Event', 'Skip duplicate UDP ' . $sourceVersion . ' event "' . $eventRaw . '"', 0);
+            return;
+        }
+
+        if ($eventRaw === 'motion') {
+            $this->SetLastMovement();
+        } elseif (ctype_digit($eventRaw)) {
+            $event = (int) $eventRaw;
+            if (($event % 100) === 1) {
+                $doorbellId = intdiv($event, 100) + 1;
+                $this->SetLastRingtone($doorbellId);
+            }
+        }
+
+        $timestampValue = unpack('N', substr($decrypted, 14, 4));
+        if ($timestampValue === false) {
+            $this->SendDebug('Doorbird Receive ' . strtoupper($sourceVersion), 'Could not unpack timestamp', 0);
+            return;
+        }
+
+        $timestamp = $timestampValue[1];
+        $this->SendDebug('Doorbird Timestamp UTC', gmdate('H:i:s d.m.Y', $timestamp), 0);
+        $this->SendDebug('Doorbird Timestamp local', date('H:i:s d.m.Y', $timestamp), 0);
+    }
+
+    private function IsDuplicateUdpEvent(string $intercomId, string $eventRaw, string $sourceVersion): bool
+    {
+        $fingerprint = sha1($sourceVersion . '|' . $intercomId . '|' . $eventRaw);
+        $lastFingerprint = $this->ReadAttributeString('LastUdpEventFingerprint');
+        $lastTimestamp = $this->ReadAttributeInteger('LastUdpEventTimestamp');
+        $currentTimestamp = time();
+        $duplicateWindow = 2;
+
+        $this->WriteAttributeString('LastUdpEventFingerprint', $fingerprint);
+        $this->WriteAttributeInteger('LastUdpEventTimestamp', $currentTimestamp);
+
+        return $lastFingerprint === $fingerprint && ($currentTimestamp - $lastTimestamp) <= $duplicateWindow;
+    }
+
+    private function GetNotificationEncryptionKey(bool $forceRefresh): string
+    {
+        $credentialHash = sha1($this->ReadPropertyString('User') . ':' . $this->ReadPropertyString('Password'));
+        $storedHash = $this->ReadAttributeString('NotificationEncryptionKeyHash');
+        $storedKey = $this->ReadAttributeString('NotificationEncryptionKey');
+        if (!$forceRefresh && $storedKey !== '' && $storedHash === $credentialHash) {
+            return substr($storedKey, 0, SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES);
+        }
+
+        $sessionData = $this->RequestDoorbirdSessionData();
+        if ($sessionData === null) {
+            return '';
+        }
+
+        $notificationKey = $sessionData['notification_key'];
+        $this->WriteAttributeString('NotificationEncryptionKey', $notificationKey);
+        $this->WriteAttributeString('NotificationEncryptionKeyHash', $credentialHash);
+        $this->SendDebug('Doorbird Receive V2', 'Stored notification encryption key', 0);
+
+        return substr($notificationKey, 0, SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES);
+    }
+
+    private function RequestDoorbirdSessionData(): ?array
+    {
+        $result = $this->SendDoorbird(self::GET_SESSION);
+        if (!is_string($result) || $result === '') {
+            $this->SendDebug('Doorbird Session', 'Could not request session data', 0);
+            return null;
+        }
+
+        $data = json_decode($result, true);
+        if (!is_array($data) || !isset($data['BHA']) || !is_array($data['BHA'])) {
+            $this->SendDebug('Doorbird Session', 'Invalid session response: ' . $result, 0);
+            return null;
+        }
+
+        $bha = $data['BHA'];
+        $returnCode = (string) ($bha['RETURNCODE'] ?? '');
+        $notificationKey = (string) ($bha['NOTIFICATION_ENCRYPTION_KEY'] ?? '');
+        $sessionId = (string) ($bha['SESSIONID'] ?? '');
+        if ($returnCode !== '1' || $notificationKey === '') {
+            $this->SendDebug('Doorbird Session', 'Session response missing notification key: ' . $result, 0);
+            return null;
+        }
+
+        return [
+            'session_id' => $sessionId,
+            'notification_key' => $notificationKey
+        ];
     }
 
     private function GetDeviceInformation($device_id)
@@ -500,7 +777,7 @@ class Doorbird extends IPSModule
         return $device["relay_number"];
     }
 
-    public function EmailAlert(string $email, int $ring_id)
+    public function EmailAlert(string $email, int $ring_id): void
     {
         $emailalert = $this->ReadPropertyBoolean('activeemail');
         $emailalert2 = $this->ReadPropertyBoolean('activeemail2');
@@ -573,7 +850,7 @@ class Doorbird extends IPSModule
         }
     }
 
-    public function ProcessHookDataOLD()
+    public function ProcessHookDataOLD(): void
     {
         $webhookusername = $this->ReadPropertyString('webhookusername');
         $webhookpassword = $this->ReadPropertyString('webhookpassword');
@@ -621,7 +898,7 @@ class Doorbird extends IPSModule
     }
 
     //Profile zuweisen und Geräte anlegen
-    public function SetupNotification()
+    public function SetupNotification(): void
     {
         $sip = [];
         $http = [];
@@ -666,134 +943,50 @@ class Doorbird extends IPSModule
         $webhook_call_doorbell_6_secure = $this->GetFavoritURL(true, 'doorbell6');
         $webhook_call_dooropen_1_secure = $this->GetFavoritURL(true, 'dooropen1');
         $webhook_call_dooropen_2_secure = $this->GetFavoritURL(true, 'dooropen2');
-        $duplicate_motionsensor = false;
-        $duplicate_dooropen_1 = false;
-        $duplicate_dooropen_2 = false;
-        $duplicate_doorbell_1 = false;
-        $duplicate_doorbell_2 = false;
-        $duplicate_doorbell_3 = false;
-        $duplicate_doorbell_4 = false;
-        $duplicate_doorbell_5 = false;
-        $duplicate_doorbell_6 = false;
+        $expectedHttpFavorites = $this->GetExpectedHttpFavorites();
+        $duplicateFlags = [];
+        foreach ($expectedHttpFavorites as $favoriteId => $favoriteData) {
+            $duplicateFlags[$favoriteId] = false;
+        }
         if (!empty($http)) {
             foreach ($http as $key => $http_call) {
                 $this->SendDebug('Doorbird HTTP Key', $key, 0);
                 $this->SendDebug('Doorbird HTTP Title', $http_call['title'], 0);
                 $this->SendDebug('Doorbird HTTP Value', $http_call['value'], 0);
-                if (($webhook_call_motion == $http_call['value'] && $duplicate_motionsensor == true)
-                    || ($webhook_call_doorbell_1 == $http_call['value']
-                        && $duplicate_doorbell_1 == true)
-                    || ($webhook_call_doorbell_2 == $http_call['value'] && $duplicate_doorbell_2 == true)
-                    || ($webhook_call_doorbell_3 == $http_call['value'] && $duplicate_doorbell_3 == true)
-                    || ($webhook_call_doorbell_4 == $http_call['value'] && $duplicate_doorbell_4 == true)
-                    || ($webhook_call_doorbell_5 == $http_call['value'] && $duplicate_doorbell_5 == true)
-                    || ($webhook_call_doorbell_6 == $http_call['value'] && $duplicate_doorbell_6 == true)
-                    || ($webhook_call_dooropen_1 == $http_call['value'] && $duplicate_dooropen_1 == true)
-                    || ($webhook_call_dooropen_2 == $http_call['value'] && $duplicate_dooropen_2 == true)
-                    || ($webhook_call_motion_secure == $http_call['value'] && $duplicate_motionsensor == true)
-                    || ($webhook_call_doorbell_1_secure == $http_call['value']
-                        && $duplicate_doorbell_1 == true)
-                    || ($webhook_call_doorbell_2_secure == $http_call['value'] && $duplicate_doorbell_2 == true)
-                    || ($webhook_call_doorbell_3_secure == $http_call['value'] && $duplicate_doorbell_3 == true)
-                    || ($webhook_call_doorbell_4_secure == $http_call['value'] && $duplicate_doorbell_4 == true)
-                    || ($webhook_call_doorbell_5_secure == $http_call['value'] && $duplicate_doorbell_5 == true)
-                    || ($webhook_call_doorbell_6_secure == $http_call['value'] && $duplicate_doorbell_6 == true)
-                    || ($webhook_call_dooropen_1_secure == $http_call['value'] && $duplicate_dooropen_1 == true)
-                    || ($webhook_call_dooropen_2_secure == $http_call['value'] && $duplicate_dooropen_2 == true)
-                ) {
-                    $this->SendDebug('Doorbird HTTP Delete Key', $key, 0);
-                    $this->DeleteFavorites($key, 'http');
+                $favoriteKey = (int) $key;
+                $matchedExpectedId = null;
+                foreach ($expectedHttpFavorites as $expectedId => $favoriteData) {
+                    if (in_array($http_call['value'], [$favoriteData['url'], $favoriteData['secure_url']], true)) {
+                        $matchedExpectedId = $expectedId;
+                        break;
+                    }
                 }
-                if ($webhook_call_motion == $http_call['value'] || $webhook_call_motion_secure == $http_call['value']) {
-                    $this->SendDebug('Duplicate', $http_call['value'], 0);
-                    $duplicate_motionsensor = true;
+
+                if ($matchedExpectedId !== null) {
+                    if ($favoriteKey !== $matchedExpectedId) {
+                        $this->SendDebug('Doorbird HTTP Repair', 'Delete misplaced favorite for event ' . $expectedHttpFavorites[$matchedExpectedId]['event'] . ' from ID ' . $favoriteKey, 0);
+                        $this->DeleteFavorites($favoriteKey, 'http');
+                        continue;
+                    }
+                    if ($duplicateFlags[$matchedExpectedId]) {
+                        $this->SendDebug('Doorbird HTTP Repair', 'Delete duplicate favorite for event ' . $expectedHttpFavorites[$matchedExpectedId]['event'] . ' at ID ' . $favoriteKey, 0);
+                        $this->DeleteFavorites($favoriteKey, 'http');
+                        continue;
+                    }
+                    $duplicateFlags[$matchedExpectedId] = true;
+                    continue;
                 }
-                if ($webhook_call_doorbell_1 == $http_call['value'] || $webhook_call_doorbell_1_secure == $http_call['value']) {
-                    $this->SendDebug('Duplicate', $http_call['value'], 0);
-                    $duplicate_doorbell_1 = true;
-                }
-                if ($webhook_call_doorbell_2 == $http_call['value'] || $webhook_call_doorbell_2_secure == $http_call['value']) {
-                    $this->SendDebug('Duplicate', $http_call['value'], 0);
-                    $duplicate_doorbell_2 = true;
-                }
-                if ($webhook_call_doorbell_3 == $http_call['value'] || $webhook_call_doorbell_3_secure == $http_call['value']) {
-                    $this->SendDebug('Duplicate', $http_call['value'], 0);
-                    $duplicate_doorbell_3 = true;
-                }
-                if ($webhook_call_doorbell_4 == $http_call['value'] || $webhook_call_doorbell_4_secure == $http_call['value']) {
-                    $this->SendDebug('Duplicate', $http_call['value'], 0);
-                    $duplicate_doorbell_4 = true;
-                }
-                if ($webhook_call_doorbell_5 == $http_call['value'] || $webhook_call_doorbell_5_secure == $http_call['value']) {
-                    $this->SendDebug('Duplicate', $http_call['value'], 0);
-                    $duplicate_doorbell_5 = true;
-                }
-                if ($webhook_call_doorbell_6 == $http_call['value'] || $webhook_call_doorbell_6_secure == $http_call['value']) {
-                    $this->SendDebug('Duplicate', $http_call['value'], 0);
-                    $duplicate_doorbell_6 = true;
-                }
-                if ($webhook_call_dooropen_1 == $http_call['value'] || $webhook_call_dooropen_1_secure == $http_call['value']) {
-                    $this->SendDebug('Duplicate', $http_call['value'], 0);
-                    $duplicate_dooropen_1 = true;
-                }
-                if ($webhook_call_dooropen_2 == $http_call['value'] || $webhook_call_dooropen_2_secure == $http_call['value']) {
-                    $this->SendDebug('Duplicate', $http_call['value'], 0);
-                    $duplicate_dooropen_2 = true;
+
+                if (isset($expectedHttpFavorites[$favoriteKey])) {
+                    $this->SendDebug('Doorbird HTTP Repair', 'Delete wrong favorite occupying reserved ID ' . $favoriteKey, 0);
+                    $this->DeleteFavorites($favoriteKey, 'http');
                 }
             }
         }
-        //doorbell add favorites
-        if (!$duplicate_doorbell_1) {
-            $this->AddHTTPFavorite($this->Translate('Doorbell Event 1 IP-Symcon'), 'doorbell1', 1, $this->Translate('Doorbell Event 1 IP-Symcon'));
-            IPS_Sleep(300);
-        }
-        //motionsensor
-        if (!$duplicate_motionsensor) {
-            $this->AddHTTPFavorite($this->Translate('Motion Event IP-Symcon'), 'motionsensor', 7, $this->Translate('Motion Event IP-Symcon'));
-            IPS_Sleep(300);
-        }
-        //dooropen relay 1
-        if (!$duplicate_dooropen_1) {
-            $this->AddHTTPFavorite($this->Translate('Doorbell Open Event 1 IP-Symcon'), 'dooropen1', 8, $this->Translate('Doorbell Open Event 1 IP-Symcon'));
-            IPS_Sleep(300);
-        }
-        //dooropen relay 2
-        $model = $this->ReadPropertyInteger('model');
-        $relay_number = $this->GetNumberRelays($this->GetDeviceInformation($model));
-        $doorbell_number = $this->GetNumberDoorbells($this->GetDeviceInformation($model));
-        if ($relay_number == 2) {
-            if (!$duplicate_dooropen_2) {
-                $this->AddHTTPFavorite($this->Translate('Doorbell Open Event 2 IP-Symcon'), 'dooropen2', 9, $this->Translate('Doorbell Open Event 2 IP-Symcon'));
-                IPS_Sleep(300);
-            }
-        }
-        if ($doorbell_number > 1) {
-            if (!$duplicate_doorbell_2) {
-                $this->AddHTTPFavorite($this->Translate('Doorbell Event 2 IP-Symcon'), 'doorbell2', 2, $this->Translate('Doorbell Event 2 IP-Symcon'));
-                IPS_Sleep(300);
-            }
-        }
-        if ($doorbell_number > 2) {
-            if (!$duplicate_doorbell_3) {
-                $this->AddHTTPFavorite($this->Translate('Doorbell Event 3 IP-Symcon'), 'doorbell3', 3, $this->Translate('Doorbell Event 3 IP-Symcon'));
-                IPS_Sleep(300);
-            }
-        }
-        if ($doorbell_number > 3) {
-            if (!$duplicate_doorbell_4) {
-                $this->AddHTTPFavorite($this->Translate('Doorbell Event 4 IP-Symcon'), 'doorbell4', 4, $this->Translate('Doorbell Event 4 IP-Symcon'));
-                IPS_Sleep(300);
-            }
-        }
-        if ($doorbell_number > 4) {
-            if (!$duplicate_doorbell_5) {
-                $this->AddHTTPFavorite($this->Translate('Doorbell Event 5 IP-Symcon'), 'doorbell5', 5, $this->Translate('Doorbell Event 5 IP-Symcon'));
-                IPS_Sleep(300);
-            }
-        }
-        if ($doorbell_number > 5) {
-            if (!$duplicate_doorbell_6) {
-                $this->AddHTTPFavorite($this->Translate('Doorbell Event 6 IP-Symcon'), 'doorbell6', 6, $this->Translate('Doorbell Event 6 IP-Symcon'));
+        foreach ($expectedHttpFavorites as $favoriteId => $favoriteData) {
+            if (!$duplicateFlags[$favoriteId]) {
+                $this->SendDebug('Doorbird HTTP Repair', 'Create favorite for event ' . $favoriteData['event'] . ' at ID ' . $favoriteId, 0);
+                $this->AddHTTPFavorite($favoriteData['title'], $favoriteData['event'], $favoriteId, $favoriteData['title']);
                 IPS_Sleep(300);
             }
         }
@@ -843,19 +1036,19 @@ class Doorbird extends IPSModule
         */
     }
 
-    public function GetFavorites()
+    public function GetFavorites(): string|false
     {
         $URL = self::GET_FAVORITES;
         return $this->SendDoorbird($URL);
     }
 
-    public function DeleteFavorites(int $id, string $type)
+    public function DeleteFavorites(int $id, string $type): string|false
     {
         $URL = self::DELETE_FAVORITE . $type . '&id=' . $id;
         return $this->SendDoorbird($URL);
     }
 
-    public function AddHTTPFavorite(string $title, string $event, int $id, string $message)
+    public function AddHTTPFavorite(string $title, string $event, int $id, string $message): string|false
     {
         $event_value = $this->GetEventValue();
         $title = urlencode($title);
@@ -864,7 +1057,7 @@ class Doorbird extends IPSModule
         return $this->SendDoorbird($URL);
     }
 
-    public function AddSIPFavorite(string $title, string $event, int $id, string $message)
+    public function AddSIPFavorite(string $title, string $event, int $id, string $message): string|false
     {
         $event_value = $this->GetEventValue();
         $title = urlencode($title);
@@ -873,7 +1066,7 @@ class Doorbird extends IPSModule
         return $this->SendDoorbird($URL);
     }
 
-    public function SendDoorbird(string $URL)
+    public function SendDoorbird(string $URL): string|false
     {
         $doorbirduser = $this->ReadPropertyString('User');
         $doorbirdpassword = $this->ReadPropertyString('Password');
@@ -885,14 +1078,17 @@ class Doorbird extends IPSModule
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
         curl_setopt($ch, CURLOPT_USERPWD, "$doorbirduser:$doorbirdpassword");
+        $result = curl_exec($ch);
+        if ($result === false) {
+            $this->SendDebug('Doorbird CURL', 'Request failed: ' . curl_error($ch), 0);
+        }
         $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);   //get status code
         $this->SendDebug('Doorbird', 'Status Code ' . $status_code, 0);
-        $result = curl_exec($ch);
         curl_close($ch);
         return $result;
     }
 
-    public function GetSchedule()
+    public function GetSchedule(): string|false
     {
         $URL = self::GET_SCHEDULE;
         $result = $this->SendDoorbird($URL);
@@ -900,37 +1096,42 @@ class Doorbird extends IPSModule
         return $result;
     }
 
-    public function AddSchedule(string $schedule)
+    public function AddSchedule(string $schedule): string|false
     {
         $URL = self::GET_SCHEDULE;
         return $this->SendDoorbirdPOST($URL, $schedule);
     }
 
-    public function GetInfo()
+    public function GetInfo(): ?object
     {
-        $URL = self::GET_INFO;
-        $result = $this->SendDoorbird($URL);
-        $this->SendDebug('Doorbird Info:', $result, 0);
-        $result = json_decode($result);
+        $result = $this->RequestDoorbirdInfo();
+        if ($result === null) {
+            return null;
+        }
+        $this->SendDebug('Doorbird Info:', json_encode($result), 0);
+        $result = json_decode(json_encode($result));
         if (isset($result->BHA->VERSION[0]->FIRMWARE)) {
             $firmware = $result->BHA->VERSION[0]->FIRMWARE;
-
-            $this->SetValue('FirmwareVersion', $firmware);
+            if ($this->CheckExistence('FirmwareVersion')) {
+                $this->SetValue('FirmwareVersion', $firmware);
+            }
         }
         if (isset($result->BHA->VERSION[0]->BUILD_NUMBER)) {
             $buildnumber = $result->BHA->VERSION[0]->BUILD_NUMBER;
-
-            $this->SetValue('Buildnumber', $buildnumber);
+            if ($this->CheckExistence('Buildnumber')) {
+                $this->SetValue('Buildnumber', $buildnumber);
+            }
         }
         if (isset($result->BHA->VERSION[0]->WIFI_MAC_ADDR)) {
             $wifimacaddr = $result->BHA->VERSION[0]->WIFI_MAC_ADDR;
-
-            $this->SetValue('MACAdress', $wifimacaddr);
+            if ($this->CheckExistence('MACAdress')) {
+                $this->SetValue('MACAdress', $wifimacaddr);
+            }
         }
         return $result;
     }
 
-    public function GetHistory(int $ring_id)
+    public function GetHistory(int $ring_id): void
     {
         $name = 'Doorbird Klingel';
         $ident = 'DoorbirdRingPic';
@@ -938,6 +1139,10 @@ class Doorbird extends IPSModule
         for ($i = 1; $i <= 20; $i++) {
             $URL = self::GET_HISTORY . $i;
             $Content = $this->SendDoorbird($URL);
+            if ($Content === false || $Content === '') {
+                $this->SendDebug('Doorbird History', 'Could not load history image for index ' . $i, 0);
+                continue;
+            }
 
             //testen ob im Medienpool existent
             if ($ring_id == 1) {
@@ -955,7 +1160,7 @@ class Doorbird extends IPSModule
                 IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie Historie
                 IPS_SetIdent($MediaID, $ident . $i);
                 IPS_SetPosition($MediaID, $i);
-                IPS_SetMediaCached($MediaID, true);
+                IPS_SetMediaCached($MediaID, false);
                 // Das Cachen für das Mediaobjekt wird aktiviert.
                 // Beim ersten Zugriff wird dieses von der Festplatte ausgelesen
                 // und zukünftig nur noch im Arbeitsspeicher verarbeitet.
@@ -968,6 +1173,7 @@ class Doorbird extends IPSModule
                 IPS_SetMediaContent($MediaID, base64_encode($Content));  //Bild Base64 codieren und ablegen
                 IPS_SendMediaEvent($MediaID); //aktualisieren
             } else {
+                IPS_SetMediaCached($MediaID, false);
                 //$savetime = date('d.m.Y H:i:s');
                 //IPS_SetName($MediaID, $name.' '.$currentsnapshotid.' '.$savetime); // Medienobjekt benennen
                 //IPS_SetInfo ($MediaID, $savetime);
@@ -978,7 +1184,7 @@ class Doorbird extends IPSModule
         }
     }
 
-    public function GetSnapshot()
+    public function GetSnapshot(): void
     {
         $name = 'Doorbird Snapshot';
         $ident = 'DoorbirdSnapshotPic';
@@ -994,30 +1200,30 @@ class Doorbird extends IPSModule
         }
     }
 
-    public function GetRingPicture()
+    public function GetRingPicture(): void
     {
         $this->SetRingPicture(1);
     }
 
-    public function Light()
+    public function Light(): string|false
     {
         $URL = self::LIGHT;
         return $this->SendDoorbird($URL);
     }
 
-    public function OpenDoor()
+    public function OpenDoor(): string|false
     {
         $URL = self::OPEN_DOOR;
         return $this->SendDoorbird($URL);
     }
 
-    public function OpenDoorRelais(string $doorcontrollerID, int $relaisnumber)
+    public function OpenDoorRelais(string $doorcontrollerID, int $relaisnumber): string|false
     {
         $URL = self::OPEN_DOOR . '?r=' . $doorcontrollerID . '@' . $relaisnumber;
         return $this->SendDoorbird($URL);
     }
 
-    public function OpenDoorRelaisNumber(int $relaisnumber)
+    public function OpenDoorRelaisNumber(int $relaisnumber): string|false
     {
         $URL = self::OPEN_DOOR . '?r=' . $relaisnumber;
         return $this->SendDoorbird($URL);
@@ -1030,7 +1236,7 @@ class Doorbird extends IPSModule
      *
      * @return bool|void
      */
-    public function RequestAction($Ident, $Value)
+    public function RequestAction(string $Ident, mixed $Value): void
     {
         switch ($Ident) {
             case 'DoorbirdButtonLight':
@@ -1042,9 +1248,165 @@ class Doorbird extends IPSModule
             case 'DoorbirdButtonSnapshot':
                 $this->GetSnapshot();
                 break;
+            case 'VisualizationView':
+                $allowedViews = ['live', 'visitor', 'motion'];
+                if (!in_array((string) $Value, $allowedViews, true)) {
+                    throw new InvalidArgumentException('Invalid visualization view');
+                }
+                $this->WriteAttributeString('VisualizationView', (string) $Value);
+                $this->UpdateDoorbirdVisualization();
+                break;
+            case 'VisualizationRefreshSnapshot':
+                $this->GetSnapshot();
+                $this->UpdateDoorbirdVisualization();
+                break;
+            case 'VisualizationLight':
+                $this->Light();
+                break;
+            case 'VisualizationOpenDoor':
+                $this->OpenDoor();
+                break;
+            case 'VisualizationAcceptCall':
+                $this->AcceptDoorIPCall();
+                $this->UpdateDoorbirdVisualization();
+                break;
+            case 'VisualizationDeclineCall':
+                $this->DeclineDoorIPCall();
+                $this->UpdateDoorbirdVisualization();
+                break;
             default:
                 $this->SendDebug('Doorbird', 'Invalid ident', 0);
         }
+    }
+
+    public function GetVisualizationTile(): string
+    {
+        $template = file_get_contents(__DIR__ . '/assets/doorbirdTile.html');
+        if ($template === false) {
+            return '<div>DoorBird visualization could not be loaded.</div>';
+        }
+
+        $template = str_replace(
+            '__INITIAL_STATE__',
+            json_encode($this->GetVisualizationState(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP),
+            $template
+        );
+
+        $assets = '<script>';
+        $assets .= 'window.assets = window.assets || {};' . PHP_EOL;
+        $assets .= 'window.assets.iconDoor = "data:image/svg+xml;base64,' . $this->GetVisualizationAssetBase64('icon-door.svg') . '";' . PHP_EOL;
+        $assets .= 'window.assets.iconLight = "data:image/svg+xml;base64,' . $this->GetVisualizationAssetBase64('icon-light.svg') . '";' . PHP_EOL;
+        $assets .= 'window.assets.iconPhoneAccept = "data:image/svg+xml;base64,' . $this->GetVisualizationAssetBase64('icon-phone-accept.svg') . '";' . PHP_EOL;
+        $assets .= 'window.assets.iconPhoneDecline = "data:image/svg+xml;base64,' . $this->GetVisualizationAssetBase64('icon-phone-decline.svg') . '";' . PHP_EOL;
+        $assets .= '</script>';
+
+        return $assets . $template;
+    }
+
+    private function UpdateDoorbirdVisualization(): void
+    {
+        $payload = json_encode($this->GetVisualizationState(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ($payload === false) {
+            $this->SendDebug('Doorbird Visualization', 'Could not encode visualization payload', 0);
+            return;
+        }
+
+        $this->UpdateVisualizationValue($payload);
+    }
+
+    private function GetVisualizationState(): array
+    {
+        $view = $this->ReadAttributeString('VisualizationView');
+        if ($view === '') {
+            $view = 'live';
+        }
+
+        return [
+            'title'            => IPS_GetName($this->InstanceID),
+            'instanceID'       => $this->InstanceID,
+            'view'             => $view,
+            'liveMode'         => 'image',
+            'liveUrl'          => $this->GetVisualizationLiveUrl(),
+            'visitorUrl'       => $this->GetWebhookURL(false) . '/slideshowhistory',
+            'motionUrl'        => $this->GetWebhookURL(false) . '/slideshowsnapshot',
+            'webAdminUrl'      => 'https://webadmin.doorbird.com',
+            'snapshotWidth'    => $this->ReadPropertyInteger('iframe_width_snapshot'),
+            'snapshotHeight'   => $this->ReadPropertyInteger('iframe_height_snapshot'),
+            'historyWidth'     => $this->ReadPropertyInteger('iframe_width_history'),
+            'historyHeight'    => $this->ReadPropertyInteger('iframe_height_history'),
+            'lastRing'         => $this->GetVisualizationValue('LastRingtone'),
+            'lastMovement'     => $this->GetVisualizationValue('LastMovement'),
+            'host'             => $this->ReadPropertyString('Host'),
+            'hasCredentials'   => $this->HasDoorbirdCredentials(),
+            'status'           => $this->GetStatus(),
+            'doorIpInstanceID' => $this->GetDoorIPInstanceID(),
+            'doorIpAvailable'  => $this->GetDoorIPInstanceID() > 0
+        ];
+    }
+
+    private function GetVisualizationLiveUrl(): string
+    {
+        $hostdoorbell = $this->ReadPropertyString('Host');
+        $doorbirduser = $this->ReadPropertyString('User');
+        $password = $this->ReadPropertyString('Password');
+        $portdoorbell = $this->ReadPropertyInteger('PortDoorbell');
+
+        if ($hostdoorbell === '' || $doorbirduser === '' || $password === '') {
+            return '';
+        }
+
+        $prefix = $this->GetURLPrefix($hostdoorbell);
+        return $prefix . $hostdoorbell . ':' . $portdoorbell . self::LIVE_VIDEO_REQUEST . '?http-user=' . rawurlencode($doorbirduser) . '&http-password=' . rawurlencode($password);
+    }
+
+    private function GetVisualizationValue(string $ident): string
+    {
+        if (!$this->CheckExistence($ident)) {
+            return '';
+        }
+
+        return (string) GetValue($this->GetIDForIdent($ident));
+    }
+
+    private function GetVisualizationAssetBase64(string $filename): string
+    {
+        $path = __DIR__ . '/assets/' . $filename;
+        if (!is_file($path)) {
+            $this->SendDebug('Doorbird Visualization', 'Visualization asset not found: ' . $path, 0);
+            return '';
+        }
+
+        $icon = file_get_contents($path);
+        if ($icon === false) {
+            $this->SendDebug('Doorbird Visualization', 'Could not read visualization asset: ' . $path, 0);
+            return '';
+        }
+
+        return base64_encode($icon);
+    }
+
+    private function AcceptDoorIPCall(): void
+    {
+        $doorIPInstanceID = $this->GetDoorIPInstanceID();
+        if ($doorIPInstanceID <= 0) {
+            $this->SendDebug('Doorbird Visualization', 'DoorIP accept skipped because no DoorIP instance is configured', 0);
+            return;
+        }
+
+        $this->SendDebug('Doorbird Visualization', 'Accept DoorIP call on instance ' . $doorIPInstanceID, 0);
+        DoorIP_Accept($doorIPInstanceID);
+    }
+
+    private function DeclineDoorIPCall(): void
+    {
+        $doorIPInstanceID = $this->GetDoorIPInstanceID();
+        if ($doorIPInstanceID <= 0) {
+            $this->SendDebug('Doorbird Visualization', 'DoorIP decline skipped because no DoorIP instance is configured', 0);
+            return;
+        }
+
+        $this->SendDebug('Doorbird Visualization', 'Decline DoorIP call on instance ' . $doorIPInstanceID, 0);
+        DoorIP_Decline($doorIPInstanceID);
     }
 
     /*
@@ -1056,7 +1418,7 @@ class Doorbird extends IPSModule
      *
      * @return string
      */
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         // return current form
         return json_encode(
@@ -1087,7 +1449,7 @@ class Doorbird extends IPSModule
         }
         $this->SetValue('DoorbirdVideo', $DoorbirdVideoHTML);
         $this->RegisterProfile('Doorbird.Ring', 'Alert', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
-        $model = $this->ReadPropertyInteger('model');
+        $model = $this->GetCurrentModel();
         $doorbell_number = $this->GetNumberDoorbells($this->GetDeviceInformation($model));
         if ($doorbell_number > 0) {
             $this->RegisterVariableString('LastRingtone', $this->Translate('Time last bell'), 'Doorbird.Ring', $this->_getPosition());
@@ -1138,6 +1500,8 @@ class Doorbird extends IPSModule
             $this->RegisterMessage($this->GetIDForIdent('LastDoorOpen_2'), VM_UPDATE);
             $this->SendDebug('Doorbird', 'Register Message LastDoorOpen_2', 0);
         }
+        $this->RegisterProfile('Doorbird.CustomEvent', 'Clock', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
+        $this->SetupCustomEventVariables();
 
         $this->RegisterProfile('Doorbird.Firmware', 'Robot', '', '', 0, 0, 1, 0, VARIABLETYPE_STRING);
         $this->RegisterVariableString('FirmwareVersion', $this->Translate('Doorbird Firmware Version'), 'Doorbird.Firmware', $this->_getPosition());
@@ -1220,11 +1584,12 @@ class Doorbird extends IPSModule
             $content = '<iframe src="' . $this->GetWebhookURL(false) . '/slideshowsnapshot" width=' . $this->ReadPropertyInteger('iframe_width_snapshot') . 'px height=' . $this->ReadPropertyInteger('iframe_height_snapshot') . 'px></iframe>';
             $this->SetIcon('slideshow_snapshot', 'Camera', $exist_slideshow_snapshot);
             $this->SetValue('slideshow_snapshot', $content);
+            $this->SendDebug('Doorbird Slideshow', 'Snapshot slideshow iframe URL: ' . $this->GetWebhookURL(false) . '/slideshowsnapshot', 0);
         }
         if ($this->ReadPropertyBoolean('webadmin')) {
             $exist_webadmin = $this->CheckExistence('webadmin');
             $this->RegisterVariableString('webadmin', $this->Translate('Web Admin'), '~HTMLBox', $this->_getPosition());
-            $content = '<iframe src="https://webadmin.doorbird.com" width=' . $this->ReadPropertyInteger('iframe_width_webadmin') . 'px height=' . $this->ReadPropertyInteger('iframe_height_webadmin') . 'px></iframe>';
+            $content = $this->GetWebAdminHTML();
             $this->SetIcon('webadmin', 'Database', $exist_webadmin);
             $this->SetValue('webadmin', $content);
         }
@@ -1248,59 +1613,59 @@ class Doorbird extends IPSModule
 
     protected function GetHostIP()
     {
-        $ip = exec('sudo ifconfig eth0 | grep "inet Adresse:" | cut -d: -f2 | awk "{ print $1}"');
-        if ($ip == '') {
-            $ipinfo = Sys_GetNetworkInfo();
-            $ip = $ipinfo[0]['IP'];
+        $networkInformation = Sys_GetNetworkInfo();
+        $ipAddresses = [];
+        foreach ($networkInformation as $device) {
+            if (!isset($device['IP'])) {
+                continue;
+            }
+            $ips = $device['IP'];
+            if (!is_array($ips)) {
+                $ips = [$ips];
+            }
+            foreach ($ips as $ip) {
+                $ip = trim((string) $ip);
+                if ($ip !== '' && preg_match('/^(\d{1,3}\.){3}\d{1,3}$/', $ip)) {
+                    $ipAddresses[] = $ip;
+                }
+            }
         }
-        return $ip;
+        if ($ipAddresses !== []) {
+            $this->SendDebug('Doorbird Host IP', 'Use host IP ' . $ipAddresses[0] . ' from Sys_GetNetworkInfo', 0);
+            return $ipAddresses[0];
+        }
+
+        $fallbackIp = gethostbyname(gethostname());
+        if (is_string($fallbackIp) && preg_match('/^(\d{1,3}\.){3}\d{1,3}$/', $fallbackIp)) {
+            $this->SendDebug('Doorbird Host IP', 'Use fallback host IP ' . $fallbackIp, 0);
+            return $fallbackIp;
+        }
+
+        $this->SendDebug('Doorbird Host IP', 'Could not determine host IP address', 0);
+        return '';
+    }
+
+    protected function GetWebAdminHTML(): string
+    {
+        $url = 'https://webadmin.doorbird.com';
+        $this->SendDebug('Doorbird WebAdmin', 'Render link card for ' . $url, 0);
+
+        return '<div style="padding:16px;font-family:Arial,sans-serif;line-height:1.5;">'
+            . '<p><strong>DoorBird WebAdmin</strong></p>'
+            . '<p>The external DoorBird WebAdmin blocks embedding in an iframe. Use the following link to open it directly:</p>'
+            . '<p><a href="' . $url . '" target="_blank" rel="noopener noreferrer">' . $url . '</a></p>'
+            . '</div>';
     }
 
     protected function CheckEmail($email)
     {
-        $ipsversion = $this->GetIPSVersion();
         if ($email == '') {
             $this->SetStatus(214); // email not set
         }
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            //email valid
-            if ($ipsversion == 0) {
-                //Skript beim EmailAlert
-                $IDEmail = @($this->GetIDForIdent('SendEmailAlert'));
-                if ($IDEmail === false) {
-                    $IDEmail = $this->RegisterScript('SendEmailAlert', 'Email Alert', $this->CreateEmailAlertScript($email), 19);
-                    IPS_SetHidden($IDEmail, true);
-                }
-                $this->SetEmailEvent($IDEmail, true);
-            }
+            return;
         } else {
             $this->SetStatus(207); //email not valid
-        }
-    }
-
-    /**
-     * Löscht einen WebHook, wenn vorhanden.
-     *
-     * @param string $WebHook URI des WebHook.
-     */
-    protected function UnregisterHook(string $WebHook)
-    {
-        $ids = IPS_GetInstanceListByModuleID('{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}');
-        $index = 0;
-        if (count($ids) > 0) {
-            $hooks = json_decode(IPS_GetProperty($ids[0], 'Hooks'), true);
-            $found = false;
-            foreach ($hooks as $index => $hook) {
-                if ($hook['Hook'] == $WebHook) {
-                    $found = $index;
-                    break;
-                }
-            }
-            if ($found !== false) {
-                array_splice($hooks, $index, 1);
-                IPS_SetProperty($ids[0], 'Hooks', json_encode($hooks));
-                IPS_ApplyChanges($ids[0]);
-            }
         }
     }
 
@@ -1422,7 +1787,7 @@ class Doorbird extends IPSModule
             $Childs[] = IPS_GetChildrenIDs($InstanzID);
         }
 
-        if ($ConnectControl > 0) {
+        if ($ConnectControl > 0 && function_exists('CC_GetUrl')) {
             return CC_GetUrl($ConnectControl);
         } else {
             return false;
@@ -1461,7 +1826,51 @@ class Doorbird extends IPSModule
         }
     }
 
-    public function DebugGetAttribute(string $attributename, string $type)
+    protected function SetupCustomEventVariables(): void
+    {
+        foreach ($this->GetCustomEventsConfiguration() as $customEvent) {
+            $ident = $customEvent['ident'];
+            $name = $customEvent['name'];
+            $this->RegisterVariableString($ident, $name, 'Doorbird.CustomEvent', $this->_getPosition());
+        }
+    }
+
+    protected function HandleCustomEvent(string $eventName): bool
+    {
+        $eventName = strtolower(trim($eventName));
+        foreach ($this->GetCustomEventsConfiguration() as $customEvent) {
+            if ($customEvent['event'] !== $eventName) {
+                continue;
+            }
+
+            $this->SendDebug('Doorbird Custom Event', 'Trigger custom event ' . $eventName . ' for variable ' . $customEvent['ident'], 0);
+            $this->SetCustomEventValue($customEvent);
+            return true;
+        }
+
+        return false;
+    }
+
+    protected function SetCustomEventValue(array $customEvent): void
+    {
+        $ident = $customEvent['ident'];
+        if (!$this->CheckExistence($ident)) {
+            $this->SendDebug('Doorbird Custom Event', 'Variable for custom event ' . $customEvent['event'] . ' does not exist', 0);
+            return;
+        }
+
+        $relaxation = $customEvent['relaxation'];
+        $lastWrite = IPS_GetVariable($this->GetIDForIdent($ident))['VariableChanged'];
+        $currentTime = time();
+        if (($currentTime - $lastWrite) <= $relaxation) {
+            $this->SendDebug('Doorbird Custom Event', 'Skip custom event ' . $customEvent['event'] . ' due to relaxation', 0);
+            return;
+        }
+
+        $this->SetValue($ident, date('d.m.y H:i:s'));
+    }
+
+    public function DebugGetAttribute(string $attributename, string $type): mixed
     {
         if($type == "bool")
         {
@@ -1482,7 +1891,7 @@ class Doorbird extends IPSModule
         return $attribute;
     }
 
-    public function EnableSmartlock(bool $enable)
+    public function EnableSmartlock(bool $enable): void
     {
         $this->WriteAttributeBoolean('Smartlock', $enable);
         $this->WriteAttributeBoolean('SmartlockID_Visibility', $enable);
@@ -1495,33 +1904,40 @@ class Doorbird extends IPSModule
             $this->UpdateFormField("SmartlockID", "visible", false);
             $this->UpdateFormField("SmartlockValue", "visible", false);
             $this->UpdateFormField("SmartlockURL", "visible", false);
+            $this->UpdateFormField("SmartlockPulseDuration", "visible", false);
             $this->UpdateFormField("SmartlockLabel", "italic", false);
         }
     }
 
-    public function EnableSmartlockValue(int $id)
+    public function EnableSmartlockValue(int $id): void
     {
         $this->WriteAttributeBoolean('SmartlockValue_Visibility', true);
         $this->WriteAttributeInteger('SmartlockID', $id);
         $options = [];
+        $showPulseDuration = false;
         if($id > 0)
         {
             $var_info = IPS_GetVariable($id);
+            $showPulseDuration = ($var_info['VariableType'] == VARIABLETYPE_BOOLEAN);
             $profile = $var_info['VariableProfile'];
             if($profile == ""){
                 $profile = $var_info['VariableCustomProfile'];
             }
-            $var_profile = IPS_GetVariableProfile($profile);
-            $associations = $var_profile['Associations'];
-            foreach($associations as $association)
-            {
-                $options[] = ["caption" => $association['Name'], "value" => $association['Value']];
+            if ($profile != '') {
+                $var_profile = IPS_GetVariableProfile($profile);
+                $associations = $var_profile['Associations'];
+                foreach($associations as $association)
+                {
+                    $options[] = ["caption" => $association['Name'], "value" => $association['Value']];
+                }
             }
         }
         $this->WriteAttributeString('SmartlockValueOptions', json_encode($options));
+        $this->WriteAttributeBoolean('SmartlockPulseDuration_Visibility', $showPulseDuration);
         if($id > 0)
         {
             $this->UpdateFormField("SmartlockValue", "visible", true);
+            $this->UpdateFormField("SmartlockPulseDuration", "visible", $showPulseDuration);
             $this->ReloadForm();
         }
     }
@@ -1534,15 +1950,43 @@ class Doorbird extends IPSModule
         }
         elseif ($type == 'connect')
         {
-            $smartlook_url = $this->GetConnectURL() . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=smartlook';
+            $connectUrl = $this->GetConnectURL();
+            if ($connectUrl === false) {
+                return 'IP-Symcon Connect is not available';
+            }
+            $smartlook_url = $connectUrl . '/hook/doorbird' . $this->InstanceID . '?doorbirdevent=smartlook';
         }
         return $smartlook_url;
     }
 
-    public function SetSmartlockValue(string $value)
+    public function SetSmartlockValue(string $value): void
     {
         $this->WriteAttributeString('SmartlockValue', $value);
         $this->UpdateFormField("SmartlockURL", "visible", true);
+    }
+
+    public function SetSmartlockPulseDuration(int $seconds): void
+    {
+        $seconds = max(0, $seconds);
+        $this->WriteAttributeInteger('SmartlockPulseDuration', $seconds);
+    }
+
+    public function ResetSmartlockPulse(): void
+    {
+        $this->SetTimerInterval('ResetSmartlockPulse', 0);
+        $smartlockId = $this->ReadAttributeInteger('SmartlockID');
+        if ($smartlockId <= 0 || !IPS_VariableExists($smartlockId)) {
+            return;
+        }
+
+        $varInfo = IPS_GetVariable($smartlockId);
+        if ($varInfo['VariableType'] !== VARIABLETYPE_BOOLEAN) {
+            return;
+        }
+
+        $resetValue = filter_var($this->ReadAttributeString('SmartlockPulseResetValue'), FILTER_VALIDATE_BOOLEAN);
+        $this->SendDebug('Doorbird', 'Reset Smartlock pulse with ID ' . $smartlockId . ' to value ' . ($resetValue ? 'true' : 'false'), 0);
+        RequestAction($smartlockId, $resetValue);
     }
 
     protected function GetSmartlockValue()
@@ -1580,6 +2024,9 @@ class Doorbird extends IPSModule
     protected function SetSmartlock()
     {
         $smartlock_id = $this->ReadAttributeInteger('SmartlockID');
+        if ($smartlock_id <= 0 || !IPS_VariableExists($smartlock_id)) {
+            return;
+        }
         $smartlock_value = $this->ReadAttributeString('SmartlockValue');
         $var_info = IPS_GetVariable($smartlock_id);
         $variable_type = $var_info['VariableType'];
@@ -1603,131 +2050,229 @@ class Doorbird extends IPSModule
         {
             $this->SendDebug('Doorbird:', 'Set Smartlook with ID ' . $smartlock_id . ' to value ' . print_r($smartlock_value), 0);
             RequestAction($smartlock_id, $smartlock_value);
+            if ($variable_type == VARIABLETYPE_BOOLEAN) {
+                $pulseDuration = $this->ReadAttributeInteger('SmartlockPulseDuration');
+                if ($pulseDuration > 0) {
+                    $resetValue = $smartlock_value ? 'false' : 'true';
+                    $this->WriteAttributeString('SmartlockPulseResetValue', $resetValue);
+                    $this->SetTimerInterval('ResetSmartlockPulse', $pulseDuration * 1000);
+                    $this->SendDebug('Doorbird:', 'Schedule Smartlock pulse reset in ' . $pulseDuration . ' seconds', 0);
+                } else {
+                    $this->SetTimerInterval('ResetSmartlockPulse', 0);
+                }
+            }
         }
     }
 
-    public function EnableTileValue(int $number, int $id)
+    protected function GetA1101ActionURL(string $type, int $index): string
     {
-        $this->WriteAttributeBoolean('Tile' . $number . 'Value_Visibility', true);
-        $this->WriteAttributeInteger('Tile' .  $number, $id);
-        $options = [];
-        if($id > 0)
-        {
-            $var_info = IPS_GetVariable($id);
-            $profile = $var_info['VariableProfile'];
-            if($profile == ""){
-                $profile = $var_info['VariableCustomProfile'];
-            }
-            $var_profile = IPS_GetVariableProfile($profile);
-            $associations = $var_profile['Associations'];
-            foreach($associations as $association)
-            {
-                $options[] = ["caption" => $association['Name'], "value" => $association['Value']];
-            }
-        }
-        $this->WriteAttributeString('Tile' . $number . 'ValueOptions', json_encode($options));
-        if($number < 10)
-        {
-            $next = $number + 1;
-            $this->UpdateFormField("Tile" . $next, "visible", true);
-        }
-
-        if($id > 0)
-        {
-            $this->UpdateFormField("Tile" . $number . "Value", "visible", true);
-            $this->ReloadForm();
-        }
+        $useSecureWebhook = ($this->ReadPropertyString('webhookusername') !== '') && ($this->ReadPropertyString('webhookpassword') !== '');
+        return $this->GetWebhookURL($useSecureWebhook) . '?doorbirdevent=' . urlencode($type) . '&id=' . $index;
     }
 
-    protected function SetTile($id, $variable_id)
+    private function GetA1101CallsConfiguration(): array
     {
-        $this->WriteAttributeInteger('Tile'.$id, $variable_id);
-        $this->WriteAttributeBoolean('Tile'.$id.'_Visibility', true);
-        $this->UpdateFormField('Tile'.$id, "visible", true);
-        if($id < 10)
-        {
-            $next = $id + 1;
-            $this->UpdateFormField("Tile" . $next, "visible", true);
+        $calls = json_decode($this->ReadPropertyString('a1101_calls'), true);
+        if (!is_array($calls)) {
+            $calls = [];
         }
+
+        return $this->NormalizeA1101CallsConfiguration($calls);
     }
 
-    protected function GetTileURL($number)
+    private function NormalizeA1101CallsConfiguration(array $calls): array
     {
-        $tile_url = $this->GetWebhookURL(false) . '?doorbirdevent=tile' . $number;
-        return $tile_url;
+        $normalized = [];
+        $favorite = null;
+        $tiles = [];
+
+        foreach ($calls as $call) {
+            if (!is_array($call)) {
+                continue;
+            }
+
+            $type = strtolower((string) ($call['Type'] ?? 'tile'));
+            if (!in_array($type, ['favorite', 'tile'], true)) {
+                $type = 'tile';
+            }
+
+            $entry = [
+                'Type'           => $type,
+                'Index'          => (int) ($call['Index'] ?? 0),
+                'Name'           => trim((string) ($call['Name'] ?? '')),
+                'Alias'          => trim((string) ($call['Alias'] ?? '')),
+                'VariableID'     => (int) ($call['VariableID'] ?? 0),
+                'Value_Variable' => $call['Value_Variable'] ?? ($call['Value'] ?? 0)
+            ];
+
+            if ($type === 'favorite') {
+                if ($favorite === null) {
+                    $favorite = $entry;
+                }
+                continue;
+            }
+
+            $tiles[] = $entry;
+        }
+
+        if ($favorite === null) {
+            $favorite = [
+                'Type'           => 'favorite',
+                'Index'          => 1,
+                'Name'           => 'Favorite',
+                'Alias'          => '',
+                'VariableID'     => 0,
+                'Value_Variable' => 0
+            ];
+        }
+        $favorite['Index'] = 1;
+        if ($favorite['Name'] === '') {
+            $favorite['Name'] = 'Favorite';
+        }
+
+        $nextTileIndex = 1;
+        foreach ($tiles as &$tile) {
+            $tile['Index'] = $nextTileIndex;
+            if ($tile['Name'] === '') {
+                $tile['Name'] = 'Tile ' . $nextTileIndex;
+            }
+            $nextTileIndex++;
+        }
+        unset($tile);
+
+        if ($tiles === []) {
+            $tiles[] = [
+                'Type'           => 'tile',
+                'Index'          => 1,
+                'Name'           => 'Tile 1',
+                'Alias'          => '',
+                'VariableID'     => 0,
+                'Value_Variable' => 0
+            ];
+        }
+
+        return array_merge([$favorite], $tiles);
     }
 
-    public function SetTileValue(int $number, string $value)
+    private function GetA1101CallsFormValues(): array
     {
-        $this->WriteAttributeString('Tile' . $number . 'Value', $value);
-        $this->UpdateFormField("Tile" . $number . "URL", "visible", true);
-        if($number < 10)
-        {
-            $next = $number + 1;
-            $this->UpdateFormField("Tile" . $next, "visible", true);
+        $values = [];
+        foreach ($this->GetA1101CallsConfiguration() as $call) {
+            $isMinimumEntry = ($call['Type'] === 'favorite' && $call['Index'] === 1) || ($call['Type'] === 'tile' && $call['Index'] === 1);
+            $values[] = [
+                'Type'           => $call['Type'],
+                'TypeLabel'      => $call['Type'] === 'favorite' ? 'Favorite' : 'Tile',
+                'Index'          => $call['Index'],
+                'Name'           => $call['Name'],
+                'Alias'          => $call['Alias'],
+                'VariableID'     => $call['VariableID'],
+                'Value_Variable' => $call['Value_Variable'],
+                'HTTPCall'       => $this->GetA1101ActionURL($call['Type'], $call['Index']),
+                'deletable'      => !$isMinimumEntry
+            ];
         }
+
+        return $values;
     }
 
-    protected function GetTileValue(int $number)
+    private function GetA1101ValueOptionsHint(int $variableID): string
     {
-        $tile_value = $this->ReadAttributeString('Tile' . $number . 'Value');
-        $tile_id = $this->ReadAttributeInteger('Tile' . $number);
-        if($tile_id > 0)
-        {
-            $var_info = IPS_GetVariable($tile_id);
-            $variable_type = $var_info['VariableType'];
-            if($variable_type == VARIABLETYPE_BOOLEAN)
-            {
-                $tile_value = boolval($tile_value);
-            }
-            if($variable_type == VARIABLETYPE_INTEGER)
-            {
-                $tile_value = intval($tile_value);
-            }
-            if($variable_type == VARIABLETYPE_FLOAT)
-            {
-                $tile_value = floatval($tile_value);
-            }
-            if($variable_type == VARIABLETYPE_STRING)
-            {
-                $tile_value = strval($tile_value);
-            }
-        }
-        else
-        {
-            $tile_value = 0;
+        if ($variableID <= 0 || !IPS_VariableExists($variableID)) {
+            return '';
         }
 
-        return $tile_value;
+        $variable = IPS_GetVariable($variableID);
+        $profile = $variable['VariableProfile'];
+        if ($profile === '') {
+            $profile = $variable['VariableCustomProfile'];
+        }
+
+        if ($profile !== '') {
+            $profileInfo = IPS_GetVariableProfile($profile);
+            $associations = $profileInfo['Associations'] ?? [];
+            if ($associations !== []) {
+                $options = [];
+                foreach ($associations as $association) {
+                    $label = $association['Name'] !== '' ? $association['Name'] : (string) $association['Value'];
+                    $options[] = $label . '=' . $association['Value'];
+                }
+                return implode(', ', $options);
+            }
+        }
+
+        return match ($variable['VariableType']) {
+            VARIABLETYPE_BOOLEAN => 'false, true, 0, 1',
+            VARIABLETYPE_INTEGER => 'Integer value',
+            VARIABLETYPE_FLOAT => 'Float value',
+            VARIABLETYPE_STRING => 'Free text',
+            default => ''
+        };
     }
 
-    protected function SetDevice($number)
+    private function ExecuteA1101ConfiguredAction(string $type, int $index): bool
     {
-        $tile_id = $this->ReadAttributeInteger('Tile' . $number);
-        $tile_value = $this->ReadAttributeString('Tile' . $number . 'Value');
-        $var_info = IPS_GetVariable($tile_id);
-        $variable_type = $var_info['VariableType'];
-        if($variable_type == VARIABLETYPE_BOOLEAN)
-        {
-            $tile_value = boolval($tile_id);
+        foreach ($this->GetA1101CallsConfiguration() as $call) {
+            if ($call['Type'] !== $type || $call['Index'] !== $index) {
+                continue;
+            }
+
+            $variableID = $call['VariableID'];
+            if ($variableID <= 0 || !IPS_VariableExists($variableID)) {
+                $this->SendDebug('Doorbird A1101', 'No valid variable configured for ' . $type . ' #' . $index, 0);
+                return false;
+            }
+
+            $value = $this->ConvertA1101ConfiguredValue($variableID, $call['Value_Variable']);
+            $this->SendDebug('Doorbird A1101', 'Trigger ' . $type . ' #' . $index . ' on variable ' . $variableID . ' with value ' . json_encode($value), 0);
+            RequestAction($variableID, $value);
+            return true;
         }
-        if($variable_type == VARIABLETYPE_INTEGER)
-        {
-            $tile_value = intval($tile_id);
+
+        return false;
+    }
+
+    public function UpdateA1101ValueVariable(int $variableID): void
+    {
+        $this->SendDebug(
+            'Doorbird A1101',
+            'UpdateA1101ValueVariable triggered with VariableID=' . $variableID,
+            0
+        );
+
+        if ($variableID <= 0 || !IPS_VariableExists($variableID)) {
+            $this->SendDebug('Doorbird A1101', 'Invalid variable ID for Value_Variable', 0);
+            $this->UpdateFormField('Value_Variable', 'visible', false);
+            return;
         }
-        if($variable_type == VARIABLETYPE_FLOAT)
-        {
-            $tile_value = floatval($tile_id);
+
+        $this->UpdateFormField('Value_Variable', 'variableID', $variableID);
+        $this->UpdateFormField('Value_Variable', 'visible', true);
+    }
+
+    private function ConvertA1101ConfiguredValue(int $variableID, mixed $configuredValue): mixed
+    {
+        $variable = IPS_GetVariable($variableID);
+        $profile = $variable['VariableProfile'];
+        if ($profile === '') {
+            $profile = $variable['VariableCustomProfile'];
         }
-        if($variable_type == VARIABLETYPE_STRING)
-        {
-            $tile_value = strval($tile_id);
+
+        if ($profile !== '') {
+            $profileInfo = IPS_GetVariableProfile($profile);
+            foreach (($profileInfo['Associations'] ?? []) as $association) {
+                if ((string) $association['Value'] === (string) $configuredValue || (is_string($configuredValue) && strcasecmp($association['Name'], $configuredValue) === 0)) {
+                    return $association['Value'];
+                }
+            }
         }
-        if($tile_id > 0)
-        {
-            $this->SendDebug('Doorbird:', 'Set Device for tile ' . $number . ' with ID ' . $tile_id . ' to value ' . print_r($tile_value), 0);
-            RequestAction($tile_id, $tile_value);
-        }
+
+        return match ($variable['VariableType']) {
+            VARIABLETYPE_BOOLEAN => filter_var($configuredValue, FILTER_VALIDATE_BOOLEAN),
+            VARIABLETYPE_INTEGER => (int) $configuredValue,
+            VARIABLETYPE_FLOAT => (float) $configuredValue,
+            VARIABLETYPE_STRING => (string) $configuredValue,
+            default => $configuredValue
+        };
     }
 
     protected function SetLastDoorOpen($id)
@@ -1738,6 +2283,10 @@ class Doorbird extends IPSModule
         if (($current_time - $last_write) > $relaxationdooropen) {
             $this->SendDebug('Doorbird:', 'dooropen event', 0);
             if ($id == 2) {
+                if (!$this->CheckExistence('LastDoorOpen_2')) {
+                    $this->SendDebug('Doorbird:', 'Ignoring second relay event because LastDoorOpen_2 is not available for this model', 0);
+                    return;
+                }
                 $this->SetValue('LastDoorOpen_2', date('d.m.y H:i:s'));
             } else {
                 $this->SetValue('LastDoorOpen', date('d.m.y H:i:s'));
@@ -1773,7 +2322,7 @@ class Doorbird extends IPSModule
     /**
      * This function will be called by the hook control. Visibility should be protected!
      */
-    protected function ProcessHookData()
+    protected function ProcessHookData(): void
     {
         $webhookusername = $this->ReadPropertyString('webhookusername');
         $webhookpassword = $this->ReadPropertyString('webhookpassword');
@@ -1783,11 +2332,27 @@ class Doorbird extends IPSModule
         $script_name = substr($_SERVER['SCRIPT_NAME'], strlen('/hook/doorbird' . $this->InstanceID));
         // $this->SendDebug('Request Script Name:', $script_name, 0);
         $request_type = strpos($script_name, 'picture');
+        $this->SendDebug(
+            'Doorbird Webhook Request',
+            'Incoming request: ' . json_encode([
+                'InstanceID'     => $this->InstanceID,
+                'REQUEST_URI'    => $_SERVER['REQUEST_URI'] ?? '',
+                'SCRIPT_NAME'    => $_SERVER['SCRIPT_NAME'] ?? '',
+                'REQUEST_METHOD' => $_SERVER['REQUEST_METHOD'] ?? '',
+                'QUERY_STRING'   => $_SERVER['QUERY_STRING'] ?? '',
+                'REMOTE_ADDR'    => $_SERVER['REMOTE_ADDR'] ?? '',
+                'HTTP_HOST'      => $_SERVER['HTTP_HOST'] ?? '',
+                'script_name'    => $script_name,
+                'request_type'   => $request_type
+            ]),
+            0
+        );
         if ($request_type == 1 || $script_name == '/slideshowhistory' || $script_name == '/slideshowhistory2' || $script_name == '/slideshowhistory3' || $script_name == '/slideshowhistory4'|| $script_name == '/slideshowhistory5'|| $script_name == '/slideshowhistory6' || $script_name == '/slideshowsnapshot' || $script_name == '/cssslideshow' || $script_name == '/cssslideshow/' || $script_name == '/cssslideshow/css-fadeshow.css' || $script_name == '/cssslideshow/css-fadeshow.css/') {
             $passwordcheck = false;
         } else {
             $passwordcheck = true;
         }
+        $this->SendDebug('Doorbird Webhook Request', 'Password check required: ' . ($passwordcheck ? 'yes' : 'no'), 0);
 
         if ($passwordcheck) {
             if (!isset($_SERVER['PHP_AUTH_USER'])) {
@@ -1807,11 +2372,13 @@ class Doorbird extends IPSModule
 
             if (($_SERVER['PHP_AUTH_USER'] != $webhookusername) || ($_SERVER['PHP_AUTH_PW'] != $webhookpassword)) {
                 $this->SendDebug('Doorbird:', 'wrong webhook user or password', 0);
+                $this->SendDebug('Doorbird Webhook Request', 'Reject request with HTTP 401 for path ' . $script_name, 0);
                 header('WWW-Authenticate: Basic Realm="Doorbird WebHook"');
                 header('HTTP/1.0 401 Unauthorized');
                 echo 'Authorization required';
                 return;
             }
+            $this->SendDebug('Doorbird Webhook Request', 'Basic authentication accepted for path ' . $script_name, 0);
         }
 
         if ($request_type == 1) { // Picture Request
@@ -1841,32 +2408,42 @@ class Doorbird extends IPSModule
             if ($this->GetPictureDebug()) {
                 $this->SendDebug('File Extension:', $file_extension, 0);
             }
+            $this->SendDebug('Doorbird Webhook Request', 'Serve picture request ' . $script_name, 0);
             $this->GetPictureFromMedia($picture_type, $history_index, $file_extension, $picture_index);
         } elseif ($script_name == '/slideshowhistory') {
+            $this->SendDebug('Doorbird Webhook Request', 'Serve slideshowhistory', 0);
             $html = $this->GetSlideShow('slideshowhistory');
             echo $html;
         } elseif ($script_name == '/slideshowhistory2') {
+            $this->SendDebug('Doorbird Webhook Request', 'Serve slideshowhistory2', 0);
             $html = $this->GetSlideShow('slideshowhistory2');
             echo $html;
         } elseif ($script_name == '/slideshowhistory3') {
+            $this->SendDebug('Doorbird Webhook Request', 'Serve slideshowhistory3', 0);
             $html = $this->GetSlideShow('slideshowhistory3');
             echo $html;
         } elseif ($script_name == '/slideshowhistory4') {
+            $this->SendDebug('Doorbird Webhook Request', 'Serve slideshowhistory4', 0);
             $html = $this->GetSlideShow('slideshowhistory4');
             echo $html;
         }elseif ($script_name == '/slideshowhistory5') {
+            $this->SendDebug('Doorbird Webhook Request', 'Serve slideshowhistory5', 0);
             $html = $this->GetSlideShow('slideshowhistory5');
             echo $html;
         }elseif ($script_name == '/slideshowhistory6') {
+            $this->SendDebug('Doorbird Webhook Request', 'Serve slideshowhistory6', 0);
             $html = $this->GetSlideShow('slideshowhistory6');
             echo $html;
         }elseif ($script_name == '/slideshowsnapshot') {
+            $this->SendDebug('Doorbird Webhook Request', 'Serve slideshowsnapshot', 0);
             $html = $this->GetSlideShow('slideshowsnapshot');
             echo $html;
         } elseif ($script_name == '/cssslideshow' || $script_name == '/cssslideshow/' || $script_name == '/cssslideshow/css-fadeshow.css' || $script_name == '/cssslideshow/css-fadeshow.css/') {
+            $this->SendDebug('Doorbird Webhook Request', 'Serve slideshow CSS asset for ' . $script_name, 0);
             $html = $this->GetSlideShowCSS($script_name);
             echo $html;
         } else {
+            $this->SendDebug('Doorbird Webhook Request', 'Serve default webhook response for ' . $script_name, 0);
             echo 'Webhook Doorbird IP-Symcon';
         }
 
@@ -1883,59 +2460,61 @@ class Doorbird extends IPSModule
         if (isset($_GET['doorbirdevent'])) {
             $this->SendDebug('Doorbird:', json_encode($_GET), 0);
             $data = $_GET['doorbirdevent'];
+            $this->SendDebug('Doorbird Webhook Event', 'HTTP event received: ' . $data, 0);
             if ($data == 'doorbell1') {
+                $this->SendDebug('Doorbird Webhook Event', 'Trigger ring history for button 1', 0);
                 $this->SetLastRingtone(1);
             } elseif ($data == 'doorbell2') {
+                $this->SendDebug('Doorbird Webhook Event', 'Trigger ring history for button 2', 0);
                 $this->SetLastRingtone(2);
             } elseif ($data == 'doorbell3') {
+                $this->SendDebug('Doorbird Webhook Event', 'Trigger ring history for button 3', 0);
                 $this->SetLastRingtone(3);
             }elseif ($data == 'doorbell4') {
+                $this->SendDebug('Doorbird Webhook Event', 'Trigger ring history for button 4', 0);
                 $this->SetLastRingtone(4);
             }elseif ($data == 'doorbell5') {
+                $this->SendDebug('Doorbird Webhook Event', 'Trigger ring history for button 5', 0);
                 $this->SetLastRingtone(5);
             }elseif ($data == 'doorbell6') {
+                $this->SendDebug('Doorbird Webhook Event', 'Trigger ring history for button 6', 0);
                 $this->SetLastRingtone(6);
             }elseif ($data == 'motionsensor') {
+                $this->SendDebug('Doorbird Webhook Event', 'Trigger motion event', 0);
                 $this->SetLastMovement();
             } elseif ($data == 'dooropen1') {
+                $this->SendDebug('Doorbird Webhook Event', 'Trigger door open event for relay 1', 0);
                 $this->SetLastDoorOpen(1);
             } elseif ($data == 'dooropen2') {
+                $this->SendDebug('Doorbird Webhook Event', 'Trigger door open event for relay 2', 0);
                 $this->SetLastDoorOpen(2);
             }
+            elseif ($data == 'favorite') {
+                $actionId = isset($_GET['id']) ? (int) $_GET['id'] : 1;
+                if (!$this->ExecuteA1101ConfiguredAction('favorite', $actionId)) {
+                    $this->SendDebug('Doorbird A1101', 'No configured favorite action for id ' . $actionId, 0);
+                }
+            }
+            elseif ($data == 'tile') {
+                $actionId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+                if (!$this->ExecuteA1101ConfiguredAction('tile', $actionId)) {
+                    $this->SendDebug('Doorbird A1101', 'No configured tile action for id ' . $actionId, 0);
+                }
+            }
             elseif ($data == 'smartlook') {
-                $this->SetSmartlock();
+                if (!$this->ExecuteA1101ConfiguredAction('favorite', 1)) {
+                    $this->SetSmartlock();
+                }
             }
-            elseif ($data == 'tile1') {
-                $this->SetDevice(1);
+            elseif ($this->HandleCustomEvent($data)) {
+                return;
             }
-            elseif ($data == 'tile2') {
-                $this->SetDevice(2);
-            }
-            elseif ($data == 'tile3') {
-                $this->SetDevice(3);
-            }
-            elseif ($data == 'tile4') {
-                $this->SetDevice(4);
-            }
-            elseif ($data == 'tile5') {
-                $this->SetDevice(5);
-            }
-            elseif ($data == 'tile6') {
-                $this->SetDevice(6);
-            }
-            elseif ($data == 'tile7') {
-                $this->SetDevice(7);
-            }
-            elseif ($data == 'tile8') {
-                $this->SetDevice(8);
-            }
-            elseif ($data == 'tile9') {
-                $this->SetDevice(9);
-            }
-            elseif ($data == 'tile10') {
-                $this->SetDevice(10);
+            else {
+                $this->SendDebug('Doorbird Webhook Event', 'Unhandled HTTP event received: ' . $data, 0);
             }
 
+        } else {
+            $this->SendDebug('Doorbird Webhook Event', 'No doorbirdevent parameter present in request', 0);
         }
     }
 
@@ -2055,8 +2634,20 @@ class Doorbird extends IPSModule
             $category_id = $this->ReadPropertyInteger('categorysnapshot');
             $media_objects = $this->GetMediaIDs($category_id);
         }
-        $this->SendDebug('Category ID:', strval($category_id), 0);
-        $this->SendDebug('Media IDs:', json_encode($media_objects), 0);
+        $cssUrl = $this->GetWebhookURL(false) . '/cssslideshow';
+        $this->SendDebug('Doorbird Slideshow', 'Type: ' . $slideshow_type, 0);
+        $this->SendDebug('Doorbird Slideshow', 'Category ID: ' . $category_id, 0);
+        $this->SendDebug('Doorbird Slideshow', 'CSS URL: ' . $cssUrl, 0);
+        $this->SendDebug('Doorbird Slideshow', 'Media IDs: ' . json_encode($media_objects), 0);
+
+        $fadeShowOptions = trim(implode(' ', array_filter([
+            'quick-nav',
+            'prev-next-nav',
+            $option_slide_counter,
+            $option_autoplay,
+            $option_ken_burns
+        ])));
+
         $html = '<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -2066,7 +2657,7 @@ class Doorbird extends IPSModule
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimal-ui">
 
-  <link rel="stylesheet" href="http://' . $this->GetHostIP() . ':3777/hook/doorbird' . $this->InstanceID . '/cssslideshow">
+  <link rel="stylesheet" href="' . $cssUrl . '">
 
   <style>
     html,
@@ -2152,7 +2743,13 @@ class Doorbird extends IPSModule
 
   <div class="container">';
 
-        $html .= '<div data-fadeshow="quick-nav prev-next-nav ' . $option_slide_counter . $option_autoplay . $option_ken_burns . '">';
+        if ($media_objects === []) {
+            $this->SendDebug('Doorbird Slideshow', 'No media objects available for ' . $slideshow_type, 0);
+            $html .= '<div style="padding:20px;font-family:Arial,sans-serif;">No images available for this slideshow yet.</div></div></body></html>';
+            return $html;
+        }
+
+        $html .= '<div data-fadeshow="' . $fadeShowOptions . '">';
         $html .= '
       <!-- Radio -->';
         $html .= $this->WriteRadioSection($media_objects);
@@ -2502,26 +3099,6 @@ class Doorbird extends IPSModule
         return $RingPictureCategoryID;
     }
 
-    protected function GetIPSVersion()
-    {
-        $ipsversion = floatval(IPS_GetKernelVersion());
-        if ($ipsversion < 4.1) { // 4.0
-            $ipsversion = 0;
-        } elseif ($ipsversion >= 4.1 && $ipsversion < 4.2) { // 4.1
-            $ipsversion = 1;
-        } elseif ($ipsversion >= 4.2 && $ipsversion < 4.3) { // 4.2
-            $ipsversion = 2;
-        } elseif ($ipsversion >= 4.3 && $ipsversion < 4.4) { // 4.3
-            $ipsversion = 3;
-        } elseif ($ipsversion >= 4.4 && $ipsversion < 5) { // 4.4
-            $ipsversion = 4;
-        } else {   // 5
-            $ipsversion = 5;
-        }
-
-        return $ipsversion;
-    }
-
     /**
      * return form configurations on configuration step.
      *
@@ -2529,105 +3106,90 @@ class Doorbird extends IPSModule
      */
     protected function FormHead()
     {
+        $credentialsAvailable = $this->HasDoorbirdCredentials();
+        $currentModel = $this->GetCurrentModel();
+        $detectedDeviceType = $this->ReadAttributeString('DetectedDeviceType');
         $form = [
             [
                 'type'  => 'Image',
                 'image' => 'data:image/png;base64, ' . self::PICTURE_LOGO_DOORBIRD],
             [
-                'type'    => 'Select',
-                'name'    => 'model',
-                'caption' => 'Type',
-                'options' => [
+                'type'     => 'ExpansionPanel',
+                'caption'  => '🔐 DoorBird access data',
+                'expanded' => ($currentModel === 0),
+                'items'    => [
                     [
-                        'caption' => 'Please select a device type',
-                        'value'   => 0],
+                        'type'    => 'Label',
+                        'caption' => 'Enter DoorBird host and API operator credentials. The module will detect the device type automatically after ApplyChanges.'],
                     [
-                        'caption' => 'D101',
-                        'value'   => self::D101],
+                        'name'    => 'Host',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'IP Doorbird'],
                     [
-                        'caption' => 'D101S',
-                        'value'   => self::D101S],
+                        'type'    => 'Label',
+                        'caption' => 'port of Doorbell'],
                     [
-                        'caption' => 'D202',
-                        'value'   => self::D202],
+                        'name'    => 'PortDoorbell',
+                        'type'    => 'NumberSpinner',
+                        'caption' => 'Port Doorbell'],
                     [
-                        'caption' => 'D1101UV',
-                        'value'   => self::D1101UV],
+                        'type'    => 'Label',
+                        'caption' => 'Doorbird user with authorization as API-Operator'],
                     [
-                        'caption' => 'D2101V',
-                        'value'   => self::D2101V],
+                        'name'    => 'User',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'User'],
                     [
-                        'caption' => 'D2102V',
-                        'value'   => self::D2102V],
+                        'name'    => 'Password',
+                        'type'    => 'PasswordTextBox',
+                        'caption' => 'Password'],
                     [
-                        'caption' => 'D2103V',
-                        'value'   => self::D2103V],
+                        'type'    => 'Label',
+                        'caption' => 'IP adress IP-Symcon Server'],
                     [
-                        'caption' => 'D2104V',
-                        'value'   => self::D2104V],
+                        'name'    => 'IPSIP',
+                        'type'    => 'ValidationTextBox',
+                        'caption' => 'IP adress'],
                     [
-                        'caption' => 'D2105V',
-                        'value'   => self::D2105V],
+                        'type'    => 'Label',
+                        'caption' => 'port of IP-Symcon'],
                     [
-                        'caption' => 'D2106V',
-                        'value'   => self::D2106V],
+                        'name'    => 'PortIPS',
+                        'type'    => 'NumberSpinner',
+                        'caption' => 'Port IPS'],
                     [
-                        'caption' => 'D21DKV',
-                        'value'   => self::D21DKV],
+                        'type'    => 'Label',
+                        'caption' => 'Detected device type: ' . ($detectedDeviceType !== '' ? $detectedDeviceType : 'not detected yet')],
                     [
-                        'caption' => 'D21DKH',
-                        'value'   => self::D21DKH],
-                    [
-                        'caption' => 'D2101KV',
-                        'value'   => self::D2101KV],
-                    [
-                        'caption' => 'D2102KV',
-                        'value'   => self::D2102KV],
-                    [
-                        'caption' => 'D21FPBI',
-                        'value'   => self::D21FPBI],
-                    [
-                        'caption' => 'D2101FV',
-                        'value'   => self::D2101FV],
-                    [
-                        'caption' => 'D2102FV',
-                        'value'   => self::D2102FV],
-                    [
-                        'caption' => 'D2101FV EKEY',
-                        'value'   => self::D2101FV_EKEY],
-                    [
-                        'caption' => 'D2102FV EKEY',
-                        'value'   => self::D2102FV_EKEY],
-                    [
-                        'caption' => 'D1101V',
-                        'value'   => self::D1101V],
-                    [
-                        'caption' => 'D1102V',
-                        'value'   => self::D1102V],
-                    [
-                        'caption' => 'D1101KH',
-                        'value'   => self::D1101KH],
-                    [
-                        'caption' => 'D2101KH',
-                        'value'   => self::D2101KH],
-                    [
-                        'caption' => 'D2101IKH',
-                        'value'   => self::D2101IKH],
-                    [
-                        'caption' => 'D2101FPBI',
-                        'value'   => self::D2101FPBI],
-                    [
-                        'caption' => 'D2101FPBK',
-                        'value'   => self::D2101FPBK],
-                    [
-                        'caption' => 'D2100E',
-                        'value'   => self::D2100E],
-                    [
-                        'caption' => 'D1100E',
-                        'value'   => self::D1100E]]
-
+                        'type'      => 'Button',
+                        'caption'   => 'Detect DoorBird device',
+                        'onClick'   => 'echo Doorbird_GetInfo($id);']
+                ]
             ]];
 
+        if (!$credentialsAvailable) {
+            $form[] = [
+                'type'    => 'Label',
+                'caption' => 'Please enter DoorBird host, user and password first. Additional settings will appear after a successful automatic device detection.'
+            ];
+
+            return $form;
+        }
+
+        if ($currentModel === 0) {
+            $form[] = [
+                'type'    => 'Label',
+                'caption' => 'DoorBird credentials are set. Apply changes to start automatic device detection. Check the debug log if the device type cannot be detected.'
+            ];
+
+            return $form;
+        }
+
+        $form[] = [
+            'type'    => 'ExpansionPanel',
+            'caption' => 'ℹ️ DoorBird device information',
+            'items'   => $this->FormShowDetectedDeviceInformation()
+        ];
 
         //Check if notification setup is already done. Otherwise show a button to create it
         $doorbirdreturn = $this->ReadAttributeString('schedule');
@@ -2650,40 +3212,7 @@ class Doorbird extends IPSModule
             $form, [
                 [
                     'type'    => 'ExpansionPanel',
-                    'caption' => 'Doorbird Settings',
-                    'items'   => [
-                        [
-                            'type'    => 'Label',
-                            'caption' => 'IP adress or hostname Doorbird'],
-                        [
-                            'name'    => 'Host',
-                            'type'    => 'ValidationTextBox',
-                            'caption' => 'IP Doorbird'],
-                        [
-                            'type'    => 'Label',
-                            'caption' => 'port of Doorbell'],
-                        [
-                            'name'    => 'PortDoorbell',
-                            'type'    => 'NumberSpinner',
-                            'caption' => 'Port Doorbell']]],
-                [
-                    'type'    => 'ExpansionPanel',
-                    'caption' => 'Doorbird login credentials',
-                    'items'   => [
-                        [
-                            'type'    => 'Label',
-                            'caption' => 'Doorbird user with authorization as API-Operator'],
-                        [
-                            'name'    => 'User',
-                            'type'    => 'ValidationTextBox',
-                            'caption' => 'User'],
-                        [
-                            'name'    => 'Password',
-                            'type'    => 'PasswordTextBox',
-                            'caption' => 'Password']]],
-                [
-                    'type'    => 'ExpansionPanel',
-                    'caption' => 'Doorbird Picture Settings',
+                    'caption' => '🖼️ Doorbird Picture Settings',
                     'items'   => [
                         [
                             'type'    => 'Label',
@@ -2721,7 +3250,7 @@ class Doorbird extends IPSModule
                             'caption' => 'limit snapshots']]],
                 [
                     'type'    => 'ExpansionPanel',
-                    'caption' => 'Doorbird Video Settings',
+                    'caption' => '🎥 Doorbird Video Settings',
                     'items'   => [
                         [
                             'name'    => 'iframe_width_video',
@@ -2734,7 +3263,7 @@ class Doorbird extends IPSModule
                     ]],
                 [
                     'type'    => 'ExpansionPanel',
-                    'caption' => 'Doorbird Slideview Settings',
+                    'caption' => '🖼️ Doorbird Slideview Settings',
                     'items'   => [
                         [
                             'type'    => 'Label',
@@ -2769,25 +3298,7 @@ class Doorbird extends IPSModule
                     ]],
                 [
                     'type'    => 'ExpansionPanel',
-                    'caption' => 'IP Symcon Settings',
-                    'items'   => [
-                        [
-                            'type'    => 'Label',
-                            'caption' => 'IP adress IP-Symcon Server'],
-                        [
-                            'name'    => 'IPSIP',
-                            'type'    => 'ValidationTextBox',
-                            'caption' => 'IP adress'],
-                        [
-                            'type'    => 'Label',
-                            'caption' => 'port of IP-Symcon'],
-                        [
-                            'name'    => 'PortIPS',
-                            'type'    => 'NumberSpinner',
-                            'caption' => 'Port IPS']]],
-                [
-                    'type'    => 'ExpansionPanel',
-                    'caption' => 'notification preferences',
+                    'caption' => '🔔 notification preferences',
                     'items'   => [
                         [
                             'type'    => 'Label',
@@ -2833,14 +3344,61 @@ class Doorbird extends IPSModule
             $form, [
                 [
                     'type'    => 'ExpansionPanel',
-                    'caption' => 'email notification settings',
+                    'caption' => '🧩 Custom HTTP Events',
+                    'items'   => [
+                        [
+                            'type'    => 'Label',
+                            'caption' => 'Map additional doorbirdevent values to timestamp variables, e.g. rfid1 or finger1'],
+                        [
+                            'name'     => 'custom_events',
+                            'type'     => 'List',
+                            'caption'  => 'Custom events',
+                            'rowCount' => 5,
+                            'add'      => true,
+                            'delete'   => true,
+                            'sort'     => [
+                                'column'    => 'Event',
+                                'direction' => 'ascending'
+                            ],
+                            'columns'  => [
+                                [
+                                    'name'    => 'Event',
+                                    'caption' => 'Event',
+                                    'width'   => '220px',
+                                    'add'     => 'rfid1'
+                                ],
+                                [
+                                    'name'    => 'Name',
+                                    'caption' => 'Variable name',
+                                    'width'   => 'auto',
+                                    'add'     => 'RFID 1'
+                                ],
+                                [
+                                    'name'    => 'Relaxation',
+                                    'caption' => 'Relaxation (s)',
+                                    'width'   => '160px',
+                                    'add'     => 10
+                                ]
+                            ],
+                            'values'   => json_decode($this->ReadPropertyString('custom_events'), true) ?: []
+                        ]
+                    ]
+                ]
+            ]
+        );
+        $form[] = $this->GetA1101CallsPanel();
+        $form = array_merge_recursive(
+            $form, [
+                [
+                    'type'    => 'ExpansionPanel',
+                    'caption' => '✉️ email notification settings',
                     'items'   => $this->FormShowEmail()]]
         );
         $form = array_merge_recursive(
             $form, [
                 [
                     'type'    => 'ExpansionPanel',
-                    'caption' => 'alternative view',
+                    'caption' => '👁️ alternative view',
                     'items'   => [
                         [
                             'type'    => 'Label',
@@ -2851,7 +3409,7 @@ class Doorbird extends IPSModule
                             'caption' => 'alternative view']]],
                 [
                     'type'    => 'ExpansionPanel',
-                    'caption' => 'IP Symcon Webhook Settings',
+                    'caption' => '🔗 IP Symcon Webhook Settings',
                     'items'   => [
                         [
                             'type'    => 'Label',
@@ -2866,13 +3424,47 @@ class Doorbird extends IPSModule
                         [
                             'name'    => 'webhookpassword',
                             'type'    => 'PasswordTextBox',
-                            'caption' => 'Password']]]]
+                            'caption' => 'Password'],
+                        [
+                            'type'      => 'Button',
+                            'caption'   => 'Refresh UDP notification key',
+                            'onClick'   => 'echo Doorbird_RefreshNotificationEncryptionKey($id);']]]]
         );
         $form = array_merge_recursive(
             $form, [
                 [
                     'type'    => 'ExpansionPanel',
-                    'caption' => 'Doorbird Favorites',
+                    'caption' => '💬 Symcon Door Intercom',
+                    'items'   => [
+                        [
+                            'type'    => 'Label',
+                            'caption' => 'Symcon offers a paid extension that allows accepting a conversation directly from the Symcon webfront. More information: https://www.symcon.de/de/service/dokumentation/modulreferenz/geraete/tuersprechanlagen/'
+                        ],
+                        [
+                            'type'    => 'Label',
+                            'caption' => 'If you own the extension, create a DoorIP instance first and then return here. The DoorBird instance will then assist you with the configuration.'
+                        ],
+                        [
+                            'type'    => 'SelectInstance',
+                            'name'    => 'DoorIPInstanceID',
+                            'caption' => 'DoorIP instance',
+                            'value'   => $this->GetDoorIPInstanceID(),
+                            'onChange' => 'Doorbird_SetDoorIPInstance($id, $DoorIPInstanceID);'
+                        ],
+                        [
+                            'type'      => 'Button',
+                            'caption'   => 'Check DoorBird / DoorIP configuration',
+                            'onClick'   => 'echo Doorbird_CheckDoorIntercomConfiguration($id);'
+                        ],
+                        [
+                            'type'    => 'Label',
+                            'caption' => 'DoorBird specific information for manual setup: https://www.symcon.de/de/service/dokumentation/modulreferenz/geraete/tuersprechanlagen/doorbird/'
+                        ]
+                    ]
+                ],
+                [
+                    'type'    => 'ExpansionPanel',
+                    'caption' => '⭐ Doorbird Favorites',
                     'items'   => $this->FormShowFavorites()]]
         );
         $form = array_merge_recursive(
@@ -2885,7 +3477,7 @@ class Doorbird extends IPSModule
                 */
                 [
                     'type'    => 'ExpansionPanel',
-                    'caption' => 'WebFront Doorbird App',
+                    'caption' => '📱 WebFront Doorbird App',
                     'items'   => [
                         [
                             'type'    => 'Label',
@@ -2900,7 +3492,7 @@ class Doorbird extends IPSModule
             $form, [
                 [
                     'type'    => 'ExpansionPanel',
-                    'caption' => 'Doorbird Web Admin',
+                    'caption' => '🌐 Doorbird Web Admin',
                     'items'   => [
                         [
                             'type'      => 'Button',
@@ -3481,6 +4073,111 @@ class Doorbird extends IPSModule
         return $form;
     }
 
+    protected function GetA1101CallsPanel(): array
+    {
+        return [
+            'type'    => 'ExpansionPanel',
+            'caption' => '🧱 Doorstation A1101',
+            'items'   => [
+                [
+                    'type'    => 'Label',
+                    'caption' => 'Configure the HTTP calls that can be assigned to the A1101 favorite button and menu tiles in the DoorBird app.'
+                ],
+                [
+                    'type'                        => 'List',
+                    'name'                        => 'a1101_calls',
+                    'caption'                     => 'HTTP calls',
+                    'rowCount'                    => 6,
+                    'add'                         => true,
+                    'delete'                      => true,
+                    'loadValuesFromConfiguration' => false,
+                    'columns'                     => [
+                        [
+                            'name'    => 'TypeLabel',
+                            'caption' => 'Type',
+                            'width'   => '90px',
+                            'add'     => 'Tile',
+                            'save'    => false
+                        ],
+                        [
+                            'name'    => 'Index',
+                            'caption' => '#',
+                            'width'   => '60px',
+                            'add'     => 0,
+                            'save'    => false
+                        ],
+                        [
+                            'name'    => 'Name',
+                            'caption' => 'Name',
+                            'width'   => '140px',
+                            'add'     => 'Tile',
+                            'save'    => true,
+                            'edit'    => [
+                                'type' => 'ValidationTextBox'
+                            ]
+                        ],
+                        [
+                            'name'    => 'Alias',
+                            'caption' => 'Alias',
+                            'width'   => '140px',
+                            'add'     => '',
+                            'save'    => true,
+                            'edit'    => [
+                                'type' => 'ValidationTextBox'
+                            ]
+                        ],
+                        [
+                            'name'    => 'HTTPCall',
+                            'caption' => 'HTTP call',
+                            'width'   => 'auto',
+                            'add'     => '',
+                            'save'    => true
+                        ],
+                        [
+                            'name'    => 'VariableID',
+                            'caption' => 'Variable',
+                            'width'   => '180px',
+                            'add'     => 0,
+                            'save'    => true,
+                            'edit'    => [
+                                'type'           => 'SelectVariable',
+                                'requiredAction' => 1,
+                                'onChange'       => 'Doorbird_UpdateA1101ValueVariable($id, $VariableID);'
+                            ]
+                        ],
+                        [
+                            'name'    => 'Value_Variable',
+                            'caption' => 'Value',
+                            'width'   => '160px',
+                            'add'     => 0,
+                            'save'    => true,
+                            'edit'    => [
+                                'type'       => 'SelectValue',
+                                'variableID' => 1,
+                                'visible'    => true
+                            ]
+                        ],
+                        [
+                            'name'    => 'Type',
+                            'visible' => false,
+                            'add'     => 'tile',
+                            'save'    => true
+                        ]
+                    ],
+                    'values'                      => $this->GetA1101CallsFormValues()
+                ],
+                [
+                    'type'    => 'Label',
+                    'caption' => 'The list always contains the A1101 favorite button and at least tile 1. Additional rows are added as further tiles.'
+                ],
+                [
+                    'type'    => 'Label',
+                    'caption' => 'Enter the HTTP call shown here in the DoorBird app. The module maps the incoming favorite/tile id to the configured variable and value.'
+                ]
+            ]
+        ];
+    }
+
     /**
      * return form actions by token.
      *
@@ -3489,355 +4186,6 @@ class Doorbird extends IPSModule
     protected function FormActions()
     {
         $form = [
-            [
-                'type'    => 'ExpansionPanel',
-                'caption' => 'Smartlock',
-                'items'   => [
-                    [
-                        'name'    => 'Smartlock',
-                        'type'    => 'CheckBox',
-                        'caption' => 'Enable Smartlock',
-                        'visible' => true,
-                        'value'   => $this->ReadAttributeBoolean('Smartlock'),
-                        'onChange' => 'Doorbird_EnableSmartlock($id, $Smartlock);'],
-                    [
-                        'type'    => 'Label',
-                        'name' => 'SmartlockLabel',
-                        'caption' => 'with the smartlock option you can open a lock through IP-Symcon from inside the Doorbird app user interface',
-                        'italic' => false,
-                        'visible' => true,
-                    ],
-                    [
-                        'type'    => 'SelectVariable',
-                        'name'    => 'SmartlockID',
-                        'caption' => 'Smartlook Variable Open',
-                        'visible' => $this->ReadAttributeBoolean('SmartlockID_Visibility'),
-                        'value'   => $this->ReadAttributeInteger('SmartlockID'),
-                        'requiredAction'    => 1,
-                        'onChange' => 'Doorbird_EnableSmartlockValue($id, $SmartlockID);'],
-
-                    [
-                        'type'    => 'Select',
-                        'name'    => 'SmartlockValue',
-                        'visible' => $this->ReadAttributeBoolean('SmartlockValue_Visibility'),
-                        'caption' => 'Smartlook variable value set for open',
-                        'value'   => $this->GetSmartlockValue(),
-                        'onChange' => 'Doorbird_SetSmartlockValue($id, $SmartlockValue);',
-                        'options' => json_decode($this->ReadAttributeString('SmartlockValueOptions'), true)
-                    ],
-                    [
-                        'type'    => 'ValidationTextBox',
-                        'name'    => 'SmartlockURL',
-                        'visible' => $this->ReadAttributeBoolean('SmartlockValue_Visibility'),
-                        'caption' => 'Smartlook HTTP Request URL for Doorbird App',
-                        'enabled' => false,
-                        'width' => "700px",
-                        'value' => $this->GetSmartlockURL('local')
-                    ],
-                    [
-                        'type'    => 'ValidationTextBox',
-                        'name'    => 'SmartlockConnectURL',
-                        'visible' => $this->ReadAttributeBoolean('SmartlockValue_Visibility'),
-                        'caption' => 'Smartlook HTTP Request IP-Symcon Connect for Doorbird App',
-                        'enabled' => false,
-                        'width' => "800px",
-                        'value' => $this->GetSmartlockURL('connect')
-                    ]]
-                    /*,
-                    [
-                        'type'    => 'SelectValue',
-                        'name'    => 'SmartlockValue',
-                        'visible' => $visible,
-                        'caption' => 'Smartlook variable value set for open',
-                        "variableID"=> 22912
-                        // "variableID"=> $smartlock_id
-                        ]
-                    */
-                ],
-            [
-                'type'    => 'ExpansionPanel',
-                'caption' => 'Doorstation A1101',
-                'items'   => [
-                    /*
-                    [
-                        'name'    => 'Doorstation',
-                        'type'    => 'CheckBox',
-                        'caption' => 'Enable Doorstation'],
-                    */
-                    [
-                        'type'    => 'Label',
-                        'caption' => 'HTTP request URL for tiles in the doorstation A1101'],
-                    [
-                        'type'    => 'SelectVariable',
-                        'name'    => 'Tile1',
-                        'caption' => 'Tile 1',
-                        'visible' => $this->ReadAttributeBoolean('Tile1_Visibility'),
-                        'value'   => $this->ReadAttributeInteger('Tile1'),
-                        'requiredAction'    => 1,
-                        'onChange' => 'Doorbird_EnableTileValue($id, 1, $Tile1);'
-                    ],
-                    [
-                        'type'    => 'Select',
-                        'name'    => 'Tile1Value',
-                        'visible' => $this->ReadAttributeBoolean('Tile1Value_Visibility'),
-                        'caption' => 'Tile 1 variable value set',
-                        'value'   => $this->GetTileValue(1),
-                        'onChange' => 'Doorbird_SetTileValue($id, 1, $Tile1Value);',
-                        'options' => json_decode($this->ReadAttributeString('Tile1ValueOptions'), true)
-                    ],
-                    [
-                        'type'    => 'ValidationTextBox',
-                        'name'    => 'Tile1URL',
-                        'visible' => $this->ReadAttributeBoolean('Tile1Value_Visibility'),
-                        'caption' => 'Tile 1 HTTP Request URL for Doorbird App',
-                        'enabled' => false,
-                        'width' => "700px",
-                        'value' => $this->GetTileURL(1)
-                    ],
-                    [
-                        'type'    => 'SelectVariable',
-                        'name'    => 'Tile2',
-                        'caption' => 'Tile 2',
-                        'visible' => $this->ReadAttributeBoolean('Tile2_Visibility'),
-                        'value'   => $this->ReadAttributeInteger('Tile2'),
-                        'requiredAction'    => 1,
-                        'onChange' => 'Doorbird_EnableTileValue($id, 2, $Tile2);'
-                    ],
-                    [
-                        'type'    => 'Select',
-                        'name'    => 'Tile2Value',
-                        'visible' => $this->ReadAttributeBoolean('Tile2Value_Visibility'),
-                        'caption' => 'Tile 2 variable value set',
-                        'value'   => $this->GetTileValue(2),
-                        'onChange' => 'Doorbird_SetTileValue($id, 2, $Tile2Value);',
-                        'options' => json_decode($this->ReadAttributeString('Tile2ValueOptions'), true)
-                    ],
-                    [
-                        'type'    => 'ValidationTextBox',
-                        'name'    => 'Tile2URL',
-                        'visible' => $this->ReadAttributeBoolean('Tile2Value_Visibility'),
-                        'caption' => 'Tile 2 HTTP Request URL for Doorbird App',
-                        'enabled' => false,
-                        'width' => "700px",
-                        'value' => $this->GetTileURL(2)
-                    ],
-                    [
-                        'type'    => 'SelectVariable',
-                        'name'    => 'Tile3',
-                        'caption' => 'Tile 3',
-                        'visible' => $this->ReadAttributeBoolean('Tile3_Visibility'),
-                        'value'   => $this->ReadAttributeInteger('Tile3'),
-                        'requiredAction'    => 1,
-                        'onChange' => 'Doorbird_EnableTileValue($id, 3, $Tile3);'
-                    ],
-                    [
-                        'type'    => 'Select',
-                        'name'    => 'Tile3Value',
-                        'visible' => $this->ReadAttributeBoolean('Tile3Value_Visibility'),
-                        'caption' => 'Tile 3 variable value set',
-                        'value'   => $this->GetTileValue(3),
-                        'onChange' => 'Doorbird_SetTileValue($id, 3, $Tile3Value);',
-                        'options' => json_decode($this->ReadAttributeString('Tile3ValueOptions'), true)
-                    ],
-                    [
-                        'type'    => 'ValidationTextBox',
-                        'name'    => 'Tile3URL',
-                        'visible' => $this->ReadAttributeBoolean('Tile3Value_Visibility'),
-                        'caption' => 'Tile 3 HTTP Request URL for Doorbird App',
-                        'enabled' => false,
-                        'width' => "700px",
-                        'value' => $this->GetTileURL(3)
-                    ],
-                    [
-                        'type'    => 'SelectVariable',
-                        'name'    => 'Tile4',
-                        'caption' => 'Tile 4',
-                        'visible' => $this->ReadAttributeBoolean('Tile4_Visibility'),
-                        'value'   => $this->ReadAttributeInteger('Tile4'),
-                        'requiredAction'    => 1,
-                        'onChange' => 'Doorbird_EnableTileValue($id, 4, $Tile4);'
-                    ],
-                    [
-                        'type'    => 'Select',
-                        'name'    => 'Tile4Value',
-                        'visible' => $this->ReadAttributeBoolean('Tile4Value_Visibility'),
-                        'caption' => 'Tile 4 variable value set',
-                        'value'   => $this->GetTileValue(4),
-                        'onChange' => 'Doorbird_SetTileValue($id, 4, $Tile4Value);',
-                        'options' => json_decode($this->ReadAttributeString('Tile4ValueOptions'), true)
-                    ],
-                    [
-                        'type'    => 'ValidationTextBox',
-                        'name'    => 'Tile4URL',
-                        'visible' => $this->ReadAttributeBoolean('Tile4Value_Visibility'),
-                        'caption' => 'Tile 4 HTTP Request URL for Doorbird App',
-                        'enabled' => false,
-                        'width' => "700px",
-                        'value' => $this->GetTileURL(4)
-                    ],
-                    [
-                        'type'    => 'SelectVariable',
-                        'name'    => 'Tile5',
-                        'caption' => 'Tile 5',
-                        'visible' => $this->ReadAttributeBoolean('Tile5_Visibility'),
-                        'value'   => $this->ReadAttributeInteger('Tile5'),
-                        'requiredAction'    => 1,
-                        'onChange' => 'Doorbird_EnableTileValue($id, 5, $Tile5);'
-                    ],
-                    [
-                        'type'    => 'Select',
-                        'name'    => 'Tile5Value',
-                        'visible' => $this->ReadAttributeBoolean('Tile5Value_Visibility'),
-                        'caption' => 'Tile 5 variable value set',
-                        'value'   => $this->GetTileValue(5),
-                        'onChange' => 'Doorbird_SetTileValue($id, 5, $Tile5Value);',
-                        'options' => json_decode($this->ReadAttributeString('Tile5ValueOptions'), true)
-                    ],
-                    [
-                        'type'    => 'ValidationTextBox',
-                        'name'    => 'Tile5URL',
-                        'visible' => $this->ReadAttributeBoolean('Tile5Value_Visibility'),
-                        'caption' => 'Tile 5 HTTP Request URL for Doorbird App',
-                        'enabled' => false,
-                        'width' => "700px",
-                        'value' => $this->GetTileURL(5)
-                    ],
-                    [
-                        'type'    => 'SelectVariable',
-                        'name'    => 'Tile6',
-                        'caption' => 'Tile 6',
-                        'visible' => $this->ReadAttributeBoolean('Tile6_Visibility'),
-                        'value'   => $this->ReadAttributeInteger('Tile6'),
-                        'requiredAction'    => 1,
-                        'onChange' => 'Doorbird_EnableTileValue($id, 6, $Tile6);'
-                    ],
-                    [
-                        'type'    => 'Select',
-                        'name'    => 'Tile6Value',
-                        'visible' => $this->ReadAttributeBoolean('Tile6Value_Visibility'),
-                        'caption' => 'Tile 6 variable value set',
-                        'value'   => $this->GetTileValue(6),
-                        'onChange' => 'Doorbird_SetTileValue($id, 6, $Tile6Value);',
-                        'options' => json_decode($this->ReadAttributeString('Tile6ValueOptions'), true)
-                    ],
-                    [
-                        'type'    => 'ValidationTextBox',
-                        'name'    => 'Tile6URL',
-                        'visible' => $this->ReadAttributeBoolean('Tile6Value_Visibility'),
-                        'caption' => 'Tile 6 HTTP Request URL for Doorbird App',
-                        'enabled' => false,
-                        'width' => "700px",
-                        'value' => $this->GetTileURL(6)
-                    ],
-                    [
-                        'type'    => 'SelectVariable',
-                        'name'    => 'Tile7',
-                        'caption' => 'Tile 7',
-                        'visible' => $this->ReadAttributeBoolean('Tile7_Visibility'),
-                        'value'   => $this->ReadAttributeInteger('Tile7'),
-                        'requiredAction'    => 1,
-                        'onChange' => 'Doorbird_EnableTileValue($id, 7, $Tile7);'
-                    ],
-                    [
-                        'type'    => 'Select',
-                        'name'    => 'Tile7Value',
-                        'visible' => $this->ReadAttributeBoolean('Tile7Value_Visibility'),
-                        'caption' => 'Tile 7 variable value set',
-                        'value'   => $this->GetTileValue(7),
-                        'onChange' => 'Doorbird_SetTileValue($id, 7, $Tile7Value);',
-                        'options' => json_decode($this->ReadAttributeString('Tile7ValueOptions'), true)
-                    ],
-                    [
-                        'type'    => 'ValidationTextBox',
-                        'name'    => 'Tile7URL',
-                        'visible' => $this->ReadAttributeBoolean('Tile7Value_Visibility'),
-                        'caption' => 'Tile 7 HTTP Request URL for Doorbird App',
-                        'enabled' => false,
-                        'width' => "700px",
-                        'value' => $this->GetTileURL(7)
-                    ],
-                    [
-                        'type'    => 'SelectVariable',
-                        'name'    => 'Tile8',
-                        'caption' => 'Tile 8',
-                        'visible' => $this->ReadAttributeBoolean('Tile8_Visibility'),
-                        'value'   => $this->ReadAttributeInteger('Tile8'),
-                        'requiredAction'    => 1,
-                        'onChange' => 'Doorbird_EnableTileValue($id, 8, $Tile8);'
-                    ],
-                    [
-                        'type'    => 'Select',
-                        'name'    => 'Tile8Value',
-                        'visible' => $this->ReadAttributeBoolean('Tile8Value_Visibility'),
-                        'caption' => 'Tile 8 variable value set',
-                        'value'   => $this->GetTileValue(8),
-                        'onChange' => 'Doorbird_SetTileValue($id, 8, $Tile8Value);',
-                        'options' => json_decode($this->ReadAttributeString('Tile8ValueOptions'), true)
-                    ],
-                    [
-                        'type'    => 'ValidationTextBox',
-                        'name'    => 'Tile8URL',
-                        'visible' => $this->ReadAttributeBoolean('Tile8Value_Visibility'),
-                        'caption' => 'Tile 8 HTTP Request URL for Doorbird App',
-                        'enabled' => false,
-                        'width' => "800px",
-                        'value' => $this->GetTileURL(8)
-                    ],
-                    [
-                        'type'    => 'SelectVariable',
-                        'name'    => 'Tile9',
-                        'caption' => 'Tile 9',
-                        'visible' => $this->ReadAttributeBoolean('Tile9_Visibility'),
-                        'value'   => $this->ReadAttributeInteger('Tile9'),
-                        'requiredAction'    => 1,
-                        'onChange' => 'Doorbird_EnableTileValue($id, 9, $Tile9);'
-                    ],
-                    [
-                        'type'    => 'Select',
-                        'name'    => 'Tile9Value',
-                        'visible' => $this->ReadAttributeBoolean('Tile9Value_Visibility'),
-                        'caption' => 'Tile 9 variable value set',
-                        'value'   => $this->GetTileValue(9),
-                        'onChange' => 'Doorbird_SetTileValue($id, 9, $Tile9Value);',
-                        'options' => json_decode($this->ReadAttributeString('Tile9ValueOptions'), true)
-                    ],
-                    [
-                        'type'    => 'ValidationTextBox',
-                        'name'    => 'Tile9URL',
-                        'visible' => $this->ReadAttributeBoolean('Tile9Value_Visibility'),
-                        'caption' => 'Tile 9 HTTP Request URL for Doorbird App',
-                        'enabled' => false,
-                        'width' => "700px",
-                        'value' => $this->GetTileURL(9)
-                    ],
-                    [
-                        'type'    => 'SelectVariable',
-                        'name'    => 'Tile10',
-                        'caption' => 'Tile 10',
-                        'visible' => $this->ReadAttributeBoolean('Tile10_Visibility'),
-                        'value'   => $this->ReadAttributeInteger('Tile10'),
-                        'requiredAction'    => 1,
-                        'onChange' => 'Doorbird_EnableTileValue($id, 10, $Tile10);'
-                    ],
-                    [
-                        'type'    => 'Select',
-                        'name'    => 'Tile10Value',
-                        'visible' => $this->ReadAttributeBoolean('Tile10Value_Visibility'),
-                        'caption' => 'Tile 10 variable value set',
-                        'value'   => $this->GetTileValue(10),
-                        'onChange' => 'Doorbird_SetTileValue($id, 10, $Tile10Value);',
-                        'options' => json_decode($this->ReadAttributeString('Tile10ValueOptions'), true)
-                    ],
-                    [
-                        'type'    => 'ValidationTextBox',
-                        'name'    => 'Tile10URL',
-                        'visible' => $this->ReadAttributeBoolean('Tile10Value_Visibility'),
-                        'caption' => 'Tile 10 HTTP Request URL for Doorbird App',
-                        'enabled' => false,
-                        'width' => "700px",
-                        'value' => $this->GetTileURL(10)
-                    ]
-                ]],
             [
                 'type'    => 'Label',
                 'caption' => 'Setup notifications from doorbird to IP-Symcon'],
@@ -3977,16 +4325,6 @@ class Doorbird extends IPSModule
         return $form;
     }
 
-    //Add this Polyfill for IP-Symcon 4.4 and older
-    protected function SetValue($Ident, $Value)
-    {
-        if (IPS_GetKernelVersion() >= 5) {
-            parent::SetValue($Ident, $Value);
-        } else {
-            SetValue($this->GetIDForIdent($Ident), $Value);
-        }
-    }
-
     private function CheckExistence($ident)
     {
         $objectid = @$this->GetIDForIdent($ident);
@@ -4034,7 +4372,7 @@ class Doorbird extends IPSModule
         $this->SendDebug('Doorbird', 'Webhook User: ' . $webhookusername, 0);
         $webhookpassword = $this->ReadPropertyString('webhookpassword');
         $this->SendDebug('Doorbird', 'Webhook Password: ' . $webhookpassword, 0);
-        $model = $this->ReadPropertyInteger('model');
+        $model = $this->GetCurrentModel();
 
         //IP Doorbell prüfen
         if (!filter_var($hostdoorbell, FILTER_VALIDATE_IP) === false) {
@@ -4083,8 +4421,14 @@ class Doorbird extends IPSModule
             }
         }
 
+        if (!$this->HasDoorbirdCredentials()) {
+            $this->SendDebug('Doorbird Setup', 'Missing DoorBird credentials, keep setup form in initial state', 0);
+            $this->SetStatus(201);
+            return;
+        }
+
         if ($model == 0) {
-            $this->SendDebug('Doorbird', 'select a doorbird model', 0);
+            $this->SendDebug('Doorbird Setup', 'Automatic DoorBird device detection did not return a supported model', 0);
             $this->SetStatus(220); // no doorbird model set
             return;
         }
@@ -4107,26 +4451,6 @@ class Doorbird extends IPSModule
             $this->SetStatus(213); //Felder dürfen nicht leer sein
         }
         if ($doorbirduser !== '' && $password !== '' && $hostcheck === true) {
-            $ipsversion = $this->GetIPSVersion();
-            if ($ipsversion == 0) {
-                //prüfen ob Script existent
-                $SkriptID = @IPS_GetObjectIDByIdent('DoorbirdIPSInterface', $this->InstanceID);
-                if ($SkriptID === false) {
-                    $ID = $this->RegisterScript('DoorbirdIPSInterface', 'Doorbird IPS Interface', $this->CreateWebHookScript(), 19);
-                    IPS_SetHidden($ID, true);
-                    $this->RegisterHookOLD('/hook/doorbird' . $this->InstanceID, $ID);
-                } else {
-                    $this->SendDebug('Doorbird', 'Webhookscript mit ' . $SkriptID . ' gefunden', 0);
-                }
-            } else {
-                $SkriptID = @IPS_GetObjectIDByIdent('DoorbirdIPSInterface', $this->InstanceID);
-                if ($SkriptID > 0) {
-                    $this->UnregisterHook('/hook/doorbird' . $this->InstanceID);
-                    $this->UnregisterScript('DoorbirdIPSInterface');
-                }
-                $this->RegisterHook('/hook/doorbird' . $this->InstanceID);
-            }
-
             // Kategorie prüfen
             $category_snapshot = $this->ReadPropertyInteger('categorysnapshot');
             $category_history = $this->ReadPropertyInteger('categoryhistory');
@@ -4147,44 +4471,26 @@ class Doorbird extends IPSModule
             // Ersetzt durch Event das Bilder bei Klingeln abholt
             /*
              $timerscript = 'Doorbird_GetHistory($this->InstanceID)';
-+            $timerid = @IPS_GetEventIDByName('Get Doorbird History', $this->InstanceID);
-+            if ($timerid === false)
-+            {
-+                $timerid = $this->RegisterTimer('Get Doorbird History', 3600000, $timerscript);
-+            }
-+            else
-+            {
-+                //echo 'Die Ereignis-ID lautet: '. $timerid;
-+            }
-+            */
-
-            if ($ipsversion == 0) {
-                //Skript bei Bewegung
-                $IDSnapshot = @($this->GetIDForIdent('GetDoorbirdSnapshot'));
-                if ($IDSnapshot === false) {
-                    $IDSnapshot = $this->RegisterScript('GetDoorbirdSnapshot', 'Get Doorbird Snapshot', $this->CreateSnapshotScript(), 17);
-                    IPS_SetHidden($IDSnapshot, true);
-                    $this->SetSnapshotEvent($IDSnapshot);
-                } else {
-                    $this->SendDebug('Doorbird', 'Doorbird Snapshot Script mit ' . $IDSnapshot . ' gefunden', 0);
-                }
-            }
-
-            if ($ipsversion == 0) {
-                //Skript beim Klingeln
-                $IDRing = @($this->GetIDForIdent('GetDoorbirdRingPic'));
-                if ($IDRing === false) {
-                    $IDRing = $this->RegisterScript('GetDoorbirdRingPic', 'Get Doorbird Ring Picture', $this->CreateRingPictureScript(), 18);
-                    IPS_SetHidden($IDRing, true);
-                    $this->SetRingEvent($IDRing);
-                } else {
-                    $this->SendDebug('Doorbird', 'Doorbird Ring Picture Script mit ' . $IDRing . ' gefunden', 0);
-                }
-            }
+             $timerid = @IPS_GetEventIDByName('Get Doorbird History', $this->InstanceID);
+             if ($timerid === false)
+             {
+                 $timerid = $this->RegisterTimer('Get Doorbird History', 3600000, $timerscript);
+             }
+             else
+             {
+                 //echo 'Die Ereignis-ID lautet: '. $timerid;
+             }
+             */
 
             if ($this->CheckAccess()) {
                 $this->SetupNotification();
                 $this->SendDebug('Doorbird', 'Setup notification', 0);
+                $notificationKey = $this->GetNotificationEncryptionKey(false);
+                if ($notificationKey !== '') {
+                    $this->SendDebug('Doorbird', 'Notification encryption key available for UDP v2', 0);
+                } else {
+                    $this->SendDebug('Doorbird', 'Notification encryption key not available yet, UDP v2 will refresh on demand', 0);
+                }
 
                 //Email
                 $emailalert = $this->ReadPropertyBoolean('activeemail');
@@ -4231,13 +4537,6 @@ class Doorbird extends IPSModule
                 } elseif ($emailalert11) {
                     $email = $this->ReadPropertyString('email11');
                     $this->CheckEmail($email);
-                } else {
-                    $IDEmail = @($this->GetIDForIdent('SendEmailAlert'));
-                    if ($ipsversion == 0) {
-                        if ($IDEmail > 0) {
-                            $this->SetEmailEvent($IDEmail, false);
-                        }
-                    }
                 }
                 // Status Aktiv
                 $this->SetupVariables();
@@ -4248,139 +4547,284 @@ class Doorbird extends IPSModule
         }
     }
 
-    private function RegisterHookOLD($WebHook, $TargetID)
+    private function EnsureWebhookRegistration(): void
     {
-        $ids = IPS_GetInstanceListByModuleID('{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}');
-        if (count($ids) > 0) {
-            $hooks = json_decode(IPS_GetProperty($ids[0], 'Hooks'), true);
-            $found = false;
-            foreach ($hooks as $index => $hook) {
-                if ($hook['Hook'] == $WebHook) {
-                    if ($hook['TargetID'] == $TargetID) {
-                        return;
-                    }
-                    $hooks[$index]['TargetID'] = $TargetID;
-                    $found = true;
+        $webhookAddress = $this->GetWebhookAddress();
+        $webhookUrl = $this->GetWebhookURL(false);
+
+        $this->SendDebug('Doorbird Webhook', 'Running native webhook registration for Symcon 9.x', 0);
+        $this->SendDebug('Doorbird Webhook', 'Expected webhook address: ' . $webhookAddress, 0);
+        $this->SendDebug('Doorbird Webhook', 'Expected webhook URL: ' . $webhookUrl, 0);
+        $this->SendDebug(
+            'Doorbird Webhook',
+            'Configuration snapshot: ' . json_encode([
+                'InstanceID'       => $this->InstanceID,
+                'IPSIP'            => $this->ReadPropertyString('IPSIP'),
+                'PortIPS'          => $this->ReadPropertyInteger('PortIPS'),
+                'webhookusername'  => $this->ReadPropertyString('webhookusername') !== '',
+                'webhookpassword'  => $this->ReadPropertyString('webhookpassword') !== '',
+                'doorbird_user'    => $this->ReadPropertyString('User') !== '',
+                'doorbird_password'=> $this->ReadPropertyString('Password') !== ''
+            ]),
+            0
+        );
+
+        try {
+            $registered = $this->RegisterHook($webhookAddress);
+            $this->SendDebug(
+                'Doorbird Webhook',
+                'ApplyChanges registration for ' . $webhookAddress . ': ' . ($registered ? 'success' : 'failed'),
+                0
+            );
+        } catch (Throwable $e) {
+            $this->SendDebug('Doorbird Webhook', 'Native webhook registration failed: ' . $e->getMessage(), 0);
+        }
+    }
+
+    private function HasDoorbirdCredentials(): bool
+    {
+        return ($this->ReadPropertyString('Host') !== '')
+            && ($this->ReadPropertyString('User') !== '')
+            && ($this->ReadPropertyString('Password') !== '');
+    }
+
+    private function GetCurrentModel(): int
+    {
+        $detectedModel = $this->ReadAttributeInteger('DetectedModel');
+        if ($detectedModel > 0) {
+            return $detectedModel;
+        }
+
+        return $this->ReadPropertyInteger('model');
+    }
+
+    private function RequestDoorbirdInfo(): ?array
+    {
+        $result = $this->SendDoorbird(self::GET_INFO);
+        if ($result === false || $result === '') {
+            $this->SendDebug('Doorbird Device Detection', 'DoorBird info.cgi returned no data', 0);
+            return null;
+        }
+
+        $decodedResult = json_decode($result, true);
+        if (!is_array($decodedResult)) {
+            $this->SendDebug('Doorbird Device Detection', 'DoorBird info.cgi returned invalid JSON: ' . $result, 0);
+            return null;
+        }
+
+        return $decodedResult;
+    }
+
+    private function UpdateDetectedDeviceInformation(): bool
+    {
+        if (!$this->HasDoorbirdCredentials()) {
+            $this->SendDebug('Doorbird Device Detection', 'Skip device detection because host, user or password are missing', 0);
+            return false;
+        }
+
+        $this->SendDebug('Doorbird Device Detection', 'Request DoorBird device information via info.cgi', 0);
+        $deviceInfo = $this->RequestDoorbirdInfo();
+        if ($deviceInfo === null) {
+            $this->WriteAttributeInteger('DetectedModel', 0);
+            $this->WriteAttributeString('DetectedDeviceType', '');
+            $this->WriteAttributeString('DetectedDeviceInfo', '[]');
+            return false;
+        }
+
+        $this->WriteAttributeString('DetectedDeviceInfo', json_encode($deviceInfo));
+        $deviceType = $this->ExtractDeviceTypeFromInfo($deviceInfo);
+        $model = $this->GuessModelFromDeviceType($deviceType);
+
+        $this->SendDebug('Doorbird Device Detection', 'Detected DoorBird device type string: ' . $deviceType, 0);
+        $this->SendDebug('Doorbird Device Detection', 'Mapped DoorBird model id: ' . $model, 0);
+
+        $this->WriteAttributeString('DetectedDeviceType', $deviceType);
+        $this->WriteAttributeInteger('DetectedModel', $model);
+
+        return $model > 0;
+    }
+
+    private function ExtractDeviceTypeFromInfo(array $deviceInfo): string
+    {
+        $candidates = [
+            $this->FindInfoValue($deviceInfo, ['DEVICE-TYPE', 'device-type', 'devicetype']),
+            $this->FindInfoValue($deviceInfo, ['PRODUCT', 'product']),
+            $this->FindInfoValue($deviceInfo, ['MODEL', 'model'])
+        ];
+
+        foreach ($candidates as $candidate) {
+            if ($candidate !== '') {
+                return $candidate;
+            }
+        }
+
+        return '';
+    }
+
+    private function FindInfoValue(array $data, array $keys): string
+    {
+        foreach ($data as $key => $value) {
+            if (in_array((string) $key, $keys, true) && !is_array($value)) {
+                return trim((string) $value);
+            }
+            if (is_array($value)) {
+                $result = $this->FindInfoValue($value, $keys);
+                if ($result !== '') {
+                    return $result;
                 }
             }
-            if (!$found) {
-                $hooks[] = ['Hook' => $WebHook, 'TargetID' => $TargetID];
+        }
+
+        return '';
+    }
+
+    private function GuessModelFromDeviceType(string $deviceType): int
+    {
+        $normalizedDeviceType = strtoupper($deviceType);
+        $map = [
+            'D2102FV'    => self::D2102FV,
+            'D2102KV'    => self::D2102KV,
+            'D2106V'     => self::D2106V,
+            'D2105V'     => self::D2105V,
+            'D2104V'     => self::D2104V,
+            'D1101KH'    => self::D1101KH,
+            'D1102V'     => self::D1102V,
+            'D1101V'     => self::D1101V,
+            'D2101FV'    => self::D2101FV,
+            'D1101UV'    => self::D1101UV,
+            'D2101FPBI'  => self::D2101FPBI,
+            'D2101FPBK'  => self::D2101FPBK,
+            'D21FPBI'    => self::D21FPBI,
+            'D2101IKH'   => self::D2101IKH,
+            'D2101KH'    => self::D2101KH,
+            'D2101KV'    => self::D2101KV,
+            'D101S'      => self::D101S,
+            'D21DKV'     => self::D21DKV,
+            'D21DKH'     => self::D21DKH,
+            'D2103V'     => self::D2103V,
+            'D2102V'     => self::D2102V,
+            'D2101V'     => self::D2101V,
+            'D202'       => self::D202,
+            'D1100E'     => self::D1100E,
+            'D2100E'     => self::D2100E,
+            'D101'       => self::D101
+        ];
+
+        foreach ($map as $needle => $model) {
+            if (strpos($normalizedDeviceType, $needle) !== false) {
+                return $model;
             }
-            IPS_SetProperty($ids[0], 'Hooks', json_encode($hooks));
-            IPS_ApplyChanges($ids[0]);
         }
+
+        return 0;
     }
 
-    private function RegisterHook($WebHook)
+    private function FormShowDetectedDeviceInformation(): array
     {
-        $ids = IPS_GetInstanceListByModuleID('{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}');
-        if (count($ids) > 0) {
-            $hooks = json_decode(IPS_GetProperty($ids[0], 'Hooks'), true);
-            $found = false;
-            foreach ($hooks as $index => $hook) {
-                if ($hook['Hook'] == $WebHook) {
-                    if ($hook['TargetID'] == $this->InstanceID) {
-                        return;
-                    }
-                    $hooks[$index]['TargetID'] = $this->InstanceID;
-                    $found = true;
-                }
-            }
-            if (!$found) {
-                $hooks[] = ['Hook' => $WebHook, 'TargetID' => $this->InstanceID];
-            }
-            IPS_SetProperty($ids[0], 'Hooks', json_encode($hooks));
-            IPS_ApplyChanges($ids[0]);
+        $deviceInfo = json_decode($this->ReadAttributeString('DetectedDeviceInfo'), true);
+        if (!is_array($deviceInfo)) {
+            $deviceInfo = [];
         }
+
+        $modelType = $this->ReadAttributeString('DetectedDeviceType');
+        $firmware = $this->FindInfoValue($deviceInfo, ['FIRMWARE', 'firmware']);
+        $buildNumber = $this->FindInfoValue($deviceInfo, ['BUILD_NUMBER', 'build_number']);
+        $macAddress = $this->FindInfoValue($deviceInfo, ['WIFI_MAC_ADDR', 'wifi_mac_addr', 'MAC_ADDR', 'mac_addr']);
+
+        return [
+            [
+                'type'    => 'ValidationTextBox',
+                'caption' => 'Model type',
+                'enabled' => false,
+                'value'   => $modelType
+            ],
+            [
+                'type'    => 'ValidationTextBox',
+                'caption' => 'MAC address',
+                'enabled' => false,
+                'value'   => $macAddress
+            ],
+            [
+                'type'    => 'ValidationTextBox',
+                'caption' => 'Firmware',
+                'enabled' => false,
+                'value'   => $firmware
+            ],
+            [
+                'type'    => 'ValidationTextBox',
+                'caption' => 'Build number',
+                'enabled' => false,
+                'value'   => $buildNumber
+            ]
+        ];
     }
 
-    private function CreateWebHookScript()
+    private function GetDoorIPInstanceIDs(): array
     {
-        return '<?
-//Do not delete or modify.
-Doorbird_ProcessHookDataOLD(' . $this->InstanceID . ');		
-?>';
+        return IPS_GetInstanceListByModuleID('{A622AA63-67BB-895F-8EF2-421199E7F6BB}');
     }
 
-    private function CreateSnapshotScript()
+    private function GetDoorIPDetectionDiagnostics(): array
     {
-        return '<?
-//Do not delete or modify.
-Doorbird_GetSnapshot(' . $this->InstanceID . ');		
-?>';
-    }
+        $messages = [];
+        $configuredInstanceID = $this->ReadAttributeInteger('DoorIPInstanceID');
+        $messages[] = 'Stored DoorIP attribute DoorIPInstanceID: ' . $configuredInstanceID;
 
-    private function CreateRingPictureScript()
-    {
-        return '<?
-//Do not delete or modify.
-Doorbird_GetRingPicture(' . $this->InstanceID . ');		
-?>';
-    }
-
-    private function CreateEmailAlertScript($email)
-    {
-        return '<?
-//Do not delete or modify.
-Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');		
-?>';
-    }
-
-    private function SetSnapshotEvent(int $IDSnapshot)
-    {
-        //prüfen ob Event existent
-        $ParentID = $IDSnapshot;
-
-        $EreignisID = @($this->GetIDForIdent('EventGetDoorbirdSnapshot'));
-        if ($EreignisID === false) {
-            $EreignisID = IPS_CreateEvent(0);
-            IPS_SetName($EreignisID, 'GetDoorbirdSnapshot');
-            IPS_SetIdent($EreignisID, 'EventGetDoorbirdSnapshot');
-            IPS_SetEventTrigger($EreignisID, 0, $this->GetIDForIdent('LastMovement'));   //bei Variablenaktualisierung
-            IPS_SetParent($EreignisID, $ParentID);
-            IPS_SetEventActive($EreignisID, true);             //Ereignis aktivieren
+        if ($configuredInstanceID > 0) {
+            $messages[] = 'Stored DoorIP instance exists: ' . (IPS_ObjectExists($configuredInstanceID) ? 'yes' : 'no');
         } else {
-            $this->SendDebug('Doorbird', 'Event für Snapshot mit ObjektID' . $EreignisID . ' gefunden', 0);
+            $messages[] = 'No DoorIP instance stored in attribute';
         }
-    }
 
-    private function SetRingEvent(int $IDRing)
-    {
-        //prüfen ob Event existent
-        $ParentID = $IDRing;
+        $moduleID = '{A622AA63-67BB-895F-8EF2-421199E7F6BB}';
+        $doorIPInstances = $this->GetDoorIPInstanceIDs();
+        $messages[] = 'DoorIP lookup via module GUID ' . $moduleID . ' returned ' . count($doorIPInstances) . ' instance(s): ' . json_encode($doorIPInstances);
 
-        $EreignisID = @($this->GetIDForIdent('EventGetDoorbirdRingPic'));
-        if ($EreignisID === false) {
-            $EreignisID = IPS_CreateEvent(0);
-            IPS_SetName($EreignisID, 'GetDoorbirdRingPic');
-            IPS_SetIdent($EreignisID, 'EventGetDoorbirdRingPic');
-            IPS_SetEventTrigger($EreignisID, 0, $this->GetIDForIdent('LastRingtone'));   //bei Variablenaktualisierung
-            IPS_SetParent($EreignisID, $ParentID);
-            IPS_SetEventActive($EreignisID, true);             //Ereignis aktivieren
+        if (count($doorIPInstances) === 0) {
+            $messages[] = 'Automatic detection failed because no instance was found for the DoorIP module GUID';
+        } elseif (count($doorIPInstances) === 1) {
+            $messages[] = 'Automatic detection can use the single matching DoorIP instance ' . $doorIPInstances[0];
         } else {
-            $this->SendDebug('Doorbird', 'Event für Doorbird Ringpicture mit ObjektID' . $EreignisID . ' gefunden', 0);
+            $messages[] = 'Automatic detection did not select an instance because multiple DoorIP instances were found';
         }
+
+        return $messages;
     }
 
-    private function SetEmailEvent(int $IDEmail, bool $state)
+    private function GetDoorIPInstanceID(): int
     {
-        //prüfen ob Event existent
-        $ParentID = $IDEmail;
+        $instanceID = $this->ReadAttributeInteger('DoorIPInstanceID');
+        if (($instanceID > 0) && IPS_ObjectExists($instanceID)) {
+            return $instanceID;
+        }
 
-        //$EreignisID = @($this->GetIDForIdent('EventDoorbirdEmail'));
-        $EreignisID = @IPS_GetObjectIDByIdent('EventDoorbirdEmail', $ParentID);
-        if ($EreignisID === false) {
-            $EreignisID = IPS_CreateEvent(0);
-            IPS_SetName($EreignisID, 'Doorbird Email Alert');
-            IPS_SetIdent($EreignisID, 'EventDoorbirdEmail');
-            IPS_SetEventTrigger($EreignisID, 0, $this->GetIDForIdent('LastRingtone'));   //bei Variablenaktualisierung
-            IPS_SetParent($EreignisID, $ParentID);
-            IPS_SetEventActive($EreignisID, $state);             //Ereignis aktivieren	/ deaktivieren
-        } else {
-            //echo 'Die Ereignis-ID lautet: '. $EreignisID;
-            IPS_SetEventActive($EreignisID, $state);             //Ereignis aktivieren	/ deaktivieren
+        $doorIPInstances = $this->GetDoorIPInstanceIDs();
+        if (count($doorIPInstances) === 1) {
+            return $doorIPInstances[0];
+        }
+
+        return 0;
+    }
+
+    private function AutoSelectDoorIPInstance(): void
+    {
+        $instanceID = $this->ReadAttributeInteger('DoorIPInstanceID');
+        if (($instanceID > 0) && IPS_ObjectExists($instanceID)) {
+            $this->SendDebug('Doorbird DoorIP', 'DoorIP auto-selection skipped because stored instance ' . $instanceID . ' is valid', 0);
+            return;
+        }
+
+        foreach ($this->GetDoorIPDetectionDiagnostics() as $message) {
+            $this->SendDebug('Doorbird DoorIP', $message, 0);
+        }
+
+        $doorIPInstances = $this->GetDoorIPInstanceIDs();
+        if (count($doorIPInstances) === 1) {
+            $this->WriteAttributeInteger('DoorIPInstanceID', $doorIPInstances[0]);
+            $this->SendDebug('Doorbird DoorIP', 'Automatically selected DoorIP instance ' . $doorIPInstances[0], 0);
         }
     }
+
 
     private function IsCompressionAllowed($mimeType)
     {
@@ -4423,6 +4867,107 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         return '&value=' . $this->GetWebhookURL(true) . '?doorbirdevent=';
     }
 
+    private function GetCustomEventsConfiguration(): array
+    {
+        $customEvents = json_decode($this->ReadPropertyString('custom_events'), true);
+        if (!is_array($customEvents)) {
+            return [];
+        }
+
+        $normalizedEvents = [];
+        foreach ($customEvents as $customEvent) {
+            if (!is_array($customEvent)) {
+                continue;
+            }
+
+            $eventName = trim((string) ($customEvent['Event'] ?? ''));
+            if ($eventName === '') {
+                continue;
+            }
+
+            $eventKey = strtolower($eventName);
+            if (isset($normalizedEvents[$eventKey])) {
+                $this->SendDebug('Doorbird Custom Event', 'Skip duplicate custom event ' . $eventName, 0);
+                continue;
+            }
+
+            $displayName = trim((string) ($customEvent['Name'] ?? ''));
+            if ($displayName === '') {
+                $displayName = 'Event ' . $eventName;
+            }
+
+            $relaxation = (int) ($customEvent['Relaxation'] ?? 10);
+            if ($relaxation < 0) {
+                $relaxation = 0;
+            }
+
+            $normalizedEvents[$eventKey] = [
+                'event'      => $eventKey,
+                'ident'      => $this->GetCustomEventIdent($eventKey),
+                'name'       => $displayName,
+                'relaxation' => $relaxation
+            ];
+        }
+
+        return array_values($normalizedEvents);
+    }
+
+    private function GetCustomEventIdent(string $eventName): string
+    {
+        $normalizedIdent = preg_replace('/[^a-z0-9]+/i', '_', strtolower($eventName));
+        $normalizedIdent = trim((string) $normalizedIdent, '_');
+        if ($normalizedIdent === '') {
+            $normalizedIdent = 'event';
+        }
+
+        return 'CustomEvent_' . $normalizedIdent;
+    }
+
+    private function GetExpectedHttpFavorites(): array
+    {
+        $expectedFavorites = [
+            1 => ['event' => 'doorbell1', 'title' => $this->Translate('Doorbell Event 1 IP-Symcon')],
+            7 => ['event' => 'motionsensor', 'title' => $this->Translate('Motion Event IP-Symcon')],
+            8 => ['event' => 'dooropen1', 'title' => $this->Translate('Doorbell Open Event 1 IP-Symcon')]
+        ];
+
+        $model = $this->GetCurrentModel();
+        $relay_number = $this->GetNumberRelays($this->GetDeviceInformation($model));
+        $doorbell_number = $this->GetNumberDoorbells($this->GetDeviceInformation($model));
+
+        if ($relay_number > 1) {
+            $expectedFavorites[9] = ['event' => 'dooropen2', 'title' => $this->Translate('Doorbell Open Event 2 IP-Symcon')];
+        }
+        if ($doorbell_number > 1) {
+            $expectedFavorites[2] = ['event' => 'doorbell2', 'title' => $this->Translate('Doorbell Event 2 IP-Symcon')];
+        }
+        if ($doorbell_number > 2) {
+            $expectedFavorites[3] = ['event' => 'doorbell3', 'title' => $this->Translate('Doorbell Event 3 IP-Symcon')];
+        }
+        if ($doorbell_number > 3) {
+            $expectedFavorites[4] = ['event' => 'doorbell4', 'title' => $this->Translate('Doorbell Event 4 IP-Symcon')];
+        }
+        if ($doorbell_number > 4) {
+            $expectedFavorites[5] = ['event' => 'doorbell5', 'title' => $this->Translate('Doorbell Event 5 IP-Symcon')];
+        }
+        if ($doorbell_number > 5) {
+            $expectedFavorites[6] = ['event' => 'doorbell6', 'title' => $this->Translate('Doorbell Event 6 IP-Symcon')];
+        }
+
+        foreach ($expectedFavorites as $favoriteId => $favoriteData) {
+            $expectedFavorites[$favoriteId]['url'] = $this->GetFavoritURL(false, $favoriteData['event']);
+            $expectedFavorites[$favoriteId]['secure_url'] = $this->GetFavoritURL(true, $favoriteData['event']);
+        }
+
+        ksort($expectedFavorites);
+        return $expectedFavorites;
+    }
+
+    private function GetWebhookAddress(): string
+    {
+        return 'doorbird' . $this->InstanceID;
+    }
+
     private function GetFavoritURL($secure, $event)
     {
         return $this->GetWebhookURL($secure) . '?doorbirdevent=' . $event;
@@ -4436,10 +4981,25 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $webhookpassword = $this->ReadPropertyString('webhookpassword');
         $prefixips = $this->GetURLPrefix($hostips);
         if ($secure) {
-            $url = $prefixips . $webhookusername . ':' . $webhookpassword . '@' . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID;
+            $url = $prefixips . $webhookusername . ':' . $webhookpassword . '@' . $hostips . ':' . $portips . '/hook/' . $this->GetWebhookAddress();
         } else {
-            $url = $prefixips . $hostips . ':' . $portips . '/hook/doorbird' . $this->InstanceID;
+            $url = $prefixips . $hostips . ':' . $portips . '/hook/' . $this->GetWebhookAddress();
         }
+
+        $this->SendDebug(
+            'Doorbird Webhook URL',
+            'Generated URL: ' . json_encode([
+                'secure'       => $secure,
+                'host'         => $hostips,
+                'port'         => $portips,
+                'prefix'       => $prefixips,
+                'address'      => $this->GetWebhookAddress(),
+                'username_set' => $webhookusername !== '',
+                'password_set' => $webhookpassword !== '',
+                'url'          => $url
+            ]),
+            0
+        );
 
         return $url;
     }
@@ -4457,8 +5017,9 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         $name = 'Doorbird Klingel';
         $picturelimit = $this->ReadPropertyInteger('picturelimitring');
         $catid = $this->ReadPropertyInteger('categoryhistory');
+        $this->SendDebug('Doorbird Ring Picture', 'Prepare ring picture for button ' . $ring_category . ' with base category ' . $catid, 0);
         if ($catid > 0) {
-            $model = $this->ReadPropertyInteger('model');
+            $model = $this->GetCurrentModel();
             $doorbell_number = $this->GetNumberDoorbells($this->GetDeviceInformation($model));
 
             if ($doorbell_number > 0) {
@@ -4488,31 +5049,37 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
             if ($ring_category == 1) {
                 $ident = 'DoorbirdRing1Pic';
                 $picturename = 'doorbirdring1pic_';
+                $this->SendDebug('Doorbird Ring Picture', 'Store picture for button 1 in category ' . $ring_category_1, 0);
                 $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $ring_category_1);
             }
             if ($ring_category == 2) {
                 $ident = 'DoorbirdRing2Pic';
                 $picturename = 'doorbirdring2pic_';
+                $this->SendDebug('Doorbird Ring Picture', 'Store picture for button 2 in category ' . $ring_category_2, 0);
                 $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $ring_category_2);
             }
             if ($ring_category == 3) {
                 $ident = 'DoorbirdRing3Pic';
                 $picturename = 'doorbirdring3pic_';
+                $this->SendDebug('Doorbird Ring Picture', 'Store picture for button 3 in category ' . $ring_category_3, 0);
                 $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $ring_category_3);
             }
             if ($ring_category == 4) {
                 $ident = 'DoorbirdRing4Pic';
                 $picturename = 'doorbirdring4pic_';
+                $this->SendDebug('Doorbird Ring Picture', 'Store picture for button 4 in category ' . $ring_category_4, 0);
                 $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $ring_category_4);
             }
             if ($ring_category == 5) {
                 $ident = 'DoorbirdRing5Pic';
                 $picturename = 'doorbirdring5pic_';
+                $this->SendDebug('Doorbird Ring Picture', 'Store picture for button 5 in category ' . $ring_category_5, 0);
                 $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $ring_category_5);
             }
             if ($ring_category == 6) {
                 $ident = 'DoorbirdRing6Pic';
                 $picturename = 'doorbirdring6pic_';
+                $this->SendDebug('Doorbird Ring Picture', 'Store picture for button 6 in category ' . $ring_category_6, 0);
                 $this->GetImageDoorbell($name, $ident, $picturename, $picturelimit, $ring_category_6);
             }
         } else {
@@ -4526,8 +5093,14 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
     {
         $URL = self::GET_IMAGE;
         $Content = $this->SendDoorbird($URL);
+        if ($Content === false || $Content === '') {
+            $this->SendDebug('Doorbird', 'Could not load image content from Doorbird', 0);
+            return;
+        }
+
+        $this->NormalizePictureSlots($name, $ident, $picturename, $catid, $picturelimit);
         //lastsnapshot bestimmen
-        $mediaids = IPS_GetChildrenIDs($catid);
+        $mediaids = $this->GetPictureMediaIDs($ident, $catid);
         $countmedia = count($mediaids);
         $lastsnapshot = $countmedia;
         if ($lastsnapshot == $picturelimit) {
@@ -4555,7 +5128,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                 IPS_SetParent($MediaID, $catid); // Medienobjekt einsortieren unter der Doorbird Kategorie
                 IPS_SetIdent($MediaID, $ident . $currentsnapshotid);
                 IPS_SetPosition($MediaID, $currentsnapshotid);
-                IPS_SetMediaCached($MediaID, true);
+                IPS_SetMediaCached($MediaID, false);
                 // Das Cachen für das Mediaobjekt wird aktiviert.
                 // Beim ersten Zugriff wird dieses von der Festplatte ausgelesen
                 // und zukünftig nur noch im Arbeitsspeicher verarbeitet.
@@ -4601,16 +5174,93 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
                 //$savetime = $name[4];
                 //$saveinfo =  $savedate.' '.$savetime;
                 $saveinfo = IPS_GetObject($mediaids[$i])['ObjectInfo'];
+                $imageBase64 = IPS_GetMediaContent($mediaids[$i]);
+                if ($imageBase64 === '') {
+                    continue;
+                }
                 $allmedia[$i]['objid'] = $mediaids[$i];
                 $allmedia[$i]['picid'] = $mediakey;
                 $allmedia[$i]['saveinfo'] = $saveinfo;
-                $allmedia[$i]['imagebase64'] = IPS_GetMediaContent($mediaids[$i]); //base64 codiert
+                $allmedia[$i]['imagebase64'] = $imageBase64; //base64 codiert
             }
+            $allmedia = array_values($allmedia);
         } else {
             $allmedia = false;
         }
 
         return $allmedia;
+    }
+
+    private function NormalizePictureSlots(string $name, string $ident, string $picturename, int $catid, int $picturelimit): void
+    {
+        $mediaids = $this->GetPictureMediaIDs($ident, $catid);
+        if ($mediaids === []) {
+            return;
+        }
+
+        $allmedia = $this->GetallImages($mediaids);
+        $slotIds = array_map(static fn(array $media): int => (int) $media['picid'], $allmedia ?: []);
+        sort($slotIds);
+
+        $needsRebuild = false;
+        if ($allmedia === false) {
+            $needsRebuild = true;
+        } elseif (count($mediaids) !== count($allmedia)) {
+            $needsRebuild = true;
+        } elseif ($slotIds !== range(1, count($slotIds))) {
+            $needsRebuild = true;
+        }
+
+        if (!$needsRebuild) {
+            return;
+        }
+
+        $this->SendDebug('Doorbird Self Heal', 'Rebuild picture slots for ident ' . $ident, 0);
+
+        foreach ($mediaids as $mediaid) {
+            IPS_DeleteMedia($mediaid, true);
+        }
+
+        if ($allmedia === false) {
+            return;
+        }
+
+        $allmedia = array_slice($allmedia, -$picturelimit);
+        foreach (array_values($allmedia) as $index => $media) {
+            $slot = $index + 1;
+            $mediaid = IPS_CreateMedia(1);
+            IPS_SetParent($mediaid, $catid);
+            IPS_SetIdent($mediaid, $ident . $slot);
+            IPS_SetPosition($mediaid, $slot);
+            IPS_SetMediaCached($mediaid, false);
+            $imageFile = IPS_GetKernelDir() . 'media' . DIRECTORY_SEPARATOR . $picturename . $slot . '.jpg';
+            IPS_SetMediaFile($mediaid, $imageFile, false);
+            IPS_SetName($mediaid, $name . ' ' . $slot . ' ' . $media['saveinfo']);
+            IPS_SetInfo($mediaid, $media['saveinfo']);
+            IPS_SetMediaContent($mediaid, $media['imagebase64']);
+            IPS_SendMediaEvent($mediaid);
+        }
+    }
+
+    private function GetPictureMediaIDs(string $ident, int $catid): array
+    {
+        $mediaids = [];
+        foreach (IPS_GetChildrenIDs($catid) as $childId) {
+            if (!IPS_MediaExists($childId)) {
+                continue;
+            }
+            $object = IPS_GetObject($childId);
+            if (strpos($object['ObjectIdent'], $ident) !== 0) {
+                continue;
+            }
+            $mediaids[] = $childId;
+        }
+
+        usort($mediaids, function (int $left, int $right): int {
+            return IPS_GetObject($left)['ObjectPosition'] <=> IPS_GetObject($right)['ObjectPosition'];
+        });
+
+        return $mediaids;
     }
 
     private function SaveImagestoPicSlot($allmedia, $ident, $name, $catid)
@@ -4622,6 +5272,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
             if ($mediaid) {
                 $saveinfo = $media['saveinfo'];
                 $imagebase64 = $media['imagebase64'];
+                IPS_SetMediaCached($mediaid, false);
                 IPS_SetMediaContent($mediaid, $imagebase64);  //Bild Base64 codiert ablegen
                 IPS_SetName($mediaid, $name . ' ' . $newpicid . ' ' . $saveinfo); // Medienobjekt benennen
                 IPS_SetInfo($mediaid, $saveinfo);
@@ -4632,7 +5283,7 @@ Doorbird_EmailAlert(' . $this->InstanceID . ', ' . $email . ');
         }
     }
 
-    private function AddCurrentPic($allmedia, $mediaids, $Content)
+    private function AddCurrentPic($allmedia, $mediaids, string $Content)
     {
         $lastid = count($allmedia);
 

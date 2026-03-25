@@ -1,0 +1,46 @@
+{
+    "id": "{87C7D42E-9C14-4AE2-B264-2A3BC36DA79B}",
+    "caption": "DoorBird: Send Image By E-Mail",
+    "description": "Sends the configured DoorBird e-mail with the image of the selected ring history entry.",
+    "category": "target",
+    "format": "Send DoorBird image for bell {RING_ID} by e-mail at {TARGET, object}",
+    "form": [
+        {
+            "type": "Select",
+            "name": "RING_ID",
+            "caption": "Bell Button",
+            "options": [
+                {
+                    "label": "Bell 1",
+                    "value": 1
+                },
+                {
+                    "label": "Bell 2",
+                    "value": 2
+                },
+                {
+                    "label": "Bell 3",
+                    "value": 3
+                },
+                {
+                    "label": "Bell 4",
+                    "value": 4
+                },
+                {
+                    "label": "Bell 5",
+                    "value": 5
+                },
+                {
+                    "label": "Bell 6",
+                    "value": 6
+                }
+            ]
+        }
+    ],
+    "action": "Doorbird_EmailAlert($_IPS['TARGET'], 'configured', (int) $_IPS['RING_ID']);",
+    "readable": "Doorbird_EmailAlert($_IPS['TARGET'], 'configured', (int) $_IPS['RING_ID']);",
+    "restrictions": {
+        "objectType": [1],
+        "moduleID": ["{D489FA0B-765D-451E-8B21-C6B61ECAC00E}"]
+    }
+}

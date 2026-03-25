@@ -1,0 +1,13 @@
+{
+    "id": "{1CBBA117-C6A4-40E8-A867-4825EA2F58D2}",
+    "caption": "DoorBird: Load Snapshot",
+    "description": "Loads a new snapshot from the selected DoorBird instance into the configured snapshot category.",
+    "category": "target",
+    "format": "Load DoorBird snapshot at {TARGET, object}",
+    "action": "Doorbird_GetSnapshot($_IPS['TARGET']);",
+    "readable": "Doorbird_GetSnapshot($_IPS['TARGET']);",
+    "restrictions": {
+        "objectType": [1],
+        "moduleID": ["{D489FA0B-765D-451E-8B21-C6B61ECAC00E}"]
+    }
+}

@@ -1,9 +1,9 @@
 # IPSymconDoorbird
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)](https://www.symcon.de/forum/threads/38222-IP-Symcon-5-0-verf%C3%BCgbar)
+[![Version](https://img.shields.io/badge/Symcon%20Version-9.0%20%3E-green.svg)](https://www.symcon.de/)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 
-Module for IP-Symcon from version 5.x. Allows communication with a Doorbird doorphone.
+Module for IP-Symcon from version 9.x. Allows communication with a Doorbird doorphone.
 
 ![Doorbird](img/doorbird_logo_dark_small.png?raw=true "Doorbird")
 
@@ -20,7 +20,11 @@ Module for IP-Symcon from version 5.x. Allows communication with a Doorbird door
 
 ## 1. Features
 
-The module can be used to send commands to a Doorbird door intercom and to receive the status feedback in IP-Symcon (version 5 or higher).
+The module can be used to send commands to a Doorbird door intercom and to receive the status feedback in IP-Symcon (version 9 or higher).
+
+__Important note__
+
+This module now requires IP-Symcon 9.x. Older IP-Symcon versions are no longer supported.
 
 ### Send commands to Doorbird:  
 
@@ -36,14 +40,21 @@ The module can be used to send commands to a Doorbird door intercom and to recei
  - Time last door opening
  - Picture on the move
  - Picture at bell signal
+
+### New features in the current version:
+
+ - HTML SDK tile for the new IP-Symcon tile visualization
+ - Actions for frequently used Doorbird commands
+ - Revised A1101 configuration with a list for favorite and tiles
+ - HTTP calls for the A1101 are shown directly in the module
   
 
 ## 2. Requirements
 
- - IP-Symcon 5.x
+ - IP-Symcon 9.x
  - Doorbird Doorphone, Hardware Version 1.00 and above. Firmware version 000098 and higher.
  - the Master Branch is designed for the current IP-Symcon version.
- - For IP-Symcon versions smaller than 4.1 the branch _Old-Version_ has to be selected
+ - older IP-Symcon versions are no longer supported
 
 ## 3. Installation
 
@@ -146,6 +157,8 @@ __Important__
 
 Doorbird sends information to IP-Symcon via a webhook so for security reasons please enter a value in the username and password field.
 
+The webhook credentials are also included in the A1101 HTTP calls shown by the module. The displayed URL is therefore the URL that should be entered in the Doorbird app or the Doorbird web admin.
+
 ![Webhook](img/doorbird_webhook_en.png?raw=true "Doorbird Webhook")
 
 After all necessary information has been made and with _Apply Changes_ everything was saved
@@ -167,6 +180,12 @@ A browser window opens in which you have to log in with the admin login data for
 ![Webadmin](img/doorbird_web_admin_de_1.png?raw=true "Webadmin")
 
 First check in the Doorbird App or in the Web Admin whether the HTTP calls from IP-Symcon have been added under _Favorites -> HTTP(S) calls_.
+
+#### Door station A1101
+
+For the Door Station A1101, the module provides a list for _Favorite_ and _Tile 1..n_ in the configuration form. For each entry, a target variable and the desired target value can be configured.
+
+The HTTP URL shown in the form is the call that must be stored in the Doorbird app or the Doorbird web admin for the corresponding favorite or tile.
 
 #### 1. Ring notification setup
 

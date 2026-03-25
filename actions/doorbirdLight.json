@@ -1,0 +1,13 @@
+{
+    "id": "{2C6A1F1D-AE10-4B97-87E8-1B56286AE3E2}",
+    "caption": "DoorBird: Switch Light On",
+    "description": "Switches the DoorBird light on for the selected DoorBird instance.",
+    "category": "target",
+    "format": "Switch DoorBird light on at {TARGET, object}",
+    "action": "Doorbird_Light($_IPS['TARGET']);",
+    "readable": "Doorbird_Light($_IPS['TARGET']);",
+    "restrictions": {
+        "objectType": [1],
+        "moduleID": ["{D489FA0B-765D-451E-8B21-C6B61ECAC00E}"]
+    }
+}

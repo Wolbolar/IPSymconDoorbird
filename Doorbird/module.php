@@ -1323,6 +1323,7 @@ class Doorbird extends IPSModuleStrict
 
         return [
             'title'            => IPS_GetName($this->InstanceID),
+            'headerTitle'      => $this->GetVisualizationHeaderTitle(),
             'instanceID'       => $this->InstanceID,
             'view'             => $view,
             'liveMode'         => 'image',
@@ -1342,6 +1343,37 @@ class Doorbird extends IPSModuleStrict
             'doorIpInstanceID' => $this->GetDoorIPInstanceID(),
             'doorIpAvailable'  => $this->GetDoorIPInstanceID() > 0
         ];
+    }
+
+    private function GetVisualizationHeaderTitle(): string
+    {
+        $moduleJsonPath = __DIR__ . '/module.json';
+        $fallbackTitle = 'Doorbird';
+        if (!is_file($moduleJsonPath)) {
+            return $fallbackTitle;
+        }
+
+        $moduleJson = @file_get_contents($moduleJsonPath);
+        if ($moduleJson === false) {
+            return $fallbackTitle;
+        }
+
+        $moduleData = json_decode($moduleJson, true);
+        if (!is_array($moduleData)) {
+            return $fallbackTitle;
+        }
+
+        $aliases = $moduleData['aliases'] ?? [];
+        if (is_array($aliases) && isset($aliases[0]) && is_string($aliases[0]) && trim($aliases[0]) !== '') {
+            return trim($aliases[0]);
+        }
+
+        $name = $moduleData['name'] ?? '';
+        if (is_string($name) && trim($name) !== '') {
+            return trim($name);
+        }
+
+        return $fallbackTitle;
     }
 
     private function GetVisualizationLiveUrl(): string

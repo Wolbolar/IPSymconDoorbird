@@ -12,8 +12,9 @@
       "Creating instance.": "Instanz erstellen.",
       "Doorbird Discovery created.": "Doorbird Discovery erstellt.",
       "interface closed.": "Interface geschlossen.",
-      "Please follow the instructions.": "Bitte den Anleitung folgen.",
-      "no category selected.": "keine Kategorie ausgewählt."
+      "Please follow the instructions.": "Bitte folgen Sie den Anweisungen.",
+      "no category selected.": "Keine Kategorie ausgewählt.",
+      "Check the DoorBird documentation for the MAC address. If you do not know it, you can sign in at https://webadmin.doorbird.com with the admin username and password; the MAC address is shown there. Depending on the devices you own, multiple entries may appear in the list. Create only the instance whose MAC address matches your DoorBird door station.": "Prüfen Sie in den Unterlagen der DoorBird die MAC-Adresse. Sollten Sie diese nicht kennen, können Sie sich unter https://webadmin.doorbird.com mit Admin-Benutzername und Passwort anmelden; dort wird die MAC-Adresse angezeigt. Abhängig davon, welche Geräte Sie besitzen, können mehrere Einträge in der Liste erscheinen. Erzeugen Sie nur die Instanz, deren MAC-Adresse mit Ihrer DoorBird-Türstation übereinstimmt."
 
     }
   }

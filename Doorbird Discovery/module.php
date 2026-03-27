@@ -251,7 +251,7 @@ class DoorbirdDiscovery extends IPSModuleStrict
                 'image' => 'data:image/png;base64, ' . self::PICTURE_LOGO_DOORBIRD],
             [
                 'type'    => 'Label',
-                'caption' => 'Prufen Sie in den Unterlagen der DoorBird die MAC-Adresse. Sollten Sie diese nicht wissen, konnen Sie sich unter https://webadmin.doorbird.com mit Admin-Benutzername und Passwort anmelden; dort wird die MAC-Adresse angezeigt. Abhangig davon, welche Gerate Sie besitzen, konnen mehrere Eintrage in der Liste erscheinen. Erzeugen Sie nur die Instanz, deren MAC-Adresse mit Ihrer DoorBird-Turstation ubereinstimmt.'
+                'caption' => 'Check the DoorBird documentation for the MAC address. If you do not know it, you can sign in at https://webadmin.doorbird.com with the admin username and password; the MAC address is shown there. Depending on the devices you own, multiple entries may appear in the list. Create only the instance whose MAC address matches your DoorBird door station.'
             ]];
 
         return $form;

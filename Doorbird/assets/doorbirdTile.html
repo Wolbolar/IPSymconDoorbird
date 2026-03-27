@@ -80,9 +80,22 @@ function iconActionButton(action, label, icon, options = {}) {
     `;
 }
 
+function applyHeaderTitleWidth() {
+    const titleBackground = root.querySelector('.db-chrome-title');
+    const titleText = root.querySelector('.db-chrome-title-text');
+    if (!titleBackground || !titleText) {
+        return;
+    }
+
+    const measuredTextWidth = Math.ceil(titleText.getBoundingClientRect().width);
+    const width = Math.max(72, Math.min(180, measuredTextWidth + 18));
+    titleBackground.style.width = `${width}px`;
+}
+
 function render() {
     const lastRing = state.lastRing ? escapeHtml(state.lastRing) : 'No ring event';
     const lastMovement = state.lastMovement ? escapeHtml(state.lastMovement) : 'No motion event';
+    const headerTitle = state.headerTitle || state.instanceName || state.title || '';
 
     root.innerHTML = `
         <style>
@@ -104,6 +117,7 @@ function render() {
                 --db-gold-soft: rgba(212, 160, 58, 0.18);
                 --db-blue: #74b4ff;
                 --db-red: #c46c63;
+                background: var(--db-bg);
                 box-sizing: border-box;
                 color: var(--db-text);
                 display: block;
@@ -111,12 +125,54 @@ function render() {
                 height: 100%;
                 margin: 0;
                 overflow: hidden;
-                padding-top: 46px;
+                padding: 0;
+                position: relative;
                 width: 100%;
             }
 
+            #doorbird-tile .db-chrome {
+                inset: 14px 12px auto 12px;
+                pointer-events: none;
+                position: absolute;
+                z-index: 3;
+            }
+
+            #doorbird-tile .db-chrome-title,
+            #doorbird-tile .db-chrome-icon {
+                background: rgba(248, 244, 236, 0.94);
+                border: 1px solid rgba(58, 68, 80, 0.12);
+                box-shadow: 0 4px 14px rgba(7, 16, 28, 0.12);
+                position: absolute;
+            }
+
+            #doorbird-tile .db-chrome-title {
+                border-radius: 999px;
+                height: 28px;
+                left: 0;
+                overflow: hidden;
+                top: 0;
+                width: 72px;
+            }
+
+            #doorbird-tile .db-chrome-title-text {
+                display: inline-block;
+                font: 600 14px/1 "Segoe UI", "Helvetica Neue", sans-serif;
+                opacity: 0;
+                padding: 0 9px;
+                pointer-events: none;
+                user-select: none;
+                white-space: nowrap;
+            }
+
+            #doorbird-tile .db-chrome-icon {
+                border-radius: 999px;
+                height: 28px;
+                right: 4px;
+                top: 0;
+                width: 28px;
+            }
+
             #doorbird-tile .db-shell {
-                background: var(--db-bg);
                 border-radius: 0;
                 box-sizing: border-box;
                 display: grid;
@@ -125,7 +181,9 @@ function render() {
                 height: 100%;
                 min-height: 0;
                 overflow: hidden;
-                padding: 10px 10px 8px;
+                padding: 56px 12px 12px;
+                position: relative;
+                z-index: 1;
             }
 
             #doorbird-tile .db-nav,
@@ -323,10 +381,6 @@ function render() {
             }
 
             @media (max-width: 700px) {
-                #doorbird-tile {
-                    padding-top: 42px;
-                }
-
                 #doorbird-tile .db-footer {
                     grid-template-columns: 1fr;
                 }
@@ -338,36 +392,44 @@ function render() {
                 }
             }
         </style>
-        <div class="db-shell">
-            <div class="db-nav">
-                <button class="db-tab ${state.view === 'live' ? 'is-active' : ''}" onclick="requestAction('VisualizationView', 'live');">Live</button>
-                <button class="db-tab ${state.view === 'visitor' ? 'is-active' : ''}" onclick="requestAction('VisualizationView', 'visitor');">Visitor History</button>
-                <button class="db-tab ${state.view === 'motion' ? 'is-active' : ''}" onclick="requestAction('VisualizationView', 'motion');">Motion History</button>
-                <button class="db-refresh" onclick="requestAction('VisualizationRefreshSnapshot', true);">Refresh Snapshot</button>
-                <a class="db-link" href="${escapeHtml(state.webAdminUrl)}" target="_blank" rel="noopener">Web Admin</a>
+        <section class="db-tile">
+            <div class="db-chrome">
+                <div class="db-chrome-title" aria-hidden="true">${headerTitle ? '<span class="db-chrome-title-text">' + escapeHtml(headerTitle) + '</span>' : ''}</div>
+                <div class="db-chrome-icon"></div>
             </div>
-
-            <div class="db-actions">
-                ${iconActionButton('VisualizationOpenDoor', 'Open', icons.door, {accent: true, tooltip: 'Open Door'})}
-                ${iconActionButton('VisualizationLight', 'Light', icons.light, {tooltip: 'Switch Light On'})}
-                ${iconActionButton('VisualizationAcceptCall', 'Accept', icons.accept, {disabled: !state.doorIpAvailable, tooltip: 'Accept DoorIP Call'})}
-                ${iconActionButton('VisualizationDeclineCall', 'Hang Up', icons.decline, {warn: true, disabled: !state.doorIpAvailable, tooltip: 'Decline or End DoorIP Call'})}
-            </div>
-
-            <div class="db-media">${renderMedia()}</div>
-
-            <div class="db-footer">
-                <div class="db-stat">
-                    <span class="db-stat-label">Last Ring</span>
-                    <span class="db-stat-value">${lastRing}</span>
+            <div class="db-shell">
+                <div class="db-nav">
+                    <button class="db-tab ${state.view === 'live' ? 'is-active' : ''}" onclick="requestAction('VisualizationView', 'live');">Live</button>
+                    <button class="db-tab ${state.view === 'visitor' ? 'is-active' : ''}" onclick="requestAction('VisualizationView', 'visitor');">Visitor History</button>
+                    <button class="db-tab ${state.view === 'motion' ? 'is-active' : ''}" onclick="requestAction('VisualizationView', 'motion');">Motion History</button>
+                    <button class="db-refresh" onclick="requestAction('VisualizationRefreshSnapshot', true);">Refresh Snapshot</button>
+                    <a class="db-link" href="${escapeHtml(state.webAdminUrl)}" target="_blank" rel="noopener">Web Admin</a>
                 </div>
-                <div class="db-stat">
-                    <span class="db-stat-label">Last Motion</span>
-                    <span class="db-stat-value">${lastMovement}</span>
+
+                <div class="db-actions">
+                    ${iconActionButton('VisualizationOpenDoor', 'Open', icons.door, {accent: true, tooltip: 'Open Door'})}
+                    ${iconActionButton('VisualizationLight', 'Light', icons.light, {tooltip: 'Switch Light On'})}
+                    ${iconActionButton('VisualizationAcceptCall', 'Accept', icons.accept, {disabled: !state.doorIpAvailable, tooltip: 'Accept DoorIP Call'})}
+                    ${iconActionButton('VisualizationDeclineCall', 'Hang Up', icons.decline, {warn: true, disabled: !state.doorIpAvailable, tooltip: 'Decline or End DoorIP Call'})}
+                </div>
+
+                <div class="db-media">${renderMedia()}</div>
+
+                <div class="db-footer">
+                    <div class="db-stat">
+                        <span class="db-stat-label">Last Ring</span>
+                        <span class="db-stat-value">${lastRing}</span>
+                    </div>
+                    <div class="db-stat">
+                        <span class="db-stat-label">Last Motion</span>
+                        <span class="db-stat-value">${lastMovement}</span>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
     `;
+
+    applyHeaderTitleWidth();
 }
 
 function handleMessage(data) {

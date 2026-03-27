@@ -4,6 +4,7 @@
     "description": "Loads a new snapshot from the selected DoorBird instance into the configured snapshot category.",
     "category": "target",
     "format": "Load DoorBird snapshot at {TARGET, object}",
+    "form": [],
     "action": "Doorbird_GetSnapshot($_IPS['TARGET']);",
     "readable": "Doorbird_GetSnapshot($_IPS['TARGET']);",
     "restrictions": {

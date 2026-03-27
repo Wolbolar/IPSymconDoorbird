@@ -4,6 +4,7 @@
     "description": "Switches the DoorBird light on for the selected DoorBird instance.",
     "category": "target",
     "format": "Switch DoorBird light on at {TARGET, object}",
+    "form": [],
     "action": "Doorbird_Light($_IPS['TARGET']);",
     "readable": "Doorbird_Light($_IPS['TARGET']);",
     "restrictions": {

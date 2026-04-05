@@ -1,447 +1,720 @@
 <div id="doorbird-tile"></div>
 <script>
-const initialState = __INITIAL_STATE__;
-let state = initialState;
-
-const root = document.getElementById('doorbird-tile');
-
-function escapeHtml(value) {
-    return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
-
-function renderMedia() {
-    if (!state.hasCredentials || !state.host) {
-        return '<div class="db-empty">DoorBird host or credentials are missing.</div>';
-    }
-
-    if (state.view === 'visitor') {
-        return '<iframe class="db-frame" src="' + escapeHtml(state.visitorUrl) + '" loading="lazy"></iframe>';
-    }
-
-    if (state.view === 'motion') {
-        return '<iframe class="db-frame" src="' + escapeHtml(state.motionUrl) + '" loading="lazy"></iframe>';
-    }
-
-    if (!state.liveUrl) {
-        return '<div class="db-empty">Live stream URL is not available.</div>';
-    }
-
-    if (state.liveMode === 'image') {
-        return '<div class="db-media-inner"><img class="db-image" src="' + escapeHtml(state.liveUrl) + '" alt="DoorBird live image"></div>';
-    }
-
-    return '<div class="db-media-inner"><iframe class="db-frame" src="' + escapeHtml(state.liveUrl) + '" loading="lazy"></iframe></div>';
-}
-
-const icons = {
-    door: '',
-    light: '',
-    accept: '',
-    decline: ''
-};
-
-function loadAssets() {
-    const assets = window.assets || {};
-    icons.door = assets.iconDoor || '';
-    icons.light = assets.iconLight || '';
-    icons.accept = assets.iconPhoneAccept || '';
-    icons.decline = assets.iconPhoneDecline || '';
-}
-
-function iconActionButton(action, label, icon, options = {}) {
-    const classes = ['db-icon-action'];
-    if (options.accent) {
-        classes.push('is-accent');
-    }
-    if (options.warn) {
-        classes.push('is-warn');
-    }
-    if (options.disabled) {
-        classes.push('is-disabled');
-    }
-
-    const disabled = options.disabled ? 'disabled' : '';
-    const title = escapeHtml(options.tooltip || label);
-    return `
-        <button
-            class="${classes.join(' ')}"
-            ${disabled}
-            title="${title}"
-            aria-label="${title}"
-            onclick="requestAction('${action}', true);">
-            <span class="db-icon-wrap">${icon ? `<img class="db-icon-image" src="${icon}" alt="">` : ''}</span>
-            <span class="db-icon-label">${escapeHtml(label)}</span>
-        </button>
-    `;
-}
-
-function applyHeaderTitleWidth() {
-    const titleBackground = root.querySelector('.db-chrome-title');
-    const titleText = root.querySelector('.db-chrome-title-text');
-    if (!titleBackground || !titleText) {
+(() => {
+    const initialState = __INITIAL_STATE__;
+    let state = initialState;
+    const root = document.getElementById("doorbird-tile");
+    if (!root) {
         return;
     }
 
-    const measuredTextWidth = Math.ceil(titleText.getBoundingClientRect().width);
-    const width = Math.max(72, Math.min(180, measuredTextWidth + 18));
-    titleBackground.style.width = `${width}px`;
-}
+    const themeConfig = state.theme || {};
+    const searchParams = new URLSearchParams(window.location.search);
+    const hostMarginTop = Number.parseInt(searchParams.get("margintop") || "", 10);
+    const hostMarginSide = Number.parseInt(searchParams.get("marginside") || "", 10);
+    const hostMarginBottom = Number.parseInt(searchParams.get("marginbottom") || "", 10);
+    const hostTextColor = searchParams.get("textcolor") || "";
 
-function render() {
-    const lastRing = state.lastRing ? escapeHtml(state.lastRing) : 'No ring event';
-    const lastMovement = state.lastMovement ? escapeHtml(state.lastMovement) : 'No motion event';
-    const headerTitle = state.headerTitle || state.instanceName || state.title || '';
-
-    root.innerHTML = `
-        <style>
-            html, body {
-                height: 100%;
-                margin: 0;
-                overflow: hidden;
-                padding: 0;
-            }
-
-            #doorbird-tile {
-                --db-bg: radial-gradient(circle at top left, #264154 0%, #152837 42%, #0e1722 100%);
-                --db-panel: rgba(9, 16, 24, 0.74);
-                --db-panel-strong: rgba(6, 12, 19, 0.88);
-                --db-panel-border: rgba(180, 212, 239, 0.16);
-                --db-text: #f3f8fc;
-                --db-muted: #9eb5c5;
-                --db-gold: #d4a03a;
-                --db-gold-soft: rgba(212, 160, 58, 0.18);
-                --db-blue: #74b4ff;
-                --db-red: #c46c63;
-                background: var(--db-bg);
-                box-sizing: border-box;
-                color: var(--db-text);
-                display: block;
-                font-family: "Segoe UI", "Helvetica Neue", sans-serif;
-                height: 100%;
-                margin: 0;
-                overflow: hidden;
-                padding: 0;
-                position: relative;
-                width: 100%;
-            }
-
-            #doorbird-tile .db-chrome {
-                inset: 14px 12px auto 12px;
-                pointer-events: none;
-                position: absolute;
-                z-index: 3;
-            }
-
-            #doorbird-tile .db-chrome-title,
-            #doorbird-tile .db-chrome-icon {
-                background: rgba(248, 244, 236, 0.94);
-                border: 1px solid rgba(58, 68, 80, 0.12);
-                box-shadow: 0 4px 14px rgba(7, 16, 28, 0.12);
-                position: absolute;
-            }
-
-            #doorbird-tile .db-chrome-title {
-                border-radius: 999px;
-                height: 28px;
-                left: 0;
-                overflow: hidden;
-                top: 0;
-                width: 72px;
-            }
-
-            #doorbird-tile .db-chrome-title-text {
-                display: inline-block;
-                font: 600 14px/1 "Segoe UI", "Helvetica Neue", sans-serif;
-                opacity: 0;
-                padding: 0 9px;
-                pointer-events: none;
-                user-select: none;
-                white-space: nowrap;
-            }
-
-            #doorbird-tile .db-chrome-icon {
-                border-radius: 999px;
-                height: 28px;
-                right: 4px;
-                top: 0;
-                width: 28px;
-            }
-
-            #doorbird-tile .db-shell {
-                border-radius: 0;
-                box-sizing: border-box;
-                display: grid;
-                gap: 0;
-                grid-template-rows: auto auto 1fr auto;
-                height: 100%;
-                min-height: 0;
-                overflow: hidden;
-                padding: 56px 12px 12px;
-                position: relative;
-                z-index: 1;
-            }
-
-            #doorbird-tile .db-nav,
-            #doorbird-tile .db-actions {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 8px;
-                margin-bottom: 8px;
-            }
-
-            #doorbird-tile .db-tab,
-            #doorbird-tile .db-refresh,
-            #doorbird-tile .db-link {
-                appearance: none;
-                background: rgba(255, 255, 255, 0.08);
-                border: 1px solid transparent;
-                border-radius: 999px;
-                color: var(--db-text);
-                cursor: pointer;
-                font-size: 13px;
-                font-weight: 600;
-                padding: 10px 14px;
-                text-decoration: none;
-                transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, opacity 120ms ease;
-            }
-
-            #doorbird-tile .db-tab:hover,
-            #doorbird-tile .db-refresh:hover,
-            #doorbird-tile .db-link:hover {
-                border-color: var(--db-panel-border);
-                transform: translateY(-1px);
-            }
-
-            #doorbird-tile .db-tab.is-active {
-                background: var(--db-gold-soft);
-                border-color: rgba(212, 160, 58, 0.38);
-                color: #fff2d3;
-            }
-
-            #doorbird-tile .db-actions {
-                gap: 12px;
-                margin-bottom: 0;
-            }
-
-            #doorbird-tile .db-icon-action {
-                align-items: center;
-                appearance: none;
-                background: transparent;
-                border: 0;
-                color: var(--db-text);
-                cursor: pointer;
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-                min-width: 76px;
-                padding: 0;
-                transition: opacity 120ms ease, transform 120ms ease;
-            }
-
-            #doorbird-tile .db-icon-action:hover {
-                transform: translateY(-1px);
-            }
-
-            #doorbird-tile .db-icon-wrap {
-                align-items: center;
-                background: rgba(255, 255, 255, 0.08);
-                border: 1px solid var(--db-panel-border);
-                border-radius: 999px;
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-                color: var(--db-text);
-                display: inline-flex;
-                height: 54px;
-                justify-content: center;
-                transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
-                width: 54px;
-            }
-
-            #doorbird-tile .db-icon-image {
-                display: block;
-                height: 28px;
-                width: 28px;
-            }
-
-            #doorbird-tile .db-icon-label {
-                color: var(--db-muted);
-                font-size: 12px;
-                font-weight: 700;
-                line-height: 1.1;
-                text-align: center;
-            }
-
-            #doorbird-tile .db-icon-action:hover .db-icon-wrap {
-                border-color: rgba(255, 255, 255, 0.24);
-                background: rgba(255, 255, 255, 0.12);
-            }
-
-            #doorbird-tile .db-icon-action.is-accent .db-icon-wrap {
-                background: rgba(116, 180, 255, 0.18);
-                border-color: rgba(116, 180, 255, 0.35);
-                color: #d9ecff;
-            }
-
-            #doorbird-tile .db-icon-action.is-warn .db-icon-wrap {
-                background: rgba(196, 108, 99, 0.18);
-                border-color: rgba(196, 108, 99, 0.34);
-                color: #ffd9d5;
-            }
-
-            #doorbird-tile .db-icon-action.is-disabled {
-                cursor: default;
-                opacity: 0.42;
-            }
-
-            #doorbird-tile .db-icon-action.is-disabled:hover {
-                transform: none;
-            }
-
-            #doorbird-tile .db-media {
-                align-items: stretch;
-                background: var(--db-panel-strong);
-                border: 1px solid var(--db-panel-border);
-                border-radius: 20px;
-                display: flex;
-                justify-content: center;
-                margin-top: 0;
-                min-height: 0;
-                overflow: hidden;
-                position: relative;
-            }
-
-            #doorbird-tile .db-media-inner {
-                align-items: center;
-                display: flex;
-                height: 100%;
-                justify-content: center;
-                overflow: hidden;
-                width: 100%;
-            }
-
-            #doorbird-tile .db-frame,
-            #doorbird-tile .db-image {
-                background: #091117;
-                border: 0;
-                display: block;
-                height: 100%;
-                min-height: 340px;
-                width: 100%;
-            }
-
-            #doorbird-tile .db-image {
-                object-fit: cover;
-                object-position: center center;
-                overflow: hidden;
-                width: 100%;
-            }
-
-            #doorbird-tile .db-empty {
-                align-items: center;
-                color: var(--db-muted);
-                display: flex;
-                height: 100%;
-                justify-content: center;
-                min-height: 340px;
-                padding: 24px;
-                text-align: center;
-            }
-
-            #doorbird-tile .db-footer {
-                display: grid;
-                gap: 10px;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                margin-top: 8px;
-            }
-
-            #doorbird-tile .db-stat {
-                background: var(--db-panel);
-                border: 1px solid var(--db-panel-border);
-                border-radius: 16px;
-                padding: 12px;
-            }
-
-            #doorbird-tile .db-stat-label {
-                color: var(--db-muted);
-                display: block;
-                font-size: 11px;
-                font-weight: 700;
-                letter-spacing: 0.05em;
-                margin-bottom: 6px;
-                text-transform: uppercase;
-            }
-
-            #doorbird-tile .db-stat-value {
-                font-size: 15px;
-                font-weight: 700;
-            }
-
-            @media (max-width: 700px) {
-                #doorbird-tile .db-footer {
-                    grid-template-columns: 1fr;
-                }
-
-                #doorbird-tile .db-frame,
-                #doorbird-tile .db-image,
-                #doorbird-tile .db-empty {
-                    min-height: 260px;
-                }
-            }
-        </style>
-        <section class="db-tile">
-            <div class="db-chrome">
-                <div class="db-chrome-title" aria-hidden="true">${headerTitle ? '<span class="db-chrome-title-text">' + escapeHtml(headerTitle) + '</span>' : ''}</div>
-                <div class="db-chrome-icon"></div>
-            </div>
-            <div class="db-shell">
-                <div class="db-nav">
-                    <button class="db-tab ${state.view === 'live' ? 'is-active' : ''}" onclick="requestAction('VisualizationView', 'live');">Live</button>
-                    <button class="db-tab ${state.view === 'visitor' ? 'is-active' : ''}" onclick="requestAction('VisualizationView', 'visitor');">Visitor History</button>
-                    <button class="db-tab ${state.view === 'motion' ? 'is-active' : ''}" onclick="requestAction('VisualizationView', 'motion');">Motion History</button>
-                    <button class="db-refresh" onclick="requestAction('VisualizationRefreshSnapshot', true);">Refresh Snapshot</button>
-                    <a class="db-link" href="${escapeHtml(state.webAdminUrl)}" target="_blank" rel="noopener">Web Admin</a>
-                </div>
-
-                <div class="db-actions">
-                    ${iconActionButton('VisualizationOpenDoor', 'Open', icons.door, {accent: true, tooltip: 'Open Door'})}
-                    ${iconActionButton('VisualizationLight', 'Light', icons.light, {tooltip: 'Switch Light On'})}
-                    ${iconActionButton('VisualizationAcceptCall', 'Accept', icons.accept, {disabled: !state.doorIpAvailable, tooltip: 'Accept DoorIP Call'})}
-                    ${iconActionButton('VisualizationDeclineCall', 'Hang Up', icons.decline, {warn: true, disabled: !state.doorIpAvailable, tooltip: 'Decline or End DoorIP Call'})}
-                </div>
-
-                <div class="db-media">${renderMedia()}</div>
-
-                <div class="db-footer">
-                    <div class="db-stat">
-                        <span class="db-stat-label">Last Ring</span>
-                        <span class="db-stat-value">${lastRing}</span>
-                    </div>
-                    <div class="db-stat">
-                        <span class="db-stat-label">Last Motion</span>
-                        <span class="db-stat-value">${lastMovement}</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-    `;
-
-    applyHeaderTitleWidth();
-}
-
-function handleMessage(data) {
-    try {
-        const nextState = typeof data === 'string' ? JSON.parse(data) : data;
-        state = {...state, ...nextState};
-        render();
-    } catch (error) {
-        console.error('DoorBird visualization update failed', error);
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
     }
-}
 
-loadAssets();
-render();
+    function normalizeColor(value, fallback) {
+        const normalized = String(value || "").trim();
+        if (normalized === "") {
+            return fallback;
+        }
+        if (normalized.startsWith("#") || normalized.startsWith("rgb")) {
+            return normalized;
+        }
+        if (/^[0-9a-fA-F]{6}$/.test(normalized) || /^[0-9a-fA-F]{3}$/.test(normalized)) {
+            return `#${normalized}`;
+        }
+        return fallback;
+    }
+
+    function parseRgb(value) {
+        const color = String(value || "").trim();
+        if (color.startsWith("#")) {
+            const hex = color.slice(1);
+            if (hex.length === 3) {
+                return {
+                    r: parseInt(hex[0] + hex[0], 16),
+                    g: parseInt(hex[1] + hex[1], 16),
+                    b: parseInt(hex[2] + hex[2], 16)
+                };
+            }
+            if (hex.length === 6) {
+                return {
+                    r: parseInt(hex.slice(0, 2), 16),
+                    g: parseInt(hex.slice(2, 4), 16),
+                    b: parseInt(hex.slice(4, 6), 16)
+                };
+            }
+        }
+
+        const rgbMatch = color.match(/rgba?\(([^)]+)\)/i);
+        if (!rgbMatch) {
+            return null;
+        }
+
+        const parts = rgbMatch[1].split(",").map((part) => Number.parseFloat(part.trim()));
+        if (parts.length < 3 || parts.some((part) => !Number.isFinite(part))) {
+            return null;
+        }
+
+        return { r: parts[0], g: parts[1], b: parts[2] };
+    }
+
+    function toRgba(value, alpha) {
+        const rgb = parseRgb(value);
+        if (!rgb) {
+            return `rgba(0, 0, 0, ${alpha})`;
+        }
+        return `rgba(${Math.round(rgb.r)}, ${Math.round(rgb.g)}, ${Math.round(rgb.b)}, ${alpha})`;
+    }
+
+    function luminance(value) {
+        const rgb = parseRgb(value);
+        if (!rgb) {
+            return 1;
+        }
+
+        const channel = (component) => {
+            const normalized = component / 255;
+            return normalized <= 0.03928
+                ? normalized / 12.92
+                : ((normalized + 0.055) / 1.055) ** 2.4;
+        };
+
+        return 0.2126 * channel(rgb.r) + 0.7152 * channel(rgb.g) + 0.0722 * channel(rgb.b);
+    }
+
+    function buildAutoTheme() {
+        const rootStyles = getComputedStyle(root);
+        const bodyStyles = getComputedStyle(document.body);
+        const accentColor = normalizeColor(rootStyles.getPropertyValue("--accent-color"), normalizeColor(searchParams.get("accentcolor"), "#4c84c4"));
+        const contentColor = normalizeColor(rootStyles.getPropertyValue("--content-color"), normalizeColor(searchParams.get("textcolor"), bodyStyles.color || "#111111"));
+        const cardColor = normalizeColor(rootStyles.getPropertyValue("--card-color"), normalizeColor(searchParams.get("cardcolor"), "#ffffff"));
+        const fontFamily = bodyStyles.fontFamily || rootStyles.fontFamily || "sans-serif";
+        const fontSize = Number.parseInt(searchParams.get("fontsize") || "", 10);
+        const isDark = luminance(cardColor) < 0.45;
+
+        return {
+            variant: isDark ? "auto-dark" : "auto-light",
+            accentColor,
+            textColor: contentColor,
+            mutedTextColor: toRgba(contentColor, isDark ? 0.72 : 0.62),
+            panelColor: toRgba(cardColor, isDark ? 0.82 : 0.92),
+            panelStrongColor: toRgba(cardColor, isDark ? 0.9 : 0.97),
+            borderColor: toRgba(contentColor, isDark ? 0.16 : 0.1),
+            surfaceSoft: toRgba(contentColor, isDark ? 0.08 : 0.05),
+            surfaceStrong: toRgba(contentColor, isDark ? 0.14 : 0.08),
+            tileBgStart: toRgba(accentColor, isDark ? 0.08 : 0.045),
+            tileBgEnd: "rgba(0, 0, 0, 0)",
+            fontFamily,
+            fontSize: Number.isFinite(fontSize) ? fontSize : 14,
+            marginTop: Number.isFinite(hostMarginTop) ? hostMarginTop : 14,
+            marginSide: Number.isFinite(hostMarginSide) ? hostMarginSide : 12,
+            marginBottom: Number.isFinite(hostMarginBottom) ? hostMarginBottom : 12,
+            shadow: isDark ? "0 10px 26px rgba(0, 0, 0, 0.18)" : "0 10px 24px rgba(0, 0, 0, 0.05)",
+            mediaBg: isDark ? "rgba(9, 17, 23, 0.95)" : "rgba(248, 250, 252, 0.98)",
+            activeTabText: isDark ? accentColor : "#246a57",
+            tabBg: isDark ? toRgba(contentColor, 0.08) : "rgba(255, 255, 255, 0.88)",
+            tabBorder: isDark ? toRgba(contentColor, 0.16) : "rgba(17, 24, 39, 0.12)",
+            tabActiveBg: isDark ? toRgba(accentColor, 0.24) : "rgba(65, 185, 152, 0.12)",
+            tabActiveBorder: isDark ? toRgba(accentColor, 0.82) : "rgba(65, 185, 152, 0.58)",
+            tabHoverBg: isDark ? toRgba(contentColor, 0.14) : "rgba(255, 255, 255, 0.98)",
+            actionBarBg: isDark ? "transparent" : "rgba(248, 250, 252, 0.86)",
+            actionBarBorder: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(17, 24, 39, 0.08)",
+            actionLabelColor: isDark ? toRgba(contentColor, 0.8) : "rgba(31, 41, 55, 0.78)",
+            actionDefaultBg: isDark ? toRgba(contentColor, 0.08) : "rgba(255, 255, 255, 0.96)",
+            actionDefaultBorder: isDark ? toRgba(contentColor, 0.18) : "rgba(17, 24, 39, 0.14)",
+            actionDefaultText: isDark ? contentColor : "#334155",
+            actionAccentBg: isDark ? toRgba(accentColor, 0.18) : "rgba(59, 130, 246, 0.10)",
+            actionAccentBorder: isDark ? toRgba(accentColor, 0.36) : "rgba(59, 130, 246, 0.28)",
+            actionAccentText: isDark ? "#d9ecff" : "#1d4ed8",
+            actionHoverLiftBg: isDark ? toRgba(contentColor, 0.12) : "rgba(255, 255, 255, 1)",
+            actionPositiveBg: isDark ? "rgba(35, 197, 94, 0.16)" : "rgba(34, 197, 94, 0.10)",
+            actionPositiveBorder: isDark ? "rgba(74, 222, 128, 0.30)" : "rgba(22, 163, 74, 0.24)",
+            actionPositiveText: isDark ? "#dcfce7" : "#15803d",
+            actionWarnBg: isDark ? "rgba(196, 108, 99, 0.18)" : "rgba(239, 68, 68, 0.10)",
+            actionWarnBorder: isDark ? "rgba(196, 108, 99, 0.34)" : "rgba(220, 38, 38, 0.22)",
+            actionWarnText: isDark ? "#ffd9d5" : "#b91c1c",
+            statBg: isDark ? toRgba(cardColor, 0.78) : "rgba(255, 255, 255, 0.96)",
+            statBorder: isDark ? toRgba(contentColor, 0.14) : "rgba(17, 24, 39, 0.10)",
+            statLabelColor: isDark ? toRgba(contentColor, 0.68) : "rgba(55, 65, 81, 0.74)",
+            showHeaderChrome: false,
+            headerChromeBg: "transparent",
+            headerChromeBorder: "transparent"
+        };
+    }
+
+    function buildCustomTheme() {
+        const custom = themeConfig.custom || {};
+        const textColor = normalizeColor(custom.textColor, "#F3F8FC");
+        const borderColor = normalizeColor(custom.borderColor, "#B4D4EF");
+        const normalizedHostTextColor = normalizeColor(hostTextColor, "#111111");
+        const headerTextLuminance = luminance(normalizedHostTextColor);
+        const customMarginTop = Number.isFinite(Number(custom.marginTop)) ? Number(custom.marginTop) : 14;
+        const customMarginSide = Number.isFinite(Number(custom.marginSide)) ? Number(custom.marginSide) : 12;
+        const customMarginBottom = Number.isFinite(Number(custom.marginBottom)) ? Number(custom.marginBottom) : 12;
+
+        return {
+            variant: "custom",
+            accentColor: normalizeColor(custom.accentColor, "#4C84C4"),
+            textColor,
+            mutedTextColor: toRgba(textColor, 0.72),
+            panelColor: toRgba(normalizeColor(custom.cardColor, "#091018"), 0.82),
+            panelStrongColor: toRgba(normalizeColor(custom.cardSecondaryColor, "#060C13"), 0.92),
+            borderColor: toRgba(borderColor, 0.28),
+            surfaceSoft: toRgba(textColor, 0.08),
+            surfaceStrong: toRgba(textColor, 0.14),
+            tileBgStart: normalizeColor(custom.backgroundStart, "#264154"),
+            tileBgEnd: normalizeColor(custom.backgroundEnd, "#0E1722"),
+            fontFamily: getComputedStyle(document.body).fontFamily || "sans-serif",
+            fontSize: Number.isFinite(Number(custom.fontSize)) ? Number(custom.fontSize) : 14,
+            marginTop: Math.max(Number.isFinite(hostMarginTop) ? hostMarginTop : 14, customMarginTop),
+            marginSide: Math.max(Number.isFinite(hostMarginSide) ? hostMarginSide : 12, customMarginSide),
+            marginBottom: Math.max(Number.isFinite(hostMarginBottom) ? hostMarginBottom : 12, customMarginBottom),
+            shadow: "0 12px 28px rgba(0, 0, 0, 0.24)",
+            mediaBg: "rgba(9, 17, 23, 0.95)",
+            activeTabText: "#ffffff",
+            tabBg: toRgba(textColor, 0.06),
+            tabBorder: toRgba(borderColor, 0.24),
+            tabActiveBg: toRgba(normalizeColor(custom.accentColor, "#4C84C4"), 0.20),
+            tabActiveBorder: toRgba(normalizeColor(custom.accentColor, "#4C84C4"), 0.50),
+            tabHoverBg: toRgba(textColor, 0.12),
+            actionBarBg: "transparent",
+            actionBarBorder: "transparent",
+            actionLabelColor: toRgba(textColor, 0.72),
+            actionDefaultBg: toRgba(textColor, 0.06),
+            actionDefaultBorder: toRgba(borderColor, 0.24),
+            actionDefaultText: textColor,
+            actionAccentBg: toRgba(normalizeColor(custom.accentColor, "#4C84C4"), 0.18),
+            actionAccentBorder: toRgba(normalizeColor(custom.accentColor, "#4C84C4"), 0.35),
+            actionAccentText: "#d9ecff",
+            actionHoverLiftBg: toRgba(textColor, 0.12),
+            actionPositiveBg: "rgba(35, 197, 94, 0.16)",
+            actionPositiveBorder: "rgba(74, 222, 128, 0.30)",
+            actionPositiveText: "#dcfce7",
+            actionWarnBg: "rgba(196, 108, 99, 0.18)",
+            actionWarnBorder: "rgba(196, 108, 99, 0.34)",
+            actionWarnText: "#ffd9d5",
+            statBg: toRgba(normalizeColor(custom.cardColor, "#091018"), 0.82),
+            statBorder: toRgba(borderColor, 0.18),
+            statLabelColor: toRgba(textColor, 0.68),
+            showHeaderChrome: true,
+            headerChromeBg: headerTextLuminance > 0.55 ? "rgba(10, 22, 37, 0.82)" : "rgba(255, 255, 255, 0.82)",
+            headerChromeBorder: headerTextLuminance > 0.55 ? "rgba(255, 255, 255, 0.12)" : "rgba(10, 22, 37, 0.12)"
+        };
+    }
+
+    const theme = themeConfig.mode === "custom" ? buildCustomTheme() : buildAutoTheme();
+
+    function themeToStyleString() {
+        return [
+            `--db-accent:${theme.accentColor}`,
+            `--db-accent-soft:${toRgba(theme.accentColor, theme.variant === "custom" ? 0.22 : 0.14)}`,
+            `--db-bg-start:${theme.tileBgStart}`,
+            `--db-bg-end:${theme.tileBgEnd}`,
+            `--db-panel:${theme.panelColor}`,
+            `--db-panel-strong:${theme.panelStrongColor}`,
+            `--db-panel-border:${theme.borderColor}`,
+            `--db-surface-soft:${theme.surfaceSoft}`,
+            `--db-surface-strong:${theme.surfaceStrong}`,
+            `--db-text:${theme.textColor}`,
+            `--db-muted:${theme.mutedTextColor}`,
+            `--db-font-family:${theme.fontFamily}`,
+            `--db-font-size:${theme.fontSize}px`,
+            `--db-padding-top:${theme.marginTop}px`,
+            `--db-padding-side:${theme.marginSide}px`,
+            `--db-padding-bottom:${theme.marginBottom}px`,
+            `--db-shadow:${theme.shadow}`,
+            `--db-media-bg:${theme.mediaBg}`,
+            `--db-active-tab-text:${theme.activeTabText}`,
+            `--db-tab-bg:${theme.tabBg}`,
+            `--db-tab-border:${theme.tabBorder}`,
+            `--db-tab-active-bg:${theme.tabActiveBg}`,
+            `--db-tab-active-border:${theme.tabActiveBorder}`,
+            `--db-tab-hover-bg:${theme.tabHoverBg}`,
+            `--db-action-bar-bg:${theme.actionBarBg}`,
+            `--db-action-bar-border:${theme.actionBarBorder}`,
+            `--db-action-label:${theme.actionLabelColor}`,
+            `--db-action-default-bg:${theme.actionDefaultBg}`,
+            `--db-action-default-border:${theme.actionDefaultBorder}`,
+            `--db-action-default-text:${theme.actionDefaultText}`,
+            `--db-action-accent-bg:${theme.actionAccentBg}`,
+            `--db-action-accent-border:${theme.actionAccentBorder}`,
+            `--db-action-accent-text:${theme.actionAccentText}`,
+            `--db-action-hover-lift-bg:${theme.actionHoverLiftBg}`,
+            `--db-action-positive-bg:${theme.actionPositiveBg}`,
+            `--db-action-positive-border:${theme.actionPositiveBorder}`,
+            `--db-action-positive-text:${theme.actionPositiveText}`,
+            `--db-action-warn-bg:${theme.actionWarnBg}`,
+            `--db-action-warn-border:${theme.actionWarnBorder}`,
+            `--db-action-warn-text:${theme.actionWarnText}`,
+            `--db-stat-bg:${theme.statBg}`,
+            `--db-stat-border:${theme.statBorder}`,
+            `--db-stat-label:${theme.statLabelColor}`,
+            `--db-header-chrome-bg:${theme.headerChromeBg}`,
+            `--db-header-chrome-border:${theme.headerChromeBorder}`
+        ].join(";");
+    }
+
+    const icons = {
+        door: "",
+        light: "",
+        accept: "",
+        decline: ""
+    };
+
+    function loadAssets() {
+        const assets = window.assets || {};
+        icons.door = assets.iconDoor || "";
+        icons.light = assets.iconLight || "";
+        icons.accept = assets.iconPhoneAccept || "";
+        icons.decline = assets.iconPhoneDecline || "";
+    }
+
+    function renderMedia() {
+        if (!state.hasCredentials || !state.host) {
+            return '<div class="db-empty">DoorBird host or credentials are missing.</div>';
+        }
+
+        if (state.view === "visitor") {
+            return '<iframe class="db-frame" src="' + escapeHtml(state.visitorUrl) + '" loading="lazy"></iframe>';
+        }
+
+        if (state.view === "motion") {
+            return '<iframe class="db-frame" src="' + escapeHtml(state.motionUrl) + '" loading="lazy"></iframe>';
+        }
+
+        if (!state.liveUrl) {
+            return '<div class="db-empty">Live stream URL is not available.</div>';
+        }
+
+        if (state.liveMode === "image") {
+            return '<div class="db-media-inner"><img class="db-image" src="' + escapeHtml(state.liveUrl) + '" alt="DoorBird live image"></div>';
+        }
+
+        return '<div class="db-media-inner"><iframe class="db-frame" src="' + escapeHtml(state.liveUrl) + '" loading="lazy"></iframe></div>';
+    }
+
+    function iconActionButton(action, label, icon, options = {}) {
+        const classes = ["db-icon-action"];
+        if (options.accent) {
+            classes.push("is-accent");
+        }
+        if (options.positive) {
+            classes.push("is-positive");
+        }
+        if (options.warn) {
+            classes.push("is-warn");
+        }
+        if (options.disabled) {
+            classes.push("is-disabled");
+        }
+
+        const disabled = options.disabled ? "disabled" : "";
+        const title = escapeHtml(options.tooltip || label);
+        return `
+            <button
+                class="${classes.join(" ")}"
+                ${disabled}
+                title="${title}"
+                aria-label="${title}"
+                onclick="requestAction('${action}', true);">
+                <span class="db-icon-wrap">${icon ? `<span class="db-icon-svg" aria-hidden="true">${icon}</span>` : ""}</span>
+                <span class="db-icon-label">${escapeHtml(label)}</span>
+            </button>
+        `;
+    }
+
+    function applyHeaderTitleWidth() {
+        const titleBackground = root.querySelector(".db-chrome-title");
+        const titleText = root.querySelector(".db-chrome-title-text");
+        if (!titleBackground || !titleText) {
+            return;
+        }
+
+        const measuredTextWidth = Math.ceil(titleText.getBoundingClientRect().width);
+        const width = Math.max(72, Math.min(180, measuredTextWidth + 18));
+        titleBackground.style.width = `${width}px`;
+    }
+
+    function render() {
+        const lastRing = state.lastRing ? escapeHtml(state.lastRing) : "No ring event";
+        const lastMovement = state.lastMovement ? escapeHtml(state.lastMovement) : "No motion event";
+        const headerTitle = state.headerTitle || state.instanceName || state.title || "";
+
+        root.innerHTML = `
+            <style>
+                html, body {
+                    height: 100%;
+                    margin: 0;
+                    overflow: hidden;
+                    padding: 0;
+                }
+
+                #doorbird-tile {
+                    height: 100%;
+                    margin: 0;
+                    padding: 0;
+                    width: 100%;
+                }
+
+                .db-tile {
+                    background: linear-gradient(180deg, var(--db-bg-start) 0%, var(--db-bg-end) 100%);
+                    box-sizing: border-box;
+                    color: var(--db-text);
+                    display: block;
+                    font-family: var(--db-font-family);
+                    font-size: var(--db-font-size);
+                    height: 100%;
+                    margin: 0;
+                    overflow: hidden;
+                    padding: 0;
+                    position: relative;
+                    width: 100%;
+                }
+
+                .db-chrome {
+                    inset: 14px 12px auto 12px;
+                    pointer-events: none;
+                    position: absolute;
+                    z-index: 3;
+                }
+
+                .db-chrome-title,
+                .db-chrome-icon {
+                    background: var(--db-header-chrome-bg);
+                    border: 1px solid var(--db-header-chrome-border);
+                    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+                    position: absolute;
+                }
+
+                .db-chrome-title {
+                    border-radius: 999px;
+                    height: 28px;
+                    left: 0;
+                    overflow: hidden;
+                    top: 0;
+                    width: 72px;
+                }
+
+                .db-chrome-title-text {
+                    display: inline-block;
+                    font: 600 14px/1 var(--db-font-family);
+                    opacity: 0;
+                    padding: 0 9px;
+                    pointer-events: none;
+                    user-select: none;
+                    white-space: nowrap;
+                }
+
+                .db-chrome-icon {
+                    border-radius: 999px;
+                    height: 28px;
+                    right: 4px;
+                    top: 0;
+                    width: 28px;
+                }
+
+                .db-shell {
+                    box-sizing: border-box;
+                    display: grid;
+                    gap: 10px;
+                    grid-template-rows: auto auto 1fr auto;
+                    height: 100%;
+                    min-height: 0;
+                    overflow: hidden;
+                    padding: calc(var(--db-padding-top) + 24px) var(--db-padding-side) var(--db-padding-bottom);
+                    position: relative;
+                    z-index: 1;
+                }
+
+                .db-nav,
+                .db-actions {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+
+                .db-tab,
+                .db-refresh,
+                .db-link {
+                    appearance: none;
+                    background: var(--db-tab-bg);
+                    border: 1px solid var(--db-tab-border);
+                    border-radius: 999px;
+                    color: var(--db-text);
+                    cursor: pointer;
+                    font-family: inherit;
+                    font-size: 13px;
+                    font-weight: 600;
+                    padding: 10px 14px;
+                    text-decoration: none;
+                    transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, opacity 120ms ease;
+                }
+
+                .db-tab:hover,
+                .db-refresh:hover,
+                .db-link:hover {
+                    background: var(--db-tab-hover-bg);
+                    transform: translateY(-1px);
+                }
+
+                .db-tab.is-active {
+                    background: var(--db-tab-active-bg);
+                    border-color: var(--db-tab-active-border);
+                    box-shadow: inset 0 0 0 1px var(--db-tab-active-border), 0 6px 14px rgba(0, 0, 0, 0.06);
+                    color: var(--db-active-tab-text);
+                }
+
+                .db-actions {
+                    background: var(--db-action-bar-bg);
+                    border: 1px solid var(--db-action-bar-border);
+                    border-radius: 18px;
+                    gap: 12px;
+                    padding: 8px 10px;
+                }
+
+                .db-icon-action {
+                    align-items: center;
+                    appearance: none;
+                    background: transparent;
+                    border: 0;
+                    color: var(--db-text);
+                    cursor: pointer;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    min-width: 76px;
+                    padding: 0;
+                    transition: opacity 120ms ease, transform 120ms ease;
+                }
+
+                .db-icon-action:hover {
+                    transform: translateY(-1px);
+                }
+
+                .db-icon-wrap {
+                    align-items: center;
+                    background: var(--db-action-default-bg);
+                    border: 1px solid var(--db-action-default-border);
+                    border-radius: 999px;
+                    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+                    color: var(--db-action-default-text);
+                    display: inline-flex;
+                    height: 54px;
+                    justify-content: center;
+                    transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+                    width: 54px;
+                }
+
+                .db-icon-svg,
+                .db-icon-svg svg {
+                    color: inherit;
+                    display: inline-block;
+                    height: 28px;
+                    width: 28px;
+                }
+
+                .db-icon-image {
+                    display: block;
+                    height: 28px;
+                    width: 28px;
+                }
+
+                .db-icon-label {
+                    color: var(--db-action-label);
+                    font-size: 12px;
+                    font-weight: 700;
+                    line-height: 1.1;
+                    text-align: center;
+                }
+
+                .db-icon-action:hover .db-icon-wrap {
+                    background: var(--db-action-hover-lift-bg);
+                    border-color: var(--db-action-default-border);
+                    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+                }
+
+                .db-icon-action.is-accent .db-icon-wrap {
+                    background: var(--db-action-accent-bg);
+                    border-color: var(--db-action-accent-border);
+                    color: var(--db-action-accent-text);
+                }
+
+                .db-icon-action.is-positive .db-icon-wrap {
+                    background: var(--db-action-positive-bg);
+                    border-color: var(--db-action-positive-border);
+                    color: var(--db-action-positive-text);
+                }
+
+                .db-icon-action.is-warn .db-icon-wrap {
+                    background: var(--db-action-warn-bg);
+                    border-color: var(--db-action-warn-border);
+                    color: var(--db-action-warn-text);
+                }
+
+                .db-icon-action.is-disabled {
+                    cursor: default;
+                    opacity: 0.42;
+                }
+
+                .db-icon-action.is-disabled:hover {
+                    transform: none;
+                }
+
+                .db-media {
+                    align-items: stretch;
+                    background: var(--db-panel-strong);
+                    border: 1px solid var(--db-panel-border);
+                    border-radius: 20px;
+                    box-shadow: var(--db-shadow);
+                    display: flex;
+                    justify-content: center;
+                    min-height: 0;
+                    overflow: hidden;
+                    position: relative;
+                }
+
+                .db-media-inner {
+                    align-items: center;
+                    display: flex;
+                    height: 100%;
+                    justify-content: center;
+                    overflow: hidden;
+                    width: 100%;
+                }
+
+                .db-frame,
+                .db-image {
+                    background: var(--db-media-bg);
+                    border: 0;
+                    display: block;
+                    height: 100%;
+                    min-height: 340px;
+                    width: 100%;
+                }
+
+                .db-image {
+                    object-fit: cover;
+                    object-position: center center;
+                    overflow: hidden;
+                }
+
+                .db-empty {
+                    align-items: center;
+                    color: var(--db-muted);
+                    display: flex;
+                    height: 100%;
+                    justify-content: center;
+                    min-height: 340px;
+                    padding: 24px;
+                    text-align: center;
+                }
+
+                .db-footer {
+                    display: grid;
+                    gap: 10px;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+
+                .db-stat {
+                    background: var(--db-stat-bg);
+                    border: 1px solid var(--db-stat-border);
+                    border-radius: 16px;
+                    padding: 11px 12px;
+                }
+
+                .db-stat-label {
+                    color: var(--db-stat-label);
+                    display: block;
+                    font-size: 11px;
+                    font-weight: 700;
+                    letter-spacing: 0.05em;
+                    margin-bottom: 5px;
+                    text-transform: uppercase;
+                }
+
+                .db-stat-value {
+                    font-size: 15px;
+                    font-weight: 700;
+                }
+
+                @media (max-width: 700px) {
+                    .db-footer {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .db-frame,
+                    .db-image,
+                    .db-empty {
+                        min-height: 260px;
+                    }
+                }
+            </style>
+            <section class="db-tile" style="${themeToStyleString()}">
+                ${theme.showHeaderChrome ? `
+                    <div class="db-chrome">
+                        <div class="db-chrome-title" aria-hidden="true">${headerTitle ? `<span class="db-chrome-title-text">${escapeHtml(headerTitle)}</span>` : ""}</div>
+                        <div class="db-chrome-icon"></div>
+                    </div>
+                ` : ""}
+                <div class="db-shell">
+                    <div class="db-nav">
+                        <button class="db-tab ${state.view === "live" ? "is-active" : ""}" onclick="requestAction('VisualizationView', 'live');">Live</button>
+                        <button class="db-tab ${state.view === "visitor" ? "is-active" : ""}" onclick="requestAction('VisualizationView', 'visitor');">Visitor History</button>
+                        <button class="db-tab ${state.view === "motion" ? "is-active" : ""}" onclick="requestAction('VisualizationView', 'motion');">Motion History</button>
+                        <button class="db-refresh" onclick="requestAction('VisualizationRefreshSnapshot', true);">Refresh Snapshot</button>
+                        <a class="db-link" href="${escapeHtml(state.webAdminUrl)}" target="_blank" rel="noopener">Web Admin</a>
+                    </div>
+
+                    <div class="db-actions">
+                        ${iconActionButton("VisualizationOpenDoor", "Open", icons.door, { accent: true, tooltip: "Open Door" })}
+                        ${iconActionButton("VisualizationLight", "Light", icons.light, { tooltip: "Switch Light On" })}
+                        ${iconActionButton("VisualizationAcceptCall", "Accept", icons.accept, { positive: true, disabled: !state.doorIpAvailable, tooltip: "Accept DoorIP Call" })}
+                        ${iconActionButton("VisualizationDeclineCall", "Hang Up", icons.decline, { warn: true, disabled: !state.doorIpAvailable, tooltip: "Decline or End DoorIP Call" })}
+                    </div>
+
+                    <div class="db-media">${renderMedia()}</div>
+
+                    <div class="db-footer">
+                        <div class="db-stat">
+                            <span class="db-stat-label">Last Ring</span>
+                            <span class="db-stat-value">${lastRing}</span>
+                        </div>
+                        <div class="db-stat">
+                            <span class="db-stat-label">Last Motion</span>
+                            <span class="db-stat-value">${lastMovement}</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        `;
+
+        applyHeaderTitleWidth();
+    }
+
+    window.handleMessage = function handleMessage(data) {
+        try {
+            const nextState = typeof data === "string" ? JSON.parse(data) : data;
+            state = { ...state, ...nextState };
+            render();
+        } catch (error) {
+            console.error("DoorBird visualization update failed", error);
+        }
+    };
+
+    loadAssets();
+    render();
+})();
 </script>

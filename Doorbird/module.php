@@ -147,6 +147,18 @@ class Doorbird extends IPSModuleStrict
         $this->RegisterPropertyString('subject11', 'Doorbell Klingel!');
         $this->RegisterPropertyString('emailtext11', 'Da hat jemand an der Tür geklingelt, aber du bist leider nicht da!');
         $this->RegisterPropertyBoolean('altview', false);
+        $this->RegisterPropertyInteger('tileThemeMode', 0);
+        $this->RegisterPropertyInteger('tileCustomAccentColor', 0x4C84C4);
+        $this->RegisterPropertyInteger('tileCustomTextColor', 0xF3F8FC);
+        $this->RegisterPropertyInteger('tileCustomCardColor', 0x091018);
+        $this->RegisterPropertyInteger('tileCustomCardSecondaryColor', 0x060C13);
+        $this->RegisterPropertyInteger('tileCustomBackgroundStart', 0x264154);
+        $this->RegisterPropertyInteger('tileCustomBackgroundEnd', 0x0E1722);
+        $this->RegisterPropertyInteger('tileCustomBorderColor', 0xB4D4EF);
+        $this->RegisterPropertyInteger('tileCustomFontSize', 14);
+        $this->RegisterPropertyInteger('tileCustomMarginTop', 14);
+        $this->RegisterPropertyInteger('tileCustomMarginSide', 12);
+        $this->RegisterPropertyInteger('tileCustomMarginBottom', 12);
         $this->RegisterPropertyString('webhookusername', 'ipsymcon');
         $this->RegisterPropertyString('webhookpassword', 'useripsh0me');
         $this->RegisterPropertyInteger('categoryhistory', 0);
@@ -1294,10 +1306,10 @@ class Doorbird extends IPSModuleStrict
 
         $assets = '<script>';
         $assets .= 'window.assets = window.assets || {};' . PHP_EOL;
-        $assets .= 'window.assets.iconDoor = "data:image/svg+xml;base64,' . $this->GetVisualizationAssetBase64('icon-door.svg') . '";' . PHP_EOL;
-        $assets .= 'window.assets.iconLight = "data:image/svg+xml;base64,' . $this->GetVisualizationAssetBase64('icon-light.svg') . '";' . PHP_EOL;
-        $assets .= 'window.assets.iconPhoneAccept = "data:image/svg+xml;base64,' . $this->GetVisualizationAssetBase64('icon-phone-accept.svg') . '";' . PHP_EOL;
-        $assets .= 'window.assets.iconPhoneDecline = "data:image/svg+xml;base64,' . $this->GetVisualizationAssetBase64('icon-phone-decline.svg') . '";' . PHP_EOL;
+        $assets .= 'window.assets.iconDoor = ' . json_encode($this->GetVisualizationSvgMarkup('icon-door.svg'), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) . ';' . PHP_EOL;
+        $assets .= 'window.assets.iconLight = ' . json_encode($this->GetVisualizationSvgMarkup('icon-light.svg'), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) . ';' . PHP_EOL;
+        $assets .= 'window.assets.iconPhoneAccept = ' . json_encode($this->GetVisualizationSvgMarkup('icon-phone-accept.svg'), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) . ';' . PHP_EOL;
+        $assets .= 'window.assets.iconPhoneDecline = ' . json_encode($this->GetVisualizationSvgMarkup('icon-phone-decline.svg'), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) . ';' . PHP_EOL;
         $assets .= '</script>';
 
         return $assets . $template;
@@ -1323,9 +1335,11 @@ class Doorbird extends IPSModuleStrict
 
         return [
             'title'            => IPS_GetName($this->InstanceID),
+            'instanceName'     => IPS_GetName($this->InstanceID),
             'headerTitle'      => $this->GetVisualizationHeaderTitle(),
             'instanceID'       => $this->InstanceID,
             'view'             => $view,
+            'theme'            => $this->GetVisualizationThemeConfig(),
             'liveMode'         => 'image',
             'liveUrl'          => $this->GetVisualizationLiveUrl(),
             'visitorUrl'       => $this->GetWebhookURL(false) . '/slideshowhistory',
@@ -1400,6 +1414,31 @@ class Doorbird extends IPSModuleStrict
         return (string) GetValue($this->GetIDForIdent($ident));
     }
 
+    private function GetVisualizationThemeConfig(): array
+    {
+        return [
+            'mode'   => $this->ReadPropertyInteger('tileThemeMode') === 1 ? 'custom' : 'auto',
+            'custom' => [
+                'accentColor'        => $this->ColorPropertyToHex($this->ReadPropertyInteger('tileCustomAccentColor')),
+                'textColor'          => $this->ColorPropertyToHex($this->ReadPropertyInteger('tileCustomTextColor')),
+                'cardColor'          => $this->ColorPropertyToHex($this->ReadPropertyInteger('tileCustomCardColor')),
+                'cardSecondaryColor' => $this->ColorPropertyToHex($this->ReadPropertyInteger('tileCustomCardSecondaryColor')),
+                'backgroundStart'    => $this->ColorPropertyToHex($this->ReadPropertyInteger('tileCustomBackgroundStart')),
+                'backgroundEnd'      => $this->ColorPropertyToHex($this->ReadPropertyInteger('tileCustomBackgroundEnd')),
+                'borderColor'        => $this->ColorPropertyToHex($this->ReadPropertyInteger('tileCustomBorderColor')),
+                'fontSize'           => max(10, $this->ReadPropertyInteger('tileCustomFontSize')),
+                'marginTop'          => max(0, $this->ReadPropertyInteger('tileCustomMarginTop')),
+                'marginSide'         => max(0, $this->ReadPropertyInteger('tileCustomMarginSide')),
+                'marginBottom'       => max(0, $this->ReadPropertyInteger('tileCustomMarginBottom')),
+            ],
+        ];
+    }
+
+    private function ColorPropertyToHex(int $value): string
+    {
+        return sprintf('#%06X', $value & 0xFFFFFF);
+    }
+
     private function GetVisualizationAssetBase64(string $filename): string
     {
         $path = __DIR__ . '/assets/' . $filename;
@@ -1415,6 +1454,23 @@ class Doorbird extends IPSModuleStrict
         }
 
         return base64_encode($icon);
+    }
+
+    private function GetVisualizationSvgMarkup(string $filename): string
+    {
+        $path = __DIR__ . '/assets/' . $filename;
+        if (!is_file($path)) {
+            $this->SendDebug('Doorbird Visualization', 'Visualization SVG asset not found: ' . $path, 0);
+            return '';
+        }
+
+        $icon = file_get_contents($path);
+        if ($icon === false) {
+            $this->SendDebug('Doorbird Visualization', 'Could not read visualization SVG asset: ' . $path, 0);
+            return '';
+        }
+
+        return str_replace('#F3F8FC', 'currentColor', $icon);
     }
 
     private function AcceptDoorIPCall(): void
@@ -3141,6 +3197,7 @@ class Doorbird extends IPSModuleStrict
         $credentialsAvailable = $this->HasDoorbirdCredentials();
         $currentModel = $this->GetCurrentModel();
         $detectedDeviceType = $this->ReadAttributeString('DetectedDeviceType');
+        $tileThemeMode = $this->ReadPropertyInteger('tileThemeMode');
         $form = [
             [
                 'type'  => 'Image',
@@ -3374,6 +3431,98 @@ class Doorbird extends IPSModuleStrict
         );
         $form = array_merge_recursive(
             $form, [
+                [
+                    'type'    => 'ExpansionPanel',
+                    'caption' => '🎨 Tile design',
+                    'items'   => [
+                        [
+                            'name'    => 'tileThemeMode',
+                            'type'    => 'Select',
+                            'caption' => 'Theme mode',
+                            'options' => [
+                                [
+                                    'label' => 'Auto (Symcon)',
+                                    'value' => 0,
+                                ],
+                                [
+                                    'label' => 'Custom',
+                                    'value' => 1,
+                                ],
+                            ],
+                        ],
+                        [
+                            'type'    => 'Label',
+                            'caption' => 'Custom mode uses an own Doorbird layout and ignores the visual defaults from Symcon as far as possible.',
+                            'visible' => $tileThemeMode === 1,
+                        ],
+                        [
+                            'name'    => 'tileCustomAccentColor',
+                            'type'    => 'SelectColor',
+                            'caption' => 'Accent color',
+                            'visible' => $tileThemeMode === 1,
+                        ],
+                        [
+                            'name'    => 'tileCustomTextColor',
+                            'type'    => 'SelectColor',
+                            'caption' => 'Text color',
+                            'visible' => $tileThemeMode === 1,
+                        ],
+                        [
+                            'name'    => 'tileCustomCardColor',
+                            'type'    => 'SelectColor',
+                            'caption' => 'Card color',
+                            'visible' => $tileThemeMode === 1,
+                        ],
+                        [
+                            'name'    => 'tileCustomCardSecondaryColor',
+                            'type'    => 'SelectColor',
+                            'caption' => 'Secondary card color',
+                            'visible' => $tileThemeMode === 1,
+                        ],
+                        [
+                            'name'    => 'tileCustomBackgroundStart',
+                            'type'    => 'SelectColor',
+                            'caption' => 'Background gradient start',
+                            'visible' => $tileThemeMode === 1,
+                        ],
+                        [
+                            'name'    => 'tileCustomBackgroundEnd',
+                            'type'    => 'SelectColor',
+                            'caption' => 'Background gradient end',
+                            'visible' => $tileThemeMode === 1,
+                        ],
+                        [
+                            'name'    => 'tileCustomBorderColor',
+                            'type'    => 'SelectColor',
+                            'caption' => 'Border color',
+                            'visible' => $tileThemeMode === 1,
+                        ],
+                        [
+                            'name'    => 'tileCustomFontSize',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'Font size',
+                            'visible' => $tileThemeMode === 1,
+                        ],
+                        [
+                            'name'    => 'tileCustomMarginTop',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'Top margin',
+                            'visible' => $tileThemeMode === 1,
+                        ],
+                        [
+                            'name'    => 'tileCustomMarginSide',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'Side margin',
+                            'visible' => $tileThemeMode === 1,
+                        ],
+                        [
+                            'name'    => 'tileCustomMarginBottom',
+                            'type'    => 'NumberSpinner',
+                            'caption' => 'Bottom margin',
+                            'visible' => $tileThemeMode === 1,
+                        ],
+                    ]
+                ],
                 [
                     'type'    => 'ExpansionPanel',
                     'caption' => '🧩 Custom HTTP Events',
